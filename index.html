@@ -1005,6 +1005,8 @@ function setTest(on){
   let typed = "";
   document.addEventListener("keydown", e => { if (e.key.length !== 1 || /INPUT|TEXTAREA/.test(e.target.tagName)) return; typed = (typed + e.key.toLowerCase()).slice(-12);
     if (typed.endsWith("testrock")){ typed = ""; setTest(!TEST.on); }
+    else if (TEST.on && typed.endsWith("powerup")){ typed = ""; if (game.state === "running") game.nextBox = 0; toast(game.state === "running" ? "Power-up box coming!" : "Start a run, then type powerup"); }
+    else if (TEST.on && typed.endsWith("laserbeam")){ typed = ""; if (game.state === "running") game.nextBeam = 0; toast(game.state === "running" ? "Laser beams charging!" : "Start a run, then type laserbeam"); }
     else if (TEST.on && typed.endsWith("wallofsound")){ typed = ""; TEST.kraken = true; if (game.state === "running") game.monsterAt = game.dist + 20; toast("You hear a deep rumble… start a run"); } });
 }
 function selectChar(id){
@@ -1142,6 +1144,12 @@ const Sound = (() => {
     // a short power-chord riff when you clear a round
     round(){ if (!ok()) return; [[82,123],[98,147],[110,165]].forEach(([a,b], i) => chord([a, b, a*2], .2, i*.14, .16)); },
     land(){ if (!ok()) return; noise(.06, {vol:.12, lp:600}); },
+    // power-up: a bright rising guitar arpeggio
+    powerup(){ if (!ok()) return; [330, 415, 494, 659, 831].forEach((f, i) => tone(f, .22, {type:"triangle", vol:.14, at:i*.06, attack:.003})); chord([110, 165], .3, .3, .1); },
+    shieldPop(){ if (!ok()) return; tone(880, .25, {type:"sine", vol:.25, slide:220}); noise(.2, {vol:.15, hp:3000}); },
+    // big beams: a rising charge-up hum, then a heavy buzz when they fire
+    beamWarn(){ if (!ok()) return; tone(110, 1.6, {type:"sawtooth", vol:.07, slide:440, cutoff:1200, attack:.2}); },
+    beamFire(){ if (!ok()) return; tone(55, 1.0, {type:"sawtooth", vol:.14, cutoff:900}); tone(58, 1.0, {type:"square", vol:.06, cutoff:900}); noise(.3, {vol:.15, lp:2000}); },
     speaker(){ if (!ok()) return; const t0 = ac.currentTime, s2 = ac.createBufferSource(); s2.buffer = noiseBuf; const f = ac.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 2;
       f.frequency.setValueAtTime(2000, t0); f.frequency.exponentialRampToValueAtTime(400, t0 + .5); const g = ac.createGain(); g.gain.setValueAtTime(.001, t0); g.gain.linearRampToValueAtTime(.2, t0 + .1); g.gain.exponentialRampToValueAtTime(.001, t0 + .55);
       s2.connect(f); f.connect(g); g.connect(sfxBus); s2.start(t0); s2.stop(t0 + .6); },
@@ -1324,20 +1332,21 @@ $("cfRun").addEventListener("click", () => { if (lastPull) selectChar(lastPull.i
 const cv = $("game"), ctx = setupCanvas(cv);
 // Wide screens see a 640 x 240 view. Phones in full screen see 370 across and as tall as the screen.
 let GW = 640, SCALE = 1, GH = 240, PX = 120, CEIL = 30, FLOOR = 214;
-const PS = 2;                                         // the rocker's pixel size
+let PS = 1.6;                                        // the rocker's pixel size (set by sizeGame)
 const isPhone = () => matchMedia("(pointer:coarse)").matches && Math.min(innerWidth, innerHeight) < 700;
 const isFS = () => document.body.classList.contains("fs");
 function sizeGame(){
   const w = cv.clientWidth || cv.parentElement.clientWidth || 640, dpr = Math.min(window.devicePixelRatio || 1, 2);
   if (isFS()){
     const h = cv.parentElement.clientHeight || innerHeight;
-    GW = 370; PX = 70; GH = Math.max(240, Math.round(GW * h / w)); CEIL = 34; FLOOR = GH - 64;
+    GW = 370; PX = 70; GH = Math.max(240, Math.round(GW * h / w)); CEIL = 34; FLOOR = GH - 64; PS = 1.7;
     cv.style.aspectRatio = "auto";
     const pw = Math.round(w * dpr), ph = Math.round(h * dpr);
     if (cv.width !== pw || cv.height !== ph){ cv.width = pw; cv.height = ph; ctx.imageSmoothingEnabled = false; }
     SCALE = cv.width / GW; return;
   }
-  GH = 240; GW = w < 700 ? 400 : 640; PX = w < 700 ? 80 : 120; CEIL = 30; FLOOR = 214;
+  // a tall stage (about 16:9) so there's lots of room to fly up and down
+  GW = w < 700 ? 400 : 640; GH = w < 700 ? 300 : 350; PX = w < 700 ? 80 : 120; CEIL = 30; FLOOR = GH - 28; PS = w < 700 ? 1.4 : 1.6;
   const room = window.innerHeight - (matchMedia("(pointer:coarse)").matches ? 120 : 160);
   if (room > 120 && w * GH / GW > room) GW = Math.min(1000, Math.ceil(w * GH / room));
   cv.style.aspectRatio = GW + " / " + GH;
@@ -1370,7 +1379,7 @@ const game = {state:"ready", t:0, speed:0, dist:0, round:1, roundDist:0, runCoin
 const stars = Array.from({length:70},()=>({x:Math.random()*1000, y:Math.random()*400, s:Math.random()<.2?2:1, p:Math.random()*6}));
 const curRocker = () => TEST.on ? CHARS[TEST.rock] : CHARS[state.selR];
 function resetRun(){
-  Object.assign(game, {t:0, speed:370, dist:0, round:1, roundDist:0, runCoins:0, py:FLOOR, vy:0, onFloor:true, obs:[], coins:[], parts:[], trail:[], nextObs:420, nextSpeaker:7,
+  Object.assign(game, {t:0, speed:370, dist:0, round:1, roundDist:0, runCoins:0, py:FLOOR, vy:0, onFloor:true, obs:[], coins:[], parts:[], trail:[], nextObs:420, nextSpeaker:7, beams:[], nextBeam:14, boxes:[], nextBox:9, pu:{magnet:0, shield:0, dash:0, double:0}, invuln:0,
     banner:{text:"Round 1", sub: worldName() || (TEST.on ? "Test show" : "Let's rock!"), t:1.8}, flash:0, paused:false, monsterEnd:false, mt:0});
 }
 function startRun(){
@@ -1408,7 +1417,7 @@ function spawnObstacle(){
   const n = r >= 2 && Math.random() < Math.min(.55, .15 + r*.08) ? 2 : 1;
   for (let i = 0; i < n; i++){
     const angs = [0, Math.PI/2, Math.PI/4, -Math.PI/4], ang = angs[Math.floor(Math.random()*angs.length)];
-    const len = Math.min((bot - top)*.55, 40 + Math.random()*40 + r*8);
+    const len = Math.min((bot - top)*.55, (40 + Math.random()*40 + r*8) * Math.max(1, (bot - top)/170));
     const half = Math.abs(Math.sin(ang))*len/2 + 8;
     const y = top + half + Math.random()*Math.max(1, (bot - top) - half*2);
     const spin = r >= 3 && Math.random() < Math.min(.5, (r - 2)*.15) ? (Math.random() < .5 ? -1 : 1)*(.6 + Math.random()*.5) : 0;
@@ -1456,8 +1465,10 @@ function update(dt){
   if (game.state !== "running" || game.paused){ game.parts.forEach(p=>{p.life-=dt}); game.parts = game.parts.filter(p=>p.life>0);
     if (game.state === "ready"){ game.py = FLOOR; if (Math.random() < dt*6) emitTrail(g, false); } return; }
   // speed and distance
-  game.speed = 370 + (game.round-1)*35 + Math.min(90, game.roundDist*0.15);
+  game.speed = (370 + (game.round-1)*35 + Math.min(90, game.roundDist*0.15)) * (game.pu.dash > 0 ? 2.3 : 1);
   const dx = game.speed*dt;
+  for (const k2 in game.pu) if (game.pu[k2] > 0){ game.pu[k2] -= dt; if (game.pu[k2] <= 0){ game.pu[k2] = 0; if (k2 === "dash"){ game.invuln = 1.2; game.vy = 0; } } }
+  if (game.invuln > 0) game.invuln -= dt;
   game.dist += dx/10; game.roundDist += dx/10;
   if (game.roundDist >= ROUND_LEN(game.round)){
     const bonus = 2*game.round; Sound.round();
@@ -1468,34 +1479,118 @@ function update(dt){
   }
   // flying: hold to rise, let go to fall
   const k = Math.max(1, (FLOOR - CEIL) / 184);
+  if (game.pu.dash > 0){ const mid = (CEIL + FLOOR)/2 + 14*PS; game.py += (mid - game.py)*Math.min(1, dt*4); game.vy = 0; }
+  else {
   game.vy += (game.holding ? (game.vy > 0 ? -5200 : -2900) : (game.vy < 0 ? 3600 : 2300)) * k * dt;
   game.vy = Math.max(-470*k, Math.min(640*k, game.vy));
-  game.py += game.vy*dt;
+  game.py += game.vy*dt; }
   const minY = CEIL + 28*PS;
   if (game.py < minY){ game.py = minY; game.vy = Math.max(0, game.vy); }
   if (game.py >= FLOOR){ if (!game.onFloor && game.vy > 200) Sound.land(); game.py = FLOOR; game.vy = 0; game.onFloor = true; } else game.onFloor = false;
-  if (game.holding) emitTrail(g, true);
-  // spawn
-  game.nextObs -= dx; if (game.nextObs <= 0) spawnObstacle();
-  if (game.round >= 2){ game.nextSpeaker -= dt; if (game.nextSpeaker <= 0){ spawnSpeaker(); game.nextSpeaker = Math.max(3, 9 - game.round) + Math.random()*4; } }
+  if (game.holding || game.pu.dash > 0) emitTrail(g, true);
+  // spawn: while the big laser beams are on, the other obstacles hold off
+  const beamsOn = game.beams.length > 0, safe = game.pu.dash > 0 || game.invuln > 0;
+  if (!beamsOn){
+    game.nextObs -= dx; if (game.nextObs <= 0) spawnObstacle();
+    if (game.round >= 2){ game.nextSpeaker -= dt; if (game.nextSpeaker <= 0){ spawnSpeaker(); game.nextSpeaker = Math.max(3, 9 - game.round) + Math.random()*4; } }
+    if (game.pu.dash <= 0){ game.nextBeam -= dt; if (game.nextBeam <= 0) spawnBeams(); }
+  }
+  game.nextBox -= dt; if (game.nextBox <= 0){ spawnBox(); game.nextBox = 14 + Math.random()*10; }
   const box = pbox();
+  // full-width laser beams: warning line, then the beam fires, then shuts off
+  for (const b of game.beams){
+    b.t += dt;
+    if (b.phase === "warn" && b.t >= 1.6){ b.phase = "fire"; b.t = 0; Sound.beamFire(); }
+    else if (b.phase === "fire" && b.t >= 1.1){ b.phase = "off"; b.t = 0; }
+    if (b.phase === "fire" && !safe && box.y < b.y + 5 && box.y + box.h > b.y - 5){ if (useShield()) {} else return crash(b.col); }
+  }
+  game.beams = game.beams.filter(b => !(b.phase === "off" && b.t >= .35));
+  if (beamsOn && !game.beams.length) game.nextBeam = Math.max(8, 16 - game.round) + Math.random()*6;
+  // power-up boxes
+  game.boxes.forEach(b => { b.x -= dx; b.ph += dt; });
+  game.boxes = game.boxes.filter(b => { if (b.x < -20) return false; const by = b.y + Math.sin(b.ph*3)*6;
+    if (hit(box, {x:b.x - 13, y:by - 13, w:26, h:26})){ grabPowerUp(); burst(b.x, by, "#ff8ad8", 10); return false; } return true; });
   for (const o of game.obs){
-    if (o.type === "laser"){ o.x -= dx; o.ang += o.spin*dt; if (laserHits(o, box)) return crash(o.col); }
+    if (o.type === "laser"){ o.x -= dx; o.ang += o.spin*dt; if (!safe && !o.dead && laserHits(o, box)){ if (useShield()) o.dead = true; else return crash(o.col); } }
     else {
       if (o.state === "warn"){ o.wt -= dt; if (o.wt > .45) o.y += ((game.py - 12*PS) - o.y) * Math.min(1, dt*5); if (o.wt <= 0){ o.state = "fly"; Sound.speaker(); } }
-      else { o.x -= dx + 260*dt; if (hit(box, {x:o.x - o.w/2 + 3, y:o.y - o.h/2 + 3, w:o.w - 6, h:o.h - 6})) return crash("#ffd34d"); }
+      else { o.x -= dx + 260*dt; if (!safe && !o.dead && hit(box, {x:o.x - o.w/2 + 3, y:o.y - o.h/2 + 3, w:o.w - 6, h:o.h - 6})){ if (useShield()) o.dead = true; else return crash("#ffd34d"); } }
     }
   }
   game.obs = game.obs.filter(o => o.type === "laser" ? o.x > -o.len : (o.state === "warn" || o.x > -40));
-  game.coins.forEach(c => { c.x -= dx; c.spin += dt*6; });
+  game.coins.forEach(c => { c.x -= dx; c.spin += dt*6;
+    if (game.pu.magnet > 0 || game.pu.dash > 0){ const tx = PX, ty = game.py - 13*PS, ddx = tx - c.x, ddy = ty - c.y, d = Math.hypot(ddx, ddy); if (d < 170){ const sp = Math.min(d, (520 + dx/dt)*dt); c.x += ddx/d*sp; c.y += ddy/d*sp; } } });
   game.coins = game.coins.filter(c => {
     if (c.x < -20) return false;
     if (hit(box, {x:c.x - c.r, y:c.y - c.r, w:c.r*2, h:c.r*2})){
-      if (!TEST.on){ state.coins += 1; state.lifetimeCoins += 1; } game.runCoins += 1; Sound.coin();
+      const v = game.pu.double > 0 ? 2 : 1;
+      if (!TEST.on){ state.coins += v; state.lifetimeCoins += v; } game.runCoins += v; Sound.coin();
       burst(c.x, c.y, "#ffe08a", 4); renderHUD(); return false; }
     return true; });
   game.parts.forEach(p=>{ p.x += p.vx*dt; p.y += p.vy*dt; p.vy += 300*dt; p.life -= dt; });
   game.parts = game.parts.filter(p=>p.life>0);
+}
+/* ---------- the big laser beams ---------- */
+function spawnBeams(){
+  const r = game.round, n = r < 3 ? 1 : (r < 5 ? 1 + (Math.random() < .5 ? 1 : 0) : 2 + (Math.random() < .35 ? 1 : 0));
+  const top = CEIL + 30, bot = FLOOR - 14, lanes = 6, picks = [];
+  while (picks.length < n){ const l = Math.floor(Math.random()*lanes); if (!picks.includes(l)) picks.push(l); }
+  picks.forEach((l, i) => game.beams.push({y: top + (l + .5)*(bot - top)/lanes, t: -i*.25, phase:"warn", col: ["#ff3a6a","#2de2e6","#ffd34d"][i % 3]}));
+  Sound.beamWarn();
+}
+/* ---------- power-ups ---------- */
+const POWERUPS = {
+  magnet: {name:"Encore Magnet",      sub:"Pulls in every coin nearby", col:"#ff4fa3", time:9},
+  shield: {name:"Bodyguard",          sub:"Takes one hit for you",      col:"#2de2e6", time:15},
+  dash:   {name:"Power Chord Rush",   sub:"Blast ahead, can't be hurt",  col:"#ffd34d", time:3.5},
+  double: {name:"Gold Record",        sub:"Every coin is worth 2",      col:"#ffb23f", time:10},
+};
+function spawnBox(){ game.boxes.push({x: GW + 20, y: CEIL + 50 + Math.random()*(FLOOR - CEIL - 90), ph: 0}); }
+function grabPowerUp(){
+  const keys = Object.keys(POWERUPS), k = keys[Math.floor(Math.random()*keys.length)], p = POWERUPS[k];
+  game.pu[k] = p.time; if (k === "dash") thrustOff();
+  game.banner = {text: p.name + "!", sub: p.sub, t: 1.8}; Sound.powerup();
+}
+function useShield(){
+  if (game.pu.shield <= 0) return false;
+  game.pu.shield = 0; game.invuln = 1.2; game.flash = .15; Sound.shieldPop(); burst(PX, game.py - 14*PS, "#2de2e6", 16); return true;
+}
+function drawBeams(){
+  game.beams.forEach(b => {
+    const y = Math.round(b.y), inK = Math.min(1, (b.phase === "warn" ? b.t + 2 : 2)/0.35), em = b.phase === "off" ? Math.max(0, 1 - b.t/.35) : Math.min(1, Math.max(0, b.t + .4)/.4);
+    const ex = 18*em;
+    if (b.phase === "warn" && b.t > 0){
+      const k = Math.min(1, b.t/1.6);
+      ctx.fillStyle = b.col; ctx.globalAlpha = .25 + .35*k; ctx.fillRect(ex, y - 1, GW - ex*2, 2); ctx.globalAlpha = 1;
+      // charging ball at each end grows as it warms up
+      [ex, GW - ex].forEach(x => { ctx.fillStyle = b.col; ctx.globalAlpha = .6; ctx.beginPath(); ctx.arc(x, y, 3 + k*5, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; });
+    }
+    if (b.phase === "fire"){
+      ctx.fillStyle = b.col; ctx.globalAlpha = .3; ctx.fillRect(0, y - 9, GW, 18); ctx.globalAlpha = 1;
+      ctx.fillStyle = "#0a0410"; ctx.fillRect(0, y - 6, GW, 12); ctx.fillStyle = b.col; ctx.fillRect(0, y - 5, GW, 10); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, y - 2, GW, 4);
+    }
+    // emitters slide in from both edges
+    [[ex - 18, 1], [GW - ex, -1]].forEach(([x, d]) => { x = Math.round(x); ctx.fillStyle = "#000"; ctx.fillRect(x - 1, y - 10, 20, 20); ctx.fillStyle = "#3a3a46"; ctx.fillRect(x, y - 9, 18, 18); ctx.fillStyle = "#e8e8f0"; ctx.fillRect(x, y - 9, 18, 2);
+      ctx.fillStyle = b.col; ctx.fillRect(d > 0 ? x + 12 : x, y - 4, 6, 8); });
+  });
+}
+function drawBoxes(){
+  game.boxes.forEach(b => { const x = Math.round(b.x), y = Math.round(b.y + Math.sin(b.ph*3)*6); ctx.save(); ctx.translate(x, y); ctx.scale(1.35, 1.35); ctx.translate(-x, -y);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 20); g.addColorStop(0, "rgba(255,140,220,.55)"); g.addColorStop(1, "rgba(255,140,220,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#000"; ctx.fillRect(x - 10, y - 10, 20, 20); ctx.fillStyle = "#7a2ac8"; ctx.fillRect(x - 9, y - 9, 18, 18); ctx.fillStyle = "#b77bff"; ctx.fillRect(x - 9, y - 9, 18, 3); ctx.fillStyle = "#ffd34d"; ctx.fillRect(x - 9, y + 6, 18, 3);
+    ctx.font = textFont(10, "num"); ctx.textAlign = "center"; ctx.fillStyle = "#ffffff"; ctx.fillText("?", x + 1, y + 5); ctx.restore(); });
+}
+function drawPowerHUD(){
+  let y = CEIL + 34;
+  for (const k in POWERUPS){ if (game.pu[k] <= 0) continue; const p = POWERUPS[k];
+    text(p.name.toUpperCase(), 12, y, 7, p.col, "left", "num");
+    ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.fillRect(12, y + 3, 90, 5); ctx.fillStyle = p.col; ctx.fillRect(12, y + 3, 90*game.pu[k]/p.time, 5); y += 18; }
+}
+function drawPlayerFx(){
+  const cx = PX, cy = game.py - 13*PS;
+  if (game.pu.shield > 0){ ctx.strokeStyle = "rgba(45,226,230,.8)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, cy, 13*PS, 17*PS, 0, 0, Math.PI*2); ctx.stroke(); ctx.fillStyle = "rgba(45,226,230,.12)"; ctx.fill(); }
+  if (game.pu.magnet > 0){ ctx.strokeStyle = "rgba(255,79,163,.35)"; ctx.lineWidth = 1; const r = 20 + ((game.t*40) % 30); ctx.beginPath(); ctx.arc(cx, cy, r*PS*.8, 0, Math.PI*2); ctx.stroke(); }
+  if (game.pu.dash > 0){ ctx.fillStyle = "rgba(255,211,77,.5)"; for (let i = 0; i < 6; i++){ const yy = cy - 18 + i*7, len = 30 + ((i*37 + Math.floor(game.t*60)) % 40); ctx.fillRect(cx - 20 - len, yy, len, 2); } }
 }
 function crash(col){
   burst(PX, game.py - 20, col, 18); burst(PX, game.py - 20, "#ffffff", 8); game.flash = .25; Sound.crash(); endRun();
@@ -1706,13 +1801,18 @@ function draw(){
   if (game.state === "monster"){ const q = Math.min(4, game.mt*1.6) * (game.mt > 3.1 ? 2 : 1); ctx.translate((Math.random() - .5)*q, (Math.random() - .5)*q); }
   drawBG();
   game.coins.forEach(drawCoin);
-  game.obs.forEach(o => o.type === "laser" ? drawLaser(o) : drawSpeaker(o));
+  game.obs.forEach(o => { if (!o.dead) (o.type === "laser" ? drawLaser(o) : drawSpeaker(o)); });
+  drawBoxes();
+  drawBeams();
   drawTrail();
   const rk = curRocker(), gt = curCar();
   if (game.state === "monster" && game.mt > 2.4){ const k = game.mt - 2.4; drawPlayer(ctx, rk, gt, {x:PX - k*260, y:game.py - k*60, s:PS, t:game.t, pose:"fly", rot:-k*8}); }
   else if (!(game.state === "over" && game.monsterEnd)){
     ctx.fillStyle = "rgba(0,0,0,.3)"; const sh = Math.max(4, 16 - (FLOOR - game.py)*.08); ctx.fillRect(PX - sh, FLOOR, sh*2, 2);
+    if (game.state === "running") drawPlayerFx();
+    ctx.globalAlpha = game.invuln > 0 && game.pu.dash <= 0 ? .55 : 1;
     drawPlayer(ctx, rk, gt, {x:PX, y:game.py, s:PS, t:game.t, pose: game.onFloor ? (game.state === "running" ? "run" : "idle") : "fly"});
+    ctx.globalAlpha = 1;
   }
   game.parts.forEach(p=>{ ctx.globalAlpha = Math.max(0,Math.min(1,p.life*2)); ctx.fillStyle=p.col; ctx.fillRect(p.x,p.y,3,3); }); ctx.globalAlpha = 1;
   if (game.flash > 0){ ctx.fillStyle = `rgba(255,255,255,${game.flash})`; ctx.fillRect(0,0,GW,GH); }
@@ -1728,6 +1828,7 @@ function draw(){
     const coinTxt = fmt(state.coins); ctx.font = textFont(11, "num"); const cw = ctx.measureText(coinTxt).width;
     drawCoin({x:GW-12-cw-12, y:ty + 13, r:6, spin:0}); text(coinTxt, GW-12, ty + 18, 11, "#ffe08a", "right", "num");
     if (game.state !== "ready") text("+" + game.runCoins + " THIS RUN", GW-12, ty + 32, 6, "#e0d8f5", "right", "num");
+    if (game.state === "running") drawPowerHUD();
   }
   const oy = Math.round((GH - 240) * 0.45);
   if (game.banner && game.state === "running"){ const a = Math.min(1, game.banner.t*2); ctx.globalAlpha = a; text(game.banner.text, GW/2, 96+oy, 30, "#ffd27a", "center"); text(game.banner.sub, GW/2, 118+oy, 13, "#f3e8ff", "center"); ctx.globalAlpha = 1; }
@@ -1735,7 +1836,7 @@ function draw(){
     ctx.fillStyle = "rgba(10,6,24,.42)"; ctx.fillRect(0,0,GW,GH);
     text("GUITARCADE", GW/2, 90+oy, 32, "#ff4fa3", "center");
     text(isPhone() ? "Hold your finger down to fly" : "Hold Space or the mouse button to fly", GW/2, 118+oy, 14, "#f3e8ff", "center");
-    text("Dodge the lasers and speakers · grab coins", GW/2, 140+oy, 12, "#c8bce8", "center");
+    text("Dodge lasers and speakers · grab ? boxes for power-ups", GW/2, 140+oy, 12, "#c8bce8", "center");
   }
   if (game.state === "monster") drawWall(game.mt);
   if (game.state === "over"){
