@@ -1366,7 +1366,7 @@ const game = {state:"ready", t:0, speed:0, dist:0, round:1, roundDist:0, runCoin
 const stars = Array.from({length:70},()=>({x:Math.random()*1000, y:Math.random()*400, s:Math.random()<.2?2:1, p:Math.random()*6}));
 const curRocker = () => TEST.on ? CHARS[TEST.rock] : CHARS[state.selR];
 function resetRun(){
-  Object.assign(game, {t:0, speed:300, dist:0, round:1, roundDist:0, runCoins:0, py:FLOOR, vy:0, onFloor:true, obs:[], coins:[], parts:[], trail:[], nextObs:420, nextSpeaker:7,
+  Object.assign(game, {t:0, speed:370, dist:0, round:1, roundDist:0, runCoins:0, py:FLOOR, vy:0, onFloor:true, obs:[], coins:[], parts:[], trail:[], nextObs:420, nextSpeaker:7,
     banner:{text:"Round 1", sub: worldName() || (TEST.on ? "Test show" : "Let's rock!"), t:1.8}, flash:0, paused:false, monsterEnd:false, mt:0});
 }
 function startRun(){
@@ -1429,7 +1429,7 @@ function laserHits(o, box){
   const c = Math.cos(o.ang), s = Math.sin(o.ang);
   for (let k = 0; k <= 14; k++){ const f = k/14 - .5, px = o.x + c*o.len*f, py = o.y + s*o.len*f;
     const dx = Math.max(box.x - px, 0, px - (box.x + box.w)), dy = Math.max(box.y - py, 0, py - (box.y + box.h));
-    if (dx*dx + dy*dy < 9) return true; }
+    if (dx*dx + dy*dy < 12) return true; }
   return false;
 }
 function burst(x,y,col,n){ for(let i=0;i<n;i++) game.parts.push({x,y,vx:(Math.random()-.5)*160,vy:-Math.random()*160,life:.5+Math.random()*.3,col}); }
@@ -1452,7 +1452,7 @@ function update(dt){
   if (game.state !== "running" || game.paused){ game.parts.forEach(p=>{p.life-=dt}); game.parts = game.parts.filter(p=>p.life>0);
     if (game.state === "ready"){ game.py = FLOOR; if (Math.random() < dt*6) emitTrail(g, false); } return; }
   // speed and distance
-  game.speed = 300 + (game.round-1)*35 + Math.min(90, game.roundDist*0.15);
+  game.speed = 370 + (game.round-1)*35 + Math.min(90, game.roundDist*0.15);
   const dx = game.speed*dt;
   game.dist += dx/10; game.roundDist += dx/10;
   if (game.roundDist >= ROUND_LEN(game.round)){
@@ -1464,8 +1464,8 @@ function update(dt){
   }
   // flying: hold to rise, let go to fall
   const k = Math.max(1, (FLOOR - CEIL) / 184);
-  game.vy += (game.holding ? -1650 : 1250) * k * dt;
-  game.vy = Math.max(-360*k, Math.min(520*k, game.vy));
+  game.vy += (game.holding ? -2900 : 2300) * k * dt;
+  game.vy = Math.max(-470*k, Math.min(640*k, game.vy));
   game.py += game.vy*dt;
   const minY = CEIL + 28*PS;
   if (game.py < minY){ game.py = minY; game.vy = Math.max(0, game.vy); }
@@ -1647,11 +1647,13 @@ function drawBG(){ const w = worldName(); (WORLD_DRAW[w] || WORLD_DRAW.arena)();
 function drawLaser(o){
   const c = Math.cos(o.ang), s = Math.sin(o.ang), x1 = o.x - c*o.len/2, y1 = o.y - s*o.len/2, x2 = o.x + c*o.len/2, y2 = o.y + s*o.len/2;
   ctx.save(); ctx.lineCap = "round";
-  ctx.strokeStyle = o.col; ctx.globalAlpha = .25; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-  ctx.globalAlpha = 1; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-  ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  const seg = () => { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+  ctx.strokeStyle = o.col; ctx.globalAlpha = .35; ctx.lineWidth = 12; seg();
+  ctx.globalAlpha = 1; ctx.strokeStyle = "#0a0410"; ctx.lineWidth = 7; seg();
+  ctx.strokeStyle = o.col; ctx.lineWidth = 5; seg();
+  ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; seg();
   ctx.restore();
-  [[x1, y1], [x2, y2]].forEach(([x, y]) => { ctx.fillStyle = "#1c1c24"; ctx.fillRect(Math.round(x) - 6, Math.round(y) - 6, 12, 12); ctx.fillStyle = "#4a4a58"; ctx.fillRect(Math.round(x) - 5, Math.round(y) - 5, 10, 10); ctx.fillStyle = o.col; ctx.fillRect(Math.round(x) - 3, Math.round(y) - 3, 6, 6); ctx.fillStyle = "#ffffff"; ctx.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2); });
+  [[x1, y1], [x2, y2]].forEach(([x, y]) => { x = Math.round(x); y = Math.round(y); ctx.fillStyle = "#000000"; ctx.fillRect(x - 8, y - 8, 16, 16); ctx.fillStyle = "#e8e8f0"; ctx.fillRect(x - 7, y - 7, 14, 14); ctx.fillStyle = "#2a2a34"; ctx.fillRect(x - 6, y - 6, 12, 12); ctx.fillStyle = o.col; ctx.fillRect(x - 4, y - 4, 8, 8); ctx.fillStyle = "#ffffff"; ctx.fillRect(x - 2, y - 2, 4, 4); });
 }
 function drawSpeaker(o){
   if (o.state === "warn"){
