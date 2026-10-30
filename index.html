@@ -802,15 +802,17 @@ function drawChar(ctx, c, o){
   const t = o.t || 0, sil = !!o.sil, glow = o.glow !== false;
   ctx.save(); ctx.translate(o.x, o.y);
   const aura = (w, h, cy) => { if (sil || !c.ex.includes("n")) return; const col = c.kind === "g" ? c.accent : c.top; ctx.save(); ctx.globalAlpha = .13 + .04*Math.sin(t*3); ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14; ctx.beginPath(); ctx.ellipse(0, cy, w, h, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); };
-  const tierGlow = () => { if (!sil && glow && (c.ex.includes("g") || c.tier >= 3)){ const gc = c.ex.includes("g") ? (c.kind === "g" ? c.accent : c.top) : TIERS[c.tier].color; ctx.shadowColor = gc + (c.tier === 3 ? "66" : "99"); ctx.shadowBlur = c.tier >= 4 ? 8 : 5; } };
+  const tierGlow = (cx, cy, rx, ry) => { if (!sil && glow && (c.ex.includes("g") || c.tier >= 3)){ const gc = c.ex.includes("g") ? (c.kind === "g" ? c.accent : c.top) : TIERS[c.tier].color;
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 1); g.addColorStop(0, gc); g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.save(); ctx.globalAlpha = c.tier >= 4 ? .5 : .35; ctx.translate(cx, cy); ctx.scale(rx, ry); ctx.translate(-cx, -cy); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 1, 0, Math.PI*2); ctx.fill(); ctx.restore(); } };
   if (c.kind === "g"){
     const s = o.s * .85, rows = GUITAR_SHAPES[c.shape], W = rows[0].length, H = rows.length;
     ctx.scale(s, s); ctx.translate(-W/2, -H + Math.floor(H/2));
-    aura(W/2 + 2, H/2 + 2, 0); tierGlow();
+    aura(W/2 + 2, H/2 + 2, 0); tierGlow(W/2, 0, W/2 + 3, H/2 + 4);
     paintGuitar(ctx, c, t, sil);
   } else {
     const s = o.s * .85 * .72; ctx.scale(s, s);
-    aura(9, 16, -15); tierGlow();
+    aura(9, 16, -15); tierGlow(0, -15, 11, 18);
     paintRocker(ctx, c, t, o.pose || "idle", sil);
   }
   ctx.shadowBlur = 0;
@@ -823,12 +825,14 @@ function drawPlayer(ctx, rk, gt, o){
   const t = o.t || 0, s = o.s;
   ctx.save(); ctx.translate(o.x, o.y); ctx.scale(s, s);
   if (o.rot) { ctx.translate(0, -14); ctx.rotate(o.rot); ctx.translate(0, 14); }
-  if (gt.ex.includes("n")){ ctx.save(); ctx.globalAlpha = .14; ctx.fillStyle = gt.accent; ctx.shadowColor = gt.accent; ctx.shadowBlur = 12; ctx.beginPath(); ctx.ellipse(-2, -14, 11, 16, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); }
-  if (rk.ex.includes("n")){ ctx.save(); ctx.globalAlpha = .12; ctx.fillStyle = rk.top; ctx.shadowColor = rk.top; ctx.shadowBlur = 12; ctx.beginPath(); ctx.ellipse(0, -15, 10, 17, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); }
+  const softGlow = (col, a, cx, cy, rx, ry) => { const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 1); g.addColorStop(0, col); g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(cx, cy); ctx.scale(rx, ry); ctx.translate(-cx, -cy); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 1, 0, Math.PI*2); ctx.fill(); ctx.restore(); };
+  if (gt.tier >= 3 || gt.ex.includes("g")) softGlow(gt.ex.includes("g") ? gt.accent : TIERS[gt.tier].color, .45, -7, -14, 9, 9);
+  if (rk.tier >= 3 || rk.ex.includes("g")) softGlow(rk.ex.includes("g") ? rk.top : TIERS[rk.tier].color, .35, 0, -14, 10, 17);
+  if (gt.ex.includes("n")){ ctx.save(); ctx.globalAlpha = .14; ctx.fillStyle = gt.accent; ctx.beginPath(); ctx.ellipse(-2, -14, 11, 16, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); }
+  if (rk.ex.includes("n")){ ctx.save(); ctx.globalAlpha = .12; ctx.fillStyle = rk.top; ctx.beginPath(); ctx.ellipse(0, -15, 10, 17, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); }
   ctx.save(); ctx.translate(GUITAR_AT.x, GUITAR_AT.y); ctx.rotate(GUITAR_TILT); ctx.scale(GUITAR_SC, GUITAR_SC); ctx.translate(-4, 0);
-  if (gt.tier >= 3 || gt.ex.includes("g")){ ctx.shadowColor = (gt.ex.includes("g") ? gt.accent : TIERS[gt.tier].color) + "99"; ctx.shadowBlur = 5; }
   paintGuitar(ctx, gt, t, false); ctx.restore();
-  if (rk.tier >= 3 || rk.ex.includes("g")){ ctx.shadowColor = (rk.ex.includes("g") ? rk.top : TIERS[rk.tier].color) + "88"; ctx.shadowBlur = 4; }
   paintRocker(ctx, rk, t, o.pose || "idle", false);
   ctx.restore();
 }
@@ -1464,7 +1468,7 @@ function update(dt){
   }
   // flying: hold to rise, let go to fall
   const k = Math.max(1, (FLOOR - CEIL) / 184);
-  game.vy += (game.holding ? -2900 : 2300) * k * dt;
+  game.vy += (game.holding ? (game.vy > 0 ? -5200 : -2900) : (game.vy < 0 ? 3600 : 2300)) * k * dt;
   game.vy = Math.max(-470*k, Math.min(640*k, game.vy));
   game.py += game.vy*dt;
   const minY = CEIL + 28*PS;
@@ -1750,14 +1754,15 @@ let last = performance.now();
 function frame(now){
   const dt = Math.max(0, Math.min(.033, (now-last)/1000)); last = now;
   update(dt); draw();
-  drawChest(false, now/1000);
+  const playing = game.state === "running" || game.state === "monster";
+  if (!playing && Math.floor(now/80) !== frame.c){ frame.c = Math.floor(now/80); drawChest(false, now/1000); }
   if (cfOpen){
     cfDraw(dt);
     drawChest(cfRevealed, now/1000, cfChestCtx);
     cfCharCtx.clearRect(0,0,400,400);
     if (cfRevealed && lastPull) drawChar(cfCharCtx, lastPull, lastPull.kind === "g" ? {x:200, y:250, s:12, t:now/1000} : {x:200, y:380, s:13.5, t:now/1000});
   }
-  if (Math.floor(now/50) !== frame.k){ frame.k = Math.floor(now/50); renderNow(); cardCanvases.forEach(({ctx:cx,c})=>{ cx.clearRect(0,0,168,96); drawCard(cx, c, false, now/1000); }); }
+  if (!playing && Math.floor(now/120) !== frame.k){ frame.k = Math.floor(now/50); renderNow(); cardCanvases.forEach(({ctx:cx,c})=>{ cx.clearRect(0,0,168,96); drawCard(cx, c, false, now/1000); }); }
   requestAnimationFrame(frame);
 }
 
