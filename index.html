@@ -34,7 +34,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .brand span{font-family:var(--display);color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 .purse{display:flex;gap:10px;flex-wrap:wrap}
 .chip{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-family:var(--display);font-size:16px;font-variant-numeric:tabular-nums}
-.coin-ic{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3b0,#f2b33d 55%,#a8701c);box-shadow:0 0 0 2px #7a4e12 inset}
+.coin-ic{width:16px;height:17px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 17'%3E%3Cpath d='M8 16C4 11 1 7.5 1.5 4.5 2.2 1 13.8 1 14.5 4.5 15 7.5 12 11 8 16Z' fill='%23ffb23f' stroke='%237a4e12' stroke-width='1.5'/%3E%3Cpath d='M4.5 4.2C5.5 3 7 2.8 8 2.8' stroke='%23fff3b0' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat}
 .chip small{font-family:var(--body);color:var(--muted);font-size:12px}
 
 /* account banner */
@@ -307,6 +307,7 @@ textarea{width:100%;resize:vertical;min-height:64px;font-family:ui-monospace,Men
 .ch.done .progress i{background:linear-gradient(90deg,#3ad87a,#a8ffb0)}
 /* shop */
 .cards.packs{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.card.rk canvas{width:120px;height:120px} .card.rk .cs2{min-height:2.6em;line-height:1.3}
 @media (max-width:560px){.cards.packs{grid-template-columns:repeat(2,minmax(0,1fr))}.stgs{grid-template-columns:repeat(2,minmax(0,1fr))}.gads{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .card.shop{gap:6px;padding:10px 8px}
 .card.shop .cs2{font-size:12px;color:var(--muted);min-height:1.4em}
@@ -335,7 +336,8 @@ textarea{width:100%;resize:vertical;min-height:64px;font-family:ui-monospace,Men
 .stgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .stg{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#141010}
 .stg.on{border-color:var(--sand)}
-.stg canvas{width:100%;height:auto;aspect-ratio:200/90;border-radius:8px}
+.stg canvas{width:100%;height:auto;aspect-ratio:240/108;border-radius:8px;image-rendering:pixelated}
+.stg .sd{font-size:12.5px;color:var(--muted);line-height:1.35;flex:1}
 .stg b{font-family:var(--display)}
 </style>
 
@@ -358,17 +360,17 @@ window.FIREBASE_CONFIG = {
   <header class="top">
     <div class="brand"><h1 id="brandTitle">Guitarcade</h1><span>80s rock · fly forever</span></div>
     <div class="purse">
-      <div class="chip" title="Coins to spend"><span class="coin-ic"></span><span id="hudCoins">0</span><small>coins</small></div>
+      <div class="chip" title="Picks to spend"><span class="coin-ic"></span><span id="hudCoins">0</span><small>picks</small></div>
       <div class="chip" title="Guitar packs owned"><span id="hudOwned">1</span><small id="hudTotal">/ 16 packs</small></div>
       <div class="chip" title="Best run"><small>Best</small><span id="hudBest">0 m</span></div>
     </div>
   </header>
 
-  <div class="test-bar" id="testBar" hidden><b>Test mode</b><span>Everything in the shop can be tried for free. Coins, challenges, best scores and the leaderboard are paused.</span><button class="btn small" id="testOff" type="button">Exit test mode</button></div>
+  <div class="test-bar" id="testBar" hidden><b>Test mode</b><span>Everything in the shop can be tried for free. Picks, challenges, best scores and the leaderboard are paused.</span><button class="btn small" id="testOff" type="button">Exit test mode</button></div>
   <section class="acct" id="acct" aria-labelledby="acctH">
     <div class="acct-copy">
       <h2 id="acctH">Save your band</h2>
-      <p id="acctLead">Sign up free to save your progress, keep your coins, guitar packs and look. Then play on any device.</p>
+      <p id="acctLead">Sign up free to save your progress, keep your picks, guitar packs and rockers. Then play on any device.</p>
       <div class="status"><span class="dot" id="saveDot"></span><span id="saveText">Checking for your account…</span></div>
     </div>
     <form id="authBox" class="acct-form" hidden novalidate>
@@ -393,7 +395,7 @@ window.FIREBASE_CONFIG = {
     <div class="screen"><div class="fs-bar"><button class="fs-exit" id="fsExit" type="button">Exit</button><button class="snd-btn" data-snd="sfx" type="button" aria-pressed="true">Sound: On</button></div><div class="over-cta" id="overCta" hidden>
       <div class="oc-card">
         <h3>Rocked out! <span id="ocSum"></span></h3>
-        <p>You're not signed in, so your coins, guitar packs and look are only saved on this device. Sign up to save your progress and get on today's leaderboard.</p>
+        <p>You're not signed in, so your picks, guitar packs and rockers are only saved on this device. Sign up to save your progress and get on today's leaderboard.</p>
         <div class="row oc-btns"><button class="btn big" id="ocSignup" type="button">Sign up to save</button><button class="btn ghost" id="ocLogin" type="button">Log in</button></div>
         <button class="oc-again" id="ocAgain" type="button">Play again without saving</button>
       </div>
@@ -419,7 +421,7 @@ window.FIREBASE_CONFIG = {
       <dl class="recs">
         <div><dt>Furthest round</dt><dd id="recRound">—</dd></div>
         <div><dt>Runs played</dt><dd id="recRuns">0</dd></div>
-        <div><dt>Coins earned, all time</dt><dd id="recLife">0</dd></div>
+        <div><dt>Picks earned, all time</dt><dd id="recLife">0</dd></div>
         <div><dt>Challenges completed</dt><dd id="recChests">0</dd></div>
       </dl>
     </section>
@@ -432,14 +434,14 @@ window.FIREBASE_CONFIG = {
 
   <section class="panel" aria-labelledby="shopH">
     <div class="coll-head">
-      <div><h2 id="shopH">Shop</h2><p class="sub">Spend your coins on guitar packs, abilities, new looks and stages. You have <b id="shopCoins">0</b> coins.</p></div>
+      <div><h2 id="shopH">Shop</h2><p class="sub">Spend your guitar picks on guitar packs, abilities, rockers and stages. You have <b id="shopCoins">0</b> picks.</p></div>
       <div class="filters kinds" id="shopTabs" role="group" aria-label="Shop sections">
-        <button type="button" data-t="packs" aria-pressed="true">Guitar packs</button><button type="button" data-t="abilities" aria-pressed="false">Abilities</button><button type="button" data-t="look" aria-pressed="false">Your look</button><button type="button" data-t="stages" aria-pressed="false">Stages</button>
+        <button type="button" data-t="packs" aria-pressed="true">Guitar packs</button><button type="button" data-t="abilities" aria-pressed="false">Abilities</button><button type="button" data-t="rockers" aria-pressed="false">Rockers</button><button type="button" data-t="stages" aria-pressed="false">Stages</button>
       </div>
     </div>
     <div id="tab-packs"><p class="sub">Your guitar pack is your jetpack. Each one shoots out something different when you fly.</p><div class="cards packs" id="packs"></div></div>
     <div id="tab-abilities" hidden><p class="sub">Equip abilities to help every run. You start with 2 slots.</p><div class="slots" id="slots"></div><div class="gads" id="gadgets"></div></div>
-    <div id="tab-look" hidden><div class="lookwrap"><canvas id="lookCv" width="220" height="250" aria-label="Your rocker"></canvas><div id="lookOpts"></div></div></div>
+    <div id="tab-rockers" hidden><p class="sub">Unlock rock legends to play as. Each one is a nod to a famous rocker.</p><div class="cards packs rockers" id="rockers"></div></div>
     <div id="tab-stages" hidden><p class="sub">Pick where you play.</p><div class="stgs" id="stages"></div></div>
   </section>
 
@@ -449,7 +451,7 @@ window.FIREBASE_CONFIG = {
       <div class="box">
         <h3>Play without an account</h3>
         <div id="localBox">
-          <p class="sub" style="margin-bottom:8px">Profiles saved on this device only. Each one keeps its own coins, packs and look.</p>
+          <p class="sub" style="margin-bottom:8px">Profiles saved on this device only. Each one keeps its own picks, packs and rockers.</p>
           <div class="row"><select id="profileSel" aria-label="Choose player"></select><button class="btn ghost small" id="delProfile" type="button">Delete</button></div>
           <div class="confirm" id="delConfirm" hidden><span id="delText"></span><button class="btn small" id="delYes" type="button">Delete</button><button class="btn ghost small" id="delNo" type="button">Keep</button></div>
           <div class="row" style="margin-top:8px"><input type="text" id="newProfile" maxlength="20" placeholder="New player name" aria-label="New player name"><button class="btn small" id="addProfile" type="button">Add player</button></div>
@@ -478,60 +480,82 @@ window.FIREBASE_CONFIG = {
 // [name, guitar shape, color, accent, finish, what it shoots out, price, extras]
 const PACK_LIST = [
   ["Garage Strat",    "super",    "#e0263a", "#ffffff", "",  "s", 0,    ""],
-  ["Note Blaster",    "single",   "#1c1c22", "#ffd34d", "z", "m", 150,  ""],
-  ["Bubble Bass",     "bass",     "#2de2e6", "#ffffff", "",  "o", 250,  ""],
-  ["Confetti Keytar", "keytar",   "#ff4fa3", "#ffd34d", "",  "c", 300,  ""],
-  ["Hellfire V",      "vee",      "#1c1c22", "#ff6a1a", "f", "f", 450,  ""],
-  ["Thunder Axe",     "xplor",    "#2a2a5a", "#7fd7ff", "w", "l", 600,  ""],
-  ["Star Power",      "star",     "#b77bff", "#ffffff", "y", "r", 700,  ""],
-  ["Heartbreaker",    "single",   "#ff4fa3", "#ffffff", "q", "h", 800,  ""],
-  ["Laser Show",      "headless", "#1c1c22", "#ff3a3a", "z", "z", 1000, ""],
-  ["Snowblind",       "xplor",    "#e8f4ff", "#7fd7ff", "y", "n", 1100, ""],
-  ["Skull Crusher",   "vee",      "#2a2a34", "#e8e8f0", "w", "u", 1300, ""],
-  ["Sound Wave",      "bass",     "#ffd34d", "#1c1c22", "z", "b", 1400, ""],
-  ["Firework Finale", "star",     "#2f5bd1", "#ff4fa3", "y", "w", 1800, ""],
-  ["Gold Record",     "single",   "#ffd34d", "#fff3b0", "y", "g", 2200, ""],
-  ["Rainbow Riff",    "double",   "#f4f4f8", "#ff4fa3", "q", "y", 2800, ""],
-  ["THE CREATOR",     "double",   "#2f5bd1", "#ffd34d", "w", "x", 5000, "n"],
+  ["Note Blaster",    "single",   "#1c1c22", "#ffd34d", "z", "m", 500,  ""],
+  ["Bubble Bass",     "bass",     "#2de2e6", "#ffffff", "",  "o", 750,  ""],
+  ["Confetti Keytar", "keytar",   "#ff4fa3", "#ffd34d", "",  "c", 1000,  ""],
+  ["Hellfire V",      "vee",      "#1c1c22", "#ff6a1a", "f", "f", 1500,  ""],
+  ["Thunder Axe",     "xplor",    "#2a2a5a", "#7fd7ff", "w", "l", 2000,  ""],
+  ["Star Power",      "star",     "#b77bff", "#ffffff", "y", "r", 2500,  ""],
+  ["Heartbreaker",    "single",   "#ff4fa3", "#ffffff", "q", "h", 3000,  ""],
+  ["Laser Show",      "headless", "#1c1c22", "#ff3a3a", "z", "z", 4000, ""],
+  ["Snowblind",       "xplor",    "#e8f4ff", "#7fd7ff", "y", "n", 4500, ""],
+  ["Skull Crusher",   "vee",      "#2a2a34", "#e8e8f0", "w", "u", 5500, ""],
+  ["Sound Wave",      "bass",     "#ffd34d", "#1c1c22", "z", "b", 6500, ""],
+  ["Firework Finale", "star",     "#2f5bd1", "#ff4fa3", "y", "w", 8000, ""],
+  ["Gold Record",     "single",   "#ffd34d", "#fff3b0", "y", "g", 10000, ""],
+  ["Rainbow Riff",    "double",   "#f4f4f8", "#ff4fa3", "q", "y", 12500, ""],
+  ["THE CREATOR",     "double",   "#2f5bd1", "#ffd34d", "w", "x", 25000, "n"],
 ];
 const TRAIL_NAME = {s:"Smoke", m:"Music notes", o:"Bubbles", c:"Confetti", f:"Flames", l:"Lightning", r:"Stars", h:"Hearts", z:"Laser beams",
-  n:"Snowflakes", u:"Skulls", b:"Sound waves", w:"Fireworks", g:"Gold coins", y:"Rainbow", x:"Gold notes and stars"};
+  n:"Snowflakes", u:"Skulls", b:"Sound waves", w:"Fireworks", g:"Gold records", y:"Rainbow", x:"Gold notes and stars"};
 // abilities: equip up to 2 (a 3rd slot can be bought)
 const GADGETS = [
-  {id:"magnet",    name:"Coin Magnet",            info:"Pulls in nearby coins all the time",            price:600},
-  {id:"headstart", name:"Head Start",             info:"Start every run with a Power Chord Rush",      price:500},
-  {id:"second",    name:"Second Chance",          info:"Survive one crash per run",                    price:1200},
-  {id:"lucky",     name:"Lucky Boxes",            info:"Power-up boxes show up twice as often",         price:400},
-  {id:"longpu",    name:"Long-Lasting Power-Ups", info:"Power-ups last 50% longer",                     price:500},
-  {id:"bonus",     name:"Coin Bonus",             info:"1 in 4 coins is worth double",                  price:900},
-  {id:"warn",      name:"Early Warning",          info:"Speakers and laser beams warn you sooner",      price:300},
-  {id:"encore",    name:"Opening Act",            info:"Start every run with a Bodyguard shield",       price:700},
+  {id:"magnet",    name:"Pick Magnet",            info:"Pulls in nearby picks all the time",            price:2500},
+  {id:"headstart", name:"Head Start",             info:"Start every run with a Power Chord Rush",      price:1500},
+  {id:"second",    name:"Second Chance",          info:"Survive one crash per run",                    price:4000},
+  {id:"lucky",     name:"Lucky Boxes",            info:"Power-up boxes show up twice as often",         price:1200},
+  {id:"longpu",    name:"Long-Lasting Power-Ups", info:"Power-ups last 50% longer",                     price:1500},
+  {id:"bonus",     name:"Pick Bonus",             info:"1 in 4 picks is worth double",                  price:3000},
+  {id:"warn",      name:"Early Warning",          info:"Speakers and laser beams warn you sooner",      price:1000},
+  {id:"encore",    name:"Opening Act",            info:"Start every run with a Bodyguard shield",       price:2000},
 ];
-const SLOT3_PRICE = 1500;
-// the rocker's look: each part is a list of [value, price]
-const LOOK_PARTS = [
-  {key:"hair",   label:"Hair",         kind:"text",   opts:[["poof",0],["long",0],["spiky",0],["mullet",0],["slick",0],["curly",80],["mohawk",120],["teased",160]]},
-  {key:"hairC",  label:"Hair color",   kind:"color",  opts:[["#2a1a10",0],["#7a4a2a",0],["#f8e080",0],["#1c1c22",0],["#a83a1a",50],["#e8e8f0",80],["#ff4fa3",120],["#2de2e6",120],["#7dff5a",120],["#b77bff",120]]},
-  {key:"skin",   label:"Skin",         kind:"color",  opts:[["#f6d2b4",0],["#e8b48e",0],["#c88a5a",0],["#8a5a3a",0],["#5a3a24",0],["#f8dcc8",0]]},
-  {key:"topS",   label:"Top",          kind:"text",   opts:[["tank",0],["vest",0],["jacket",60],["ruffle",150],["suit",400]]},
-  {key:"top",    label:"Top color",    kind:"color",  opts:[["#1c1c22",0],["#e8e8f0",0],["#7a1a1a",0],["#2a4aa8",0],["#e0263a",60],["#ff4fa3",80],["#2de2e6",80],["#ffd34d",80],["#b77bff",100],["#2f5bd1",100]]},
-  {key:"pantP",  label:"Pants style",  kind:"text",   opts:[["",0],["z",80],["q",150],["p",200],["y",250]]},
-  {key:"pants",  label:"Pants color",  kind:"color",  opts:[["#1c1c22",0],["#2a2a5a",0],["#3a3a44",0],["#7a1a1a",50],["#e8e8f0",60],["#ff4fa3",100],["#2de2e6",100],["#ffd34d",100]]},
-  {key:"boots",  label:"Boots",        kind:"color",  opts:[["#1c1c22",0],["#e8e8f0",0],["#2a2a34",0],["#7a1a1a",40],["#ffd34d",120]]},
-  {key:"acc",    label:"Extras",       kind:"text",   opts:[["",0],["h",0],["s",60],["b",80],["sh",120],["w",150],["sw",200]]},
+const SLOT3_PRICE = 5000;
+// rockers you can unlock. Each one is a nod to a rock legend.
+// hair · hair color · skin · top · top style · pants · pants pattern · boots · extras, then special bits (face paint, hat, glasses...)
+const ROCKER_LIST = [
+  {name:"Garage Kid",        price:0,     tag:"Just got his first amp",            hair:"poof",  hairC:"#7a4a2a", skin:"#f6d2b4", top:"#1c1c22", topS:"tank",   pants:"#2a2a5a", boots:"#1c1c22", ex:"h"},
+  {name:"Leather Rebel",     price:600,   tag:"Loves rock and roll, so put another dime in", hair:"spiky", hairC:"#14101c", skin:"#f8dcc8", top:"#1c1c22", topS:"jacket", pants:"#1c1c22", boots:"#1c1c22", ex:"", band:null},
+  {name:"Hairspray Hero",    price:1500,  tag:"Living on a prayer and a can of hairspray", hair:"teased", hairC:"#f8e080", skin:"#f6d2b4", top:"#e8e8f0", topS:"vest", pants:"#4a6aa8", pantP:"r", boots:"#3a2a1a", ex:"", vestC:"#2a4a88"},
+  {name:"Stripe Shredder",   price:2500,  tag:"Tapping solos in striped spandex",   hair:"spiky", hairC:"#7a4a2a", skin:"#f6d2b4", top:"#e8e8f0", topS:"tank",   pants:"#e0263a", pantP:"e", boots:"#1c1c22", ex:""},
+  {name:"Wild Rose",         price:3500,  tag:"Welcome to the jungle, baby",        hair:"long",  hairC:"#c8501a", skin:"#f6d2b4", top:"#e8e8f0", topS:"tank",   pants:"#1c1c22", boots:"#2a1a10", ex:"b", band:"#2f5bd1"},
+  {name:"Night Demon",       price:5000,  tag:"Breathes fire, spits blood, plays bass", hair:"knot", hairC:"#0a0a10", skin:"#f6d2b4", top:"#1c1c22", topS:"armor",  pants:"#1c1c22", boots:"#c8ccd8", ex:"", face:"demon", tall:1},
+  {name:"Star Prince",       price:5000,  tag:"One painted star, one huge grin",    hair:"poof",  hairC:"#0a0a10", skin:"#f6d2b4", top:"#1c1c22", topS:"vest",   pants:"#1c1c22", boots:"#c8ccd8", ex:"", face:"star", tall:1},
+  {name:"Cosmic Ace",        price:5000,  tag:"Visiting from another planet",       hair:"poof",  hairC:"#14141a", skin:"#f6d2b4", top:"#c8ccd8", topS:"armor",  pants:"#c8ccd8", boots:"#e8e8f0", ex:"", face:"space", tall:1},
+  {name:"Schoolboy Volt",    price:6500,  tag:"Duck-walks across every stage",      hair:"spiky", hairC:"#5a3a22", skin:"#f6d2b4", top:"#2a6a3a", topS:"blazer", pants:"#2a6a3a", boots:"#1c1c22", ex:"", hat:"cap", shorts:1},
+  {name:"Top Hat Shredder",  price:8000,  tag:"Never seen without the hat",         hair:"curly", hairC:"#0a0a10", skin:"#e8b48e", top:"#1c1c22", topS:"vest",   pants:"#1c1c22", boots:"#1c1c22", ex:"s", hat:"top"},
+  {name:"Midnight Madman",   price:9000,  tag:"Prince of the dark and crazy train rides", hair:"long", hairC:"#2a1a10", skin:"#f8dcc8", top:"#1c1c22", topS:"tank",  pants:"#1c1c22", boots:"#1c1c22", ex:"+", specs:"round"},
+  {name:"Royal Showman",     price:10000, tag:"We will rock you",                   hair:"slick", hairC:"#14101c", skin:"#e8b48e", top:"#ffd34d", topS:"jacket", pants:"#f4f4f8", pantP:"s", boots:"#f4f4f8", ex:"", stache:1, under:"#f4f4f8"},
+  {name:"Lightning Starman", price:11000, tag:"Fell to Earth with a bolt on his face", hair:"mullet", hairC:"#e0502a", skin:"#f8dcc8", top:"#2de2e6", topS:"jump", pants:"#2de2e6", pantP:"q2", boots:"#e0263a", ex:"", face:"bolt"},
+  {name:"Voodoo Axeman",     price:12500, tag:"Plays guitar with his teeth",        hair:"afro",  hairC:"#14101c", skin:"#8a5a3a", top:"#6a2a8a", topS:"mil",    pants:"#c2273a", boots:"#2a1a10", ex:"h"},
+  {name:"Iron Baron",        price:14000, tag:"Born to lose, lives to win",         hair:"long",  hairC:"#14101c", skin:"#f6d2b4", top:"#1c1c22", topS:"tank",   pants:"#1c1c22", boots:"#e8e8f0", ex:"", hat:"cowboy", chops:1},
+  {name:"Scarf Screamer",    price:15000, tag:"Big mouth, bigger scarves",          hair:"long",  hairC:"#4a2a1a", skin:"#f6d2b4", top:"#e8e8f0", topS:"ruffle", pants:"#1c1c22", pantP:"z", boots:"#1c1c22", ex:"f"},
+  {name:"Shock Rocker",      price:16500, tag:"Turned the stage into a horror show", hair:"long", hairC:"#0a0a10", skin:"#f8dcc8", top:"#1c1c22", topS:"ruffle", pants:"#1c1c22", boots:"#1c1c22", ex:"", face:"shock"},
+  {name:"The King",          price:20000, tag:"Thank you, thank you very much",     hair:"pomp",  hairC:"#0a0a10", skin:"#f6d2b4", top:"#f4f4f8", topS:"jump",   pants:"#f4f4f8", boots:"#f4f4f8", ex:"y", collar:1},
+  {name:"THE CREATOR",       price:30000, tag:"The one who built this whole arena", hair:"slick", hairC:"#2a1a10", skin:"#f6d2b4", top:"#2f5bd1", topS:"suit",   pants:"#1c1c22", boots:"#1c1c22", ex:"cg", hat:"crown"},
 ];
-const OPT_NAME = {poof:"Big poof", long:"Long", spiky:"Spiky", mullet:"Mullet", slick:"Slicked back", curly:"Curly", mohawk:"Mohawk", teased:"Teased",
-  tank:"Tank top", vest:"Vest", jacket:"Leather jacket", ruffle:"Ruffled shirt", suit:"Suit and tie",
-  "":"None", z:"Stripes", q:"Checkers", p:"Leopard", y:"Metal flake",
-  h:"Headband", s:"Shades", b:"Bandana", sh:"Shades + headband", w:"Lightning face paint", sw:"Shades + face paint"};
-const DEFAULT_LOOK = {hair:0, hairC:1, skin:0, topS:0, top:0, pantP:0, pants:0, boots:0, acc:1};
+const ROCKERS = ROCKER_LIST.map((r, i) => Object.assign({id:i, kind:"r", pantP:"", tier: tierOfPriceR(r.price)}, r));
+function tierOfPriceR(p){ return p === 0 ? 0 : p <= 1500 ? 1 : p <= 3500 ? 2 : p <= 8000 ? 3 : p <= 16500 ? 4 : 5; }
 // stages (backgrounds you fly through)
-const STAGES = [["arena","The Arena",0],["Storm Rooftop","Storm Rooftop",400],["Volcano Fest","Volcano Fest",500],["Desert Festival","Desert Festival",550],
-  ["Cosmic Stage","Cosmic Stage",600],["Neon Strip","Neon Strip",650],["Synthwave Highway","Synthwave Highway",800],["Midnight Castle","Midnight Castle",800],["Platinum Stadium","Platinum Stadium",1000]];
+const STAGES = [
+  ["arena",     "Main Stage",          0],
+  ["garage",    "Garage Jam",          1500],
+  ["club",      "Basement Club",       2500],
+  ["backstage", "Backstage Pass",      3500],
+  ["thunder",   "Thunder Dome",        5000],
+  ["inferno",   "Inferno Fest",        6500],
+  ["synth",     "Synth City",          8000],
+  ["cosmic",    "Cosmic Tour",         10000],
+  ["cathedral", "Midnight Cathedral",  12500],
+  ["stadium",   "Stadium Finale",      15000],
+];
+const STAGE_INFO = {arena:"Amp stacks, drum riser and a sea of fans", garage:"Where every band starts: old couch, bikes and a beat-up kit",
+  club:"Brick walls, neon signs and bar stools", backstage:"Road cases, guitar racks and dressing-room mirrors",
+  thunder:"A storm rooftop full of tesla coils", inferno:"Lava, pyro columns and giant skulls", synth:"Neon sunset, synths and arcade cabinets",
+  cosmic:"A stage on the moon with satellite dishes and crystals", cathedral:"Organ pipes, candles and coffin road cases", stadium:"Light towers, giant screens and 80,000 lighters"};
 // daily challenges: three are picked each day
 const CHALLENGES = {
   dist:     {text:n => `Fly ${fmt(n)} m in one run`,         ns:[600, 900, 1300],  reward:[40, 60, 90],  max:true},
-  coins:    {text:n => `Collect ${n} coins today`,           ns:[60, 120, 200],    reward:[40, 60, 90]},
+  coins:    {text:n => `Collect ${n} picks today`,           ns:[60, 120, 200],    reward:[40, 60, 90]},
   runs:     {text:n => `Play ${n} runs today`,               ns:[3, 5, 8],         reward:[30, 50, 70]},
   pu:       {text:n => `Grab ${n} power-ups today`,          ns:[2, 4, 6],         reward:[40, 60, 80]},
   round:    {text:n => `Reach round ${n} in one run`,        ns:[2, 3, 4],         reward:[40, 70, 100], max:true},
@@ -562,22 +586,11 @@ const GUITAR_SHAPES = {
   double:[ "..BBB.................HH", ".BBBBBNNNNNNNNNNNNNNNNHHH", "BBPBBBNNNNNNNNNNNNNNNNHH", "BBBBBB", "BBBBBB", "BBPBBBNNNNNNNNNNNNNNNNHH", ".BBBBBNNNNNNNNNNNNNNNNHHH", "..BBB.................HH"],
 };
 for (const k in GUITAR_SHAPES){ const r = GUITAR_SHAPES[k], w = Math.max(...r.map(x => x.length)); GUITAR_SHAPES[k] = r.map(x => x.padEnd(w, ".")); }
-const tierOfPrice = p => p === 0 ? 0 : p <= 300 ? 1 : p <= 800 ? 2 : p <= 1500 ? 3 : p <= 2800 ? 4 : 5;
+const tierOfPrice = p => p === 0 ? 0 : p <= 1000 ? 1 : p <= 3000 ? 2 : p <= 6500 ? 3 : p <= 12500 ? 4 : 5;
 const CHARS = [];
 PACK_LIST.forEach(([name, shape, main, accent, pat, trail, price, ex]) => CHARS.push({id:CHARS.length, kind:"g", tier:tierOfPrice(price), name, shape, main, accent, pat, trail, price, ex}));
 const GUITARS = CHARS;
 const isCreator = c => c && c.name === "THE CREATOR";
-// turn a saved look (a list of choices) into something the drawing code understands
-function lookOf(L){
-  const v = k => { const part = LOOK_PARTS.find(p => p.key === k), i = Math.min(part.opts.length - 1, Math.max(0, (L && Number.isInteger(L[k])) ? L[k] : DEFAULT_LOOK[k])); return part.opts[i][0]; };
-  const acc = v("acc"), topS = v("topS");
-  return {kind:"r", tier:0, name:"You", hair:v("hair"), hairC:v("hairC"), skin:v("skin"), top:v("top"), topS, pants:v("pants"), pantP:v("pantP"), boots:v("boots"), ex: acc + (topS === "suit" ? "c" : "")};
-}
-// pack a look into one number (for the leaderboard) and back
-const LOOK_BITS = [3,4,3,3,4,3,3,3,3];
-function encodeLook(L){ let n = 0; LOOK_PARTS.forEach((p, i) => { n = n*(1 << LOOK_BITS[i]) + Math.min((1 << LOOK_BITS[i]) - 1, (L && L[p.key]) || 0); }); return n; }
-function decodeLook(n){ const L = {}; for (let i = LOOK_PARTS.length - 1; i >= 0; i--){ const b = 1 << LOOK_BITS[i]; L[LOOK_PARTS[i].key] = n % b; n = Math.floor(n / b); } return L; }
-
 function hexRGB(h){h=h.replace("#","");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
 const shadeCache = {};
 function shade(hex, amt){
@@ -630,8 +643,13 @@ function paintRocker(ctx, c, t, pose, sil){
   // legs and boots
   const leg = (x, off, back) => { const ly = fly ? (back ? -1 : 0) : 0, lx = x + (fly ? (back ? -1 : 1) : off);
     for (let r = 0; r < 8; r++){ let col = pants; if (c.pantP === "z" && r % 2 === 0) col = shade(pants, lum(pants) < .3 ? .35 : -.35); if (c.pantP === "p" && (r*3 + x) % 4 === 0) col = "#1c1c22"; if (c.pantP === "q" && (r + x) % 2) col = "#f4f4f8"; if (c.pantP === "y" && (r*5 + x*3) % 7 === 0) col = "#ffffff";
+      if (c.pantP === "e"){ if ((r + (back ? 1 : 0)) % 3 === 0) col = "#1c1c22"; else if ((r + (back ? 1 : 0)) % 3 === 1 && r > 2) col = "#f4f4f8"; }
+      if (c.pantP === "s" && x === 0 && !back) col = "#c2273a";
+      if (c.pantP === "r" && (r === 3 || r === 4) && !back) col = "#d8e0f0";
+      if (c.pantP === "q2" && (r + x) % 3 === 0) col = "#ff4fa3";
+      if (c.shorts){ if (r >= 3) col = c.skin; if (r >= 6) col = "#f4f4f8"; }
       P(lx, y - 11 + r + ly, 2, 1, back ? shade(col, -.2) : col); }
-    P(lx - 1, y - 3 + ly, 3, 3, c.boots); P(lx + 1, y - 1 + ly, 1, 1, shade(c.boots, .3)); };
+    P(lx - 1, y - 3 + ly, 3, 3, c.boots); P(lx + 1, y - 1 + ly, 1, 1, shade(c.boots, .3)); if (c.tall) P(lx - 1, y - 1 + ly, 3, 1, shade(c.boots, -.35)); };
   leg(-3, -sw, true); leg(0, sw, false);
   P(-4, y - 12, 7, 1, "#1c1c22"); P(-1, y - 12, 2, 1, "#ffd34d");          // belt and buckle
   // torso
@@ -641,6 +659,15 @@ function paintRocker(ctx, c, t, pose, sil){
   if (ts === "vest"){ P(-1, y - 19, 2, 7, skin); }
   if (ts === "tank"){ P(-4, y - 19, 1, 2, skin); P(2, y - 19, 1, 2, skin); }
   if (ts === "ruffle"){ for (let r = 0; r < 5; r++) P(-1 + (r % 2), y - 19 + r, 2, 1, "#f4f4f8"); }
+  if (ts === "armor"){ P(-4, y - 19, 7, 1, "#c8ccd8"); for (let k = 0; k < 3; k++) P(-3 + k*2, y - 16 + (k % 2), 1, 1, "#c8ccd8"); P(-6, y - 20, 2, 1, "#e8e8f0"); P(3, y - 20, 2, 1, "#e8e8f0"); P(-6, y - 21, 1, 1, "#e8e8f0"); P(4, y - 21, 1, 1, "#e8e8f0"); }
+  if (ts === "blazer"){ P(-1, y - 19, 2, 6, "#f4f4f8"); P(-1, y - 18, 1, 4, "#c2273a"); P(-2, y - 19, 1, 4, shade(top, -.3)); P(1, y - 19, 1, 4, shade(top, -.3)); P(-3, y - 16, 1, 1, "#ffd34d"); }
+  if (ts === "jump"){ P(-4, y - 13, 7, 1, "#ffd34d"); P(-1, y - 19, 2, 4, shade(top, -.2)); }
+  if (ts === "mil"){ for (let k = 0; k < 3; k++) P(-3, y - 18 + k*2, 5, 1, "#ffd34d"); P(-5, y - 20, 2, 1, "#ffd34d"); P(3, y - 20, 1, 1, "#ffd34d"); }
+  if (c.under) P(-1, y - 19, 2, 6, c.under);
+  if (c.vestC){ P(-4, y - 19, 2, 7, c.vestC); P(1, y - 19, 2, 7, c.vestC); }
+  if (ex.includes("+")){ P(0, y - 18, 1, 4, "#c8ccd8"); P(-1, y - 17, 3, 1, "#c8ccd8"); }
+  if (ex.includes("f")){ P(-2, y - 20, 4, 2, "#ff4fa3"); P(1, y - 18, 1, 5, "#ffd34d"); P(2, y - 18, 1, 4, "#ff4fa3"); }
+  if (c.collar){ P(-4, y - 21, 2, 2, top); P(1, y - 21, 2, 2, top); }
   if (ts === "suit"){ P(-1, y - 19, 2, 6, "#f4f4f8"); P(-1, y - 18, 2, 4, "#c2273a"); P(-2, y - 19, 1, 4, shade(top, -.25)); P(1, y - 19, 1, 4, shade(top, -.25)); }
   if (ex.includes("y")) for (let k = 0; k < 4; k++) P(-3 + k*2, y - 17 + (k % 2)*2, 1, 1, "#ffffff");
   // arms: on the ground they swing; flying, the front arm throws up the rock horns
@@ -662,20 +689,40 @@ function paintRocker(ctx, c, t, pose, sil){
     case "curly":  for (let i = 0; i < 18; i++){ const a = i/18*Math.PI*1.4 + Math.PI*.8, rx = Math.round(Math.cos(a)*5), ry = Math.round(Math.sin(a)*4); H(-1 + rx, 2 + ry, 2, 2); } H(-5, 2, 2, 6); Hd(-4, 5, 1, 1); break;
     case "teased": H(-6, -6, 9, 6); H(-7, 0, 5, 9); H(-4, -7, 5, 1); H(2, -3, 2, 3); Hd(-5, -4, 2, 2); Hd(-6, 5, 1, 3); break;
     case "slick":  H(-3, -1, 6, 2); H(-4, 0, 2, 3); Hd(-3, -1, 6, 1); break;
+    case "afro":   H(-7, -5, 11, 5); H(-8, 0, 6, 8); H(3, -3, 2, 3); H(-6, -6, 8, 1); Hd(-7, 4, 2, 3); break;
+    case "pomp":   H(-3, -1, 6, 2); H(-1, -3, 5, 2); H(3, -2, 1, 1); H(-4, 0, 2, 5); Hd(-1, -3, 4, 1); break;
+    case "knot":   H(-3, -1, 6, 2); H(-2, -4, 3, 3); H(-1, -5, 2, 1); H(-4, 0, 2, 4); Hd(-2, -2, 3, 1); break;
   }
-  // face
-  if (ex.includes("s") || ex.includes("c")){ P(-1, hy + 2, 5, 1, "#05050a"); P(0, hy + 3, 3, 1, "#05050a"); if (!sil && Math.floor(t*2) % 3 === 0) P(2, hy + 2, 1, 1, "#ffffff"); }
+  // face paint (drawn under the hat and glasses)
+  const BK = "#05050a";
+  if (c.face === "demon" || c.face === "star" || c.face === "space"){ P(-2, hy, 5, 6, "#f4f4f8"); }
+  if (c.face === "demon"){ P(0, hy + 1, 3, 1, BK); P(1, hy + 2, 2, 1, BK); P(-1, hy, 1, 1, BK); P(2, hy, 1, 1, BK); P(1, hy + 4, 2, 1, BK); }
+  else if (c.face === "star"){ P(1, hy, 1, 4, BK); P(0, hy + 2, 3, 1, BK); P(1, hy + 4, 2, 1, "#c2273a"); }
+  else if (c.face === "space"){ P(1, hy, 1, 4, "#9aa2b4"); P(0, hy + 2, 3, 1, "#9aa2b4"); P(1, hy + 2, 1, 1, BK); P(1, hy + 4, 2, 1, BK); }
+  else if (c.face === "shock"){ P(1, hy + 1, 1, 3, BK); P(0, hy + 2, 3, 1, BK); P(2, hy + 1, 1, 1, BK); P(2, hy + 3, 1, 1, BK); P(1, hy + 4, 2, 1, "#5a0a14"); }
+  else if (c.face === "bolt"){ P(2, hy, 1, 2, "#e0263a"); P(1, hy + 2, 2, 1, "#e0263a"); P(1, hy + 3, 1, 1, "#3a8aff"); P(0, hy + 4, 1, 2, "#3a8aff"); }
+  if (c.face){ if (c.face === "bolt") P(1, hy + 2, 1, 1, "#14101c"); }
+  else if (ex.includes("s") || ex.includes("c")){ P(-1, hy + 2, 5, 1, "#05050a"); P(0, hy + 3, 3, 1, "#05050a"); if (!sil && Math.floor(t*2) % 3 === 0) P(2, hy + 2, 1, 1, "#ffffff"); }
+  else if (c.specs === "round"){ P(0, hy + 2, 1, 1, "#8a3ad0"); P(2, hy + 2, 1, 1, "#8a3ad0"); P(1, hy + 2, 1, 1, "#c8a040"); }
   else { P(1, hy + 2, 1, 1, "#14101c"); }
   if (ex.includes("w")){ P(0, hy + 1, 1, 1, "#3a8aff"); P(1, hy + 2, 1, 1, "#3a8aff"); P(0, hy + 3, 1, 1, "#3a8aff"); P(1, hy + 4, 1, 1, "#3a8aff"); }
-  P(1, hy + 4, 2, 1, shade(skin, -.3));
+  if (!c.face && !c.stache) P(1, hy + 4, 2, 1, shade(skin, -.3));
+  if (c.stache){ P(0, hy + 4, 3, 1, hairC); }
+  if (c.chops){ P(-1, hy + 2, 1, 3, hairC); P(0, hy + 4, 3, 1, hairC); P(0, hy + 5, 1, 1, hairC); }
   if (ex.includes("h")) P(-3, hy + 1, 6, 1, "#e0263a");
-  if (ex.includes("b")){ P(-3, hy, 6, 2, top === "#1c1c22" ? "#e0263a" : top); P(-5, hy + 1, 2, 1, top === "#1c1c22" ? "#e0263a" : top); P(-6, hy + 2, 1, 1, top === "#1c1c22" ? "#e0263a" : top); }
+  const bc = c.band || (top === "#1c1c22" ? "#e0263a" : top);
+  if (ex.includes("b")){ P(-3, hy, 6, 2, bc); P(-5, hy + 1, 2, 1, bc); P(-6, hy + 2, 1, 1, bc); }
+  // hats
+  if (c.hat === "top"){ P(-4, hy - 1, 9, 1, "#14101c"); P(-3, hy - 7, 6, 6, "#1c1820"); P(-3, hy - 2, 6, 1, "#8a6a3a"); }
+  if (c.hat === "cap"){ P(-3, hy - 2, 6, 2, top); P(2, hy - 1, 3, 1, shade(top, -.35)); P(0, hy - 2, 1, 1, "#ffd34d"); }
+  if (c.hat === "cowboy"){ P(-5, hy - 1, 11, 1, "#1c1820"); P(-3, hy - 4, 6, 3, "#1c1820"); P(-2, hy - 5, 4, 1, "#1c1820"); P(-3, hy - 2, 6, 1, "#c8ccd8"); }
+  if (c.hat === "crown"){ P(-3, hy - 2, 6, 1, "#ffd34d"); P(-3, hy - 4, 1, 2, "#ffd34d"); P(-1, hy - 4, 1, 2, "#ffd34d"); P(1, hy - 4, 1, 2, "#ffd34d"); P(-1, hy - 2, 1, 1, "#e0263a"); }
 }
 // cards and the case reveal: a guitar centered on x with its bottom at y, or a rocker standing on (x, y)
 function drawChar(ctx, c, o){
   const t = o.t || 0, sil = !!o.sil, glow = o.glow !== false;
   ctx.save(); ctx.translate(o.x, o.y);
-  const aura = (w, h, cy) => { if (sil || !c.ex.includes("n")) return; const col = c.kind === "g" ? c.accent : c.top; ctx.save(); ctx.globalAlpha = .13 + .04*Math.sin(t*3); ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14; ctx.beginPath(); ctx.ellipse(0, cy, w, h, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); };
+  const aura = (w, h, cy) => { if (sil || !c.ex.includes("n")) return; const col = c.kind === "g" ? c.accent : c.top; ctx.save(); ctx.globalAlpha = .14; ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14; ctx.beginPath(); ctx.ellipse(0, cy, w, h, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); };
   const tierGlow = (cx, cy, rx, ry) => { if (!sil && glow && (c.ex.includes("g") || c.tier >= 3)){ const gc = c.ex.includes("g") ? (c.kind === "g" ? c.accent : c.top) : TIERS[c.tier].color;
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 1); g.addColorStop(0, gc); g.addColorStop(1, "rgba(0,0,0,0)");
     ctx.save(); ctx.globalAlpha = c.tier >= 4 ? .5 : .35; ctx.translate(cx, cy); ctx.scale(rx, ry); ctx.translate(-cx, -cy); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 1, 0, Math.PI*2); ctx.fill(); ctx.restore(); } };
@@ -715,7 +762,7 @@ const TRAIL_AT = (() => { const a = GUITAR_TILT, dx = -4*GUITAR_SC, dy = 0; retu
 
 /* ============================== STATE & SAVES ============================== */
 const newState = () => ({v:2, name:"", coins:0, lifetimeCoins:0, best:0, bestRound:0, runs:0, chests:0, owned:{"0":1}, selected:0,
-  gadgets:{}, equip:[], slots:2, look:Object.assign({}, DEFAULT_LOOK), looksOwned:{}, stages:{arena:1}, stage:"arena", daily:null, updatedAt:0});
+  gadgets:{}, equip:[], slots:2, rockers:{"0":1}, rocker:0, stages:{arena:1}, stage:"arena", daily:null, updatedAt:0});
 function cleanName(n){ return typeof n === "string" ? n.replace(/[^A-Za-z0-9 _.\-']/g,"").replace(/\s+/g," ").trim().slice(0,16) : ""; }
 function sanitize(s){
   const d = newState(); if (!s || typeof s !== "object") return d;
@@ -728,8 +775,8 @@ function sanitize(s){
     if (s.gadgets && typeof s.gadgets === "object") GADGETS.forEach(g => { if (s.gadgets[g.id]) d.gadgets[g.id] = 1; });
     d.slots = s.slots === 3 ? 3 : 2;
     if (Array.isArray(s.equip)) d.equip = s.equip.filter(id => d.gadgets[id]).filter((id, i, a) => a.indexOf(id) === i).slice(0, d.slots);
-    if (s.looksOwned && typeof s.looksOwned === "object") for (const k in s.looksOwned) if (/^[a-zA-Z]+:\d+$/.test(k) && s.looksOwned[k]) d.looksOwned[k] = 1;
-    if (s.look && typeof s.look === "object") LOOK_PARTS.forEach(p => { const i = num(s.look[p.key], -1); if (i >= 0 && i < p.opts.length && (p.opts[i][1] === 0 || d.looksOwned[p.key + ":" + i])) d.look[p.key] = i; });
+    if (s.rockers && typeof s.rockers === "object") for (const k in s.rockers){ const i = +k; if (Number.isInteger(i) && i >= 0 && i < ROCKERS.length && s.rockers[k]) d.rockers[i] = 1; }
+    d.rocker = d.rockers[s.rocker] ? +s.rocker : 0;
     if (s.stages && typeof s.stages === "object") STAGES.forEach(([id]) => { if (s.stages[id]) d.stages[id] = 1; });
     d.stage = d.stages[s.stage] ? s.stage : "arena";
     if (s.daily && typeof s.daily === "object" && typeof s.daily.day === "string" && Array.isArray(s.daily.ids) && s.daily.ids.length === 3)
@@ -777,7 +824,7 @@ const Saves = {
   },
 };
 
-function encodeSave(s){ const j = JSON.stringify({v:2,name:s.name,coins:s.coins,lifetimeCoins:s.lifetimeCoins,best:s.best,bestRound:s.bestRound,runs:s.runs,chests:s.chests,owned:s.owned,selected:s.selected,gadgets:s.gadgets,equip:s.equip,slots:s.slots,look:s.look,looksOwned:s.looksOwned,stages:s.stages,stage:s.stage,daily:s.daily});
+function encodeSave(s){ const j = JSON.stringify({v:2,name:s.name,coins:s.coins,lifetimeCoins:s.lifetimeCoins,best:s.best,bestRound:s.bestRound,runs:s.runs,chests:s.chests,owned:s.owned,selected:s.selected,gadgets:s.gadgets,equip:s.equip,slots:s.slots,rockers:s.rockers,rocker:s.rocker,stages:s.stages,stage:s.stage,daily:s.daily});
   return "GC1-" + btoa(unescape(encodeURIComponent(j))); }
 function decodeSave(code){
   code = (code||"").trim().replace(/\s+/g,"");
@@ -819,8 +866,8 @@ function dailyProgress(kind, amt){
   if (TEST.on) return; ensureDaily(); const d = state.daily; let changed = false;
   d.ids.forEach((id, i) => { if (id !== kind || d.done[i]) return; const ch = CHALLENGES[id], goal = ch.ns[d.lv[i]];
     d.p[i] = ch.max ? Math.max(d.p[i], amt) : d.p[i] + amt; changed = true;
-    if (d.p[i] >= goal){ d.p[i] = goal; d.done[i] = 1; const r = ch.reward[d.lv[i]]; state.coins += r; state.lifetimeCoins += r; state.chests++; toast(`Challenge complete! +${r} coins`); Sound.reveal(1); } });
-  if (changed && !d.bonus && d.done.every(Boolean)){ d.bonus = 1; state.coins += DAILY_BONUS; state.lifetimeCoins += DAILY_BONUS; setTimeout(() => toast(`All 3 challenges done! +${DAILY_BONUS} bonus coins`), 2300); }
+    if (d.p[i] >= goal){ d.p[i] = goal; d.done[i] = 1; const r = ch.reward[d.lv[i]]; state.coins += r; state.lifetimeCoins += r; state.chests++; toast(`Challenge complete! +${r} picks`); Sound.reveal(1); } });
+  if (changed && !d.bonus && d.done.every(Boolean)){ d.bonus = 1; state.coins += DAILY_BONUS; state.lifetimeCoins += DAILY_BONUS; setTimeout(() => toast(`All 3 challenges done! +${DAILY_BONUS} bonus picks`), 2300); }
   if (changed){ Saves.save(); renderDaily(); renderHUD(); }
 }
 function renderDaily(){
@@ -829,28 +876,28 @@ function renderDaily(){
     const row = document.createElement("div"); row.className = "ch" + (d.done[i] ? " done" : "");
     row.innerHTML = `<div class="ch-top"><span class="ch-t"></span><span class="ch-r"></span></div><div class="progress"><i style="width:${p/goal*100}%"></i></div><span class="ch-p"></span>`;
     row.querySelector(".ch-t").textContent = (d.done[i] ? "✓ " : "") + ch.text(goal);
-    row.querySelector(".ch-r").textContent = "+" + ch.reward[d.lv[i]] + " coins";
+    row.querySelector(".ch-r").textContent = "+" + ch.reward[d.lv[i]] + " picks";
     row.querySelector(".ch-p").textContent = d.done[i] ? "Complete" : `${fmt(p)} / ${fmt(goal)}`;
     box.append(row); });
-  $("dailyBonus").textContent = d.bonus ? `All done! You earned the ${DAILY_BONUS}-coin bonus. New challenges at midnight Eastern.` : `Finish all 3 for a ${DAILY_BONUS}-coin bonus · new challenges at midnight Eastern`;
+  $("dailyBonus").textContent = d.bonus ? `All done! You earned the ${DAILY_BONUS}-pick bonus. New challenges at midnight Eastern.` : `Finish all 3 for a ${DAILY_BONUS}-pick bonus · new challenges at midnight Eastern`;
 }
 
 /* ---------- ownership (test mode unlocks everything to try) ---------- */
 const ownsPack = id => TEST.on || !!state.owned[id];
 const ownsGadget = id => TEST.on || !!state.gadgets[id];
-const ownsLook = (k, i) => TEST.on || LOOK_PARTS.find(p => p.key === k).opts[i][1] === 0 || !!state.looksOwned[k + ":" + i];
+const ownsRocker = id => TEST.on || !!state.rockers[id];
 const ownsStage = id => TEST.on || !!state.stages[id];
 const equipped = id => state.equip.includes(id);
 function spend(price, what){
   if (TEST.on){ toast("Buying is off in test mode, but you can try it on"); return false; }
-  if (state.coins < price){ toast(`You need ${fmt(price - state.coins)} more coins for ${what}`); return false; }
+  if (state.coins < price){ toast(`You need ${fmt(price - state.coins)} more picks for ${what}`); return false; }
   state.coins -= price; return true;
 }
 // after test mode, put back anything that isn't really owned
 function fixEquips(){
   if (!state.owned[state.selected]) state.selected = 0;
   state.equip = state.equip.filter(id => state.gadgets[id]).slice(0, state.slots);
-  LOOK_PARTS.forEach(p => { if (!(p.opts[state.look[p.key]] && (p.opts[state.look[p.key]][1] === 0 || state.looksOwned[p.key + ":" + state.look[p.key]]))) state.look[p.key] = DEFAULT_LOOK[p.key]; });
+  if (!state.rockers[state.rocker]) state.rocker = 0;
   if (!state.stages[state.stage]) state.stage = "arena";
 }
 
@@ -863,16 +910,16 @@ function renderHUD(){
   $("recRuns").textContent = fmt(state.runs);
   $("recLife").textContent = fmt(state.lifetimeCoins);
   $("recChests").textContent = fmt(state.chests);
-  const g = curCar();
-  $("nowGtr").textContent = g.name; $("nowGtr").style.color = TIERS[g.tier].color;
+  const g = curCar(), rk = curRocker();
+  $("nowGtr").textContent = rk.name + " with the " + g.name; $("nowGtr").style.color = TIERS[g.tier].color;
   $("nowPerk").textContent = TRAIL_NAME[g.trail] + " · " + (STAGES.find(s => s[0] === curStage()) || STAGES[0])[1] + (state.equip.length ? " · " + state.equip.map(id => GADGETS.find(x => x.id === id).name).join(", ") : "");
   $("shopCoins").textContent = fmt(state.coins);
 }
 let shopTab = "packs";
 function renderShop(){
   document.querySelectorAll("#shopTabs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.t === shopTab));
-  ["packs","abilities","look","stages"].forEach(t => $("tab-" + t).hidden = t !== shopTab);
-  if (shopTab === "packs") renderPacks(); else if (shopTab === "abilities") renderGadgets(); else if (shopTab === "look") renderLook(); else renderStages();
+  ["packs","abilities","rockers","stages"].forEach(t => $("tab-" + t).hidden = t !== shopTab);
+  if (shopTab === "packs") renderPacks(); else if (shopTab === "abilities") renderGadgets(); else if (shopTab === "rockers") renderRockers(); else renderStages();
 }
 const cardCanvases = [];
 function renderPacks(){
@@ -921,41 +968,39 @@ function renderGadgets(){
     d.append(btn); box.append(d);
   });
 }
-function renderLook(){
-  const box = $("lookOpts"); box.textContent = "";
-  LOOK_PARTS.forEach(p => {
-    const row = document.createElement("div"); row.className = "lrow";
-    const h = document.createElement("span"); h.className = "lh"; h.textContent = p.label; row.append(h);
-    const list = document.createElement("div"); list.className = "lopts";
-    p.opts.forEach(([val, price], i) => {
-      const own = ownsLook(p.key, i), on = state.look[p.key] === i;
-      const b = document.createElement("button"); b.type = "button"; b.className = "lopt" + (on ? " on" : "") + (own ? "" : " locked");
-      if (p.kind === "color"){ b.classList.add("sw"); b.style.setProperty("--c", val); b.setAttribute("aria-label", (own ? "" : "Locked, ") + p.label + (price && !own ? ", " + price + " coins" : "")); }
-      else b.textContent = OPT_NAME[val] || val;
-      if (!own){ const pr = document.createElement("small"); pr.textContent = fmt(price); b.append(pr); }
-      b.addEventListener("click", () => {
-        if (!own){ if (!spend(price, "that")) return; state.looksOwned[p.key + ":" + i] = 1; Sound.click(); }
-        state.look[p.key] = i; Saves.save(); renderLook(); renderNow(); renderHUD(); });
-      list.append(b); });
-    row.append(list); box.append(row);
+function renderRockers(){
+  const box = $("rockers"); box.textContent = "";
+  ROCKERS.forEach(c => {
+    const own = ownsRocker(c.id), on = curRocker().id === c.id, t = TIERS[c.tier];
+    const b = document.createElement("div"); b.className = "card shop rk" + (on ? " sel" : ""); b.style.setProperty("--rc", t.color);
+    const cv = document.createElement("canvas"); cv.width = 120; cv.height = 120;
+    const nm = document.createElement("span"); nm.className = "cn"; nm.textContent = c.name; if (isCreator(c)) nm.classList.add("creator");
+    const st = document.createElement("span"); st.className = "cs2"; st.textContent = c.tag;
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn small" + (own ? " ghost" : "");
+    btn.textContent = on ? "Playing" : own ? "Play as" : "Buy · " + fmt(c.price); btn.disabled = on;
+    btn.addEventListener("click", () => {
+      if (!own){ if (!spend(c.price, c.name)) return; state.rockers[c.id] = 1; Sound.reveal(Math.min(5, c.tier)); toast("Unlocked " + c.name + "!"); }
+      if (TEST.on) TEST.rocker = c.id; else state.rocker = c.id;
+      Saves.save(true); renderAll(); });
+    b.append(cv, nm, st, btn); box.append(b);
+    const x = setupCanvas(cv); drawChar(x, c, {x:60, y:112, s:5.2, t:0, glow:false});
   });
-  drawLookPreview();
 }
-function drawLookPreview(t){ const cv = $("lookCv"), x = setupCanvas(cv); x.clearRect(0, 0, cv.width, cv.height); drawPlayer(x, curRocker(), curCar(), {x:cv.width/2 + 10, y:cv.height - 10, s:6, t: t || 0, pose:"idle"}); }
 function renderStages(){
   const box = $("stages"); box.textContent = "";
   STAGES.forEach(([id, name, price]) => {
     const own = ownsStage(id), on = curStage() === id;
     const d = document.createElement("div"); d.className = "stg" + (on ? " on" : "");
-    const cv = document.createElement("canvas"); cv.width = 200; cv.height = 90;
+    const cv = document.createElement("canvas"); cv.width = 240; cv.height = 108;
     const nm = document.createElement("b"); nm.textContent = name;
+    const ds = document.createElement("span"); ds.className = "sd"; ds.textContent = STAGE_INFO[id] || "";
     const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn small" + (own ? " ghost" : "");
     btn.textContent = on ? "Selected" : own ? "Play here" : "Buy · " + fmt(price); btn.disabled = on;
     btn.addEventListener("click", () => {
       if (!own){ if (!spend(price, name)) return; state.stages[id] = 1; Sound.reveal(2); toast("Unlocked " + name + "!"); }
       if (TEST.on) TEST.stage = id; else state.stage = id;
       Saves.save(true); renderAll(); });
-    d.append(cv, nm, btn); box.append(d);
+    d.append(cv, nm, ds, btn); box.append(d);
     stageThumb(cv, id);
   });
 }
@@ -968,12 +1013,12 @@ $("shopTabs").addEventListener("click", e => { const b = e.target.closest("butto
    Every pack, ability, look and stage can be tried. Nothing in test mode touches real progress:
    no coins, no best score, no challenges, no leaderboard. It switches off when the page reloads.
    In test mode, type "wallofsound", "powerup" or "laserbeam" for those events. */
-const TEST = { on:false, car:0, stage:"arena" };
+const TEST = { on:false, car:0, rocker:0, stage:"arena" };
 const curCar = () => TEST.on ? CHARS[TEST.car] : CHARS[state.selected];
 const curStage = () => TEST.on ? TEST.stage : state.stage;
 function setTest(on){
   if (game.state === "running") endRun();
-  TEST.on = on; TEST.car = state.selected; TEST.stage = state.stage;
+  TEST.on = on; TEST.car = state.selected; TEST.rocker = state.rocker; TEST.stage = state.stage;
   if (!on){ fixEquips(); Saves.save(); }
   $("testBar").hidden = !on;
   document.body.classList.toggle("testing", on);
@@ -1034,7 +1079,7 @@ $("copyCode").addEventListener("click", () => {
 });
 let pendingImport = null;
 $("loadCode").addEventListener("click", () => {
-  try { pendingImport = decodeSave($("codeBox").value); $("loadConfirm").hidden = false; $("codeMsg").textContent = `Code holds ${fmt(pendingImport.coins)} coins and ${Object.keys(pendingImport.owned).length} guitar packs.`; }
+  try { pendingImport = decodeSave($("codeBox").value); $("loadConfirm").hidden = false; $("codeMsg").textContent = `Code holds ${fmt(pendingImport.coins)} picks and ${Object.keys(pendingImport.owned).length} guitar packs.`; }
   catch (e) { $("codeMsg").textContent = e.message; }
 });
 $("loadNo").addEventListener("click", () => { pendingImport = null; $("loadConfirm").hidden = true; $("codeMsg").textContent = ""; renderCode(); });
@@ -1152,6 +1197,8 @@ const Sound = (() => {
       if (tier >= 5){ [1047,1319,1568,2093].forEach((f,i) => T(f, 1.8, {type:"triangle", vol:.07, at:1.0 + i*.12})); T(41, 2, {type:"sine", vol:.6, at:.0, slide:28}); }
     },
     click(){ if (!ok()) return; tone(660, .05, {type:"square", vol:.07}); },
+    // incoming speaker alarm: sharp two-tone beeps that speed up as it locks on
+    alarm(lock){ if (!ok()) return; tone(lock ? 1568 : 1319, .07, {type:"square", vol:.07, cutoff:3600, attack:.002}); tone(lock ? 1175 : 988, .06, {type:"square", vol:.05, at:.075, cutoff:3600, attack:.002}); },
   };
 
   function setSfx(on){ prefs.sfx = on; LS.set(PREFIX + "sfx", on ? "on" : "off"); if (ac) sfxBus.gain.value = on ? SFX_VOL : 0; if (!on) thrust(false); renderSoundButtons(); }
@@ -1178,7 +1225,7 @@ document.addEventListener("click", e => {
 });
 
 /* ============================== GAME ============================== */
-const cv = $("game"), ctx = setupCanvas(cv);
+const cv = $("game"); let ctx = setupCanvas(cv);
 // Wide screens see a 640 x 240 view. Phones in full screen see 370 across and as tall as the screen.
 let GW = 640, SCALE = 1, GH = 240, PX = 120, CEIL = 30, FLOOR = 214;
 let PS = 1.6;                                        // the rocker's pixel size (set by sizeGame)
@@ -1226,7 +1273,7 @@ const WALL_CHANCE = 0.01;                    // the Wall of Sound shows up in ab
 const game = {state:"ready", t:0, speed:0, dist:0, round:1, roundDist:0, runCoins:0, py:214, vy:0, onFloor:true, holding:false,
   obs:[], coins:[], parts:[], trail:[], nextObs:0, nextSpeaker:0, banner:null, flash:0, paused:false, mt:0};
 const stars = Array.from({length:70},()=>({x:Math.random()*1000, y:Math.random()*400, s:Math.random()<.2?2:1, p:Math.random()*6}));
-const curRocker = () => lookOf(state.look);
+const curRocker = () => ROCKERS[TEST.on ? TEST.rocker : state.rocker] || ROCKERS[0];
 const hasGadget = id => state.equip.includes(id) && ownsGadget(id);
 function resetRun(){
   Object.assign(game, {t:0, speed:370, dist:0, round:1, roundDist:0, runCoins:0, py:FLOOR, vy:0, onFloor:true, obs:[], coins:[], parts:[], trail:[], nextObs:420, nextSpeaker:7, beams:[], nextBeam:14, boxes:[], nextBox:9, pu:{magnet:0, shield:0, dash:0, double:0}, invuln:0,
@@ -1254,7 +1301,7 @@ function endRun(){
   game.newBest = newBest;
   Saves.save(true); renderHUD(); renderCode();
   submitScore(d);
-  if (Saves.mode !== "fire" && Saves.auth){ $("ocSum").textContent = `${fmt(d)} m · +${game.runCoins} coins`; $("overCta").hidden = false; }
+  if (Saves.mode !== "fire" && Saves.auth){ $("ocSum").textContent = `${fmt(d)} m · +${game.runCoins} picks`; $("overCta").hidden = false; }
 }
 function thrustOn(){
   if (game.state === "monster") return;
@@ -1329,7 +1376,7 @@ function update(dt){
     const bonus = 2*game.round; Sound.round();
     if (!TEST.on){ state.coins += bonus; state.lifetimeCoins += bonus; } game.runCoins += bonus;
     game.round++; game.roundDist = 0;
-    game.banner = {text:"Round " + game.round, sub:"+" + bonus + " coin round bonus", t:2};
+    game.banner = {text:"Round " + game.round, sub:"+" + bonus + " pick round bonus", t:2};
     game.flash = .2; Saves.save(); renderHUD();
   }
   // flying: hold to rise, let go to fall
@@ -1369,7 +1416,7 @@ function update(dt){
   for (const o of game.obs){
     if (o.type === "laser"){ o.x -= dx; o.ang += o.spin*dt; if (!safe && !o.dead && laserHits(o, box)){ if (useShield()) o.dead = true; else return crash(o.col); } }
     else {
-      if (o.state === "warn"){ o.wt -= dt; if (o.wt > .45) o.y += ((game.py - 12*PS) - o.y) * Math.min(1, dt*5); if (o.wt <= 0){ o.state = "fly"; Sound.speaker(); } }
+      if (o.state === "warn"){ o.wt -= dt; o.bt = (o.bt || 0) - dt; if (o.bt <= 0){ const lock = o.wt <= .45; Sound.alarm(lock); o.bt = lock ? .16 : Math.max(.2, Math.min(.42, o.wt*.3)); } if (o.wt > .45) o.y += ((game.py - 12*PS) - o.y) * Math.min(1, dt*5); if (o.wt <= 0){ o.state = "fly"; Sound.speaker(); } }
       else { o.x -= dx + 260*dt; if (!safe && !o.dead && hit(box, {x:o.x - o.w/2 + 3, y:o.y - o.h/2 + 3, w:o.w - 6, h:o.h - 6})){ if (useShield()) o.dead = true; else return crash("#ffd34d"); } }
     }
   }
@@ -1382,7 +1429,7 @@ function update(dt){
     if (hit(box, {x:c.x - c.r, y:c.y - c.r, w:c.r*2, h:c.r*2})){
       const v = (game.pu.double > 0 ? 2 : 1) * (hasGadget("bonus") && Math.random() < .25 ? 2 : 1); dailyProgress("coins", v);
       if (!TEST.on){ state.coins += v; state.lifetimeCoins += v; } game.runCoins += v; Sound.coin();
-      burst(c.x, c.y, "#ffe08a", 4); renderHUD(); return false; }
+      burst(c.x, c.y, "#ffb23f", 4); renderHUD(); return false; }
     return true; });
   game.parts.forEach(p=>{ p.x += p.vx*dt; p.y += p.vy*dt; p.vy += 300*dt; p.life -= dt; });
   game.parts = game.parts.filter(p=>p.life>0);
@@ -1397,10 +1444,10 @@ function spawnBeams(){
 }
 /* ---------- power-ups ---------- */
 const POWERUPS = {
-  magnet: {name:"Encore Magnet",      sub:"Pulls in every coin nearby", col:"#ff4fa3", time:9},
+  magnet: {name:"Encore Magnet",      sub:"Pulls in every pick nearby", col:"#ff4fa3", time:9},
   shield: {name:"Bodyguard",          sub:"Takes one hit for you",      col:"#2de2e6", time:15},
   dash:   {name:"Power Chord Rush",   sub:"Blast ahead, can't be hurt",  col:"#ffd34d", time:3.5},
-  double: {name:"Gold Record",        sub:"Every coin is worth 2",      col:"#ffb23f", time:10},
+  double: {name:"Gold Record",        sub:"Every pick is worth 2",      col:"#ffb23f", time:10},
 };
 function spawnBox(){ game.boxes.push({x: GW + 20, y: CEIL + 50 + Math.random()*(FLOOR - CEIL - 90), ph: 0}); }
 function grabPowerUp(){
@@ -1448,6 +1495,15 @@ function drawPlayerFx(){
   if (game.pu.shield > 0){ ctx.strokeStyle = "rgba(45,226,230,.8)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, cy, 13*PS, 17*PS, 0, 0, Math.PI*2); ctx.stroke(); ctx.fillStyle = "rgba(45,226,230,.12)"; ctx.fill(); }
   if (game.pu.magnet > 0){ ctx.strokeStyle = "rgba(255,79,163,.35)"; ctx.lineWidth = 1; const r = 20 + ((game.t*40) % 30); ctx.beginPath(); ctx.arc(cx, cy, r*PS*.8, 0, Math.PI*2); ctx.stroke(); }
   if (game.pu.dash > 0){ ctx.fillStyle = "rgba(255,211,77,.5)"; for (let i = 0; i < 6; i++){ const yy = cy - 18 + i*7, len = 30 + ((i*37 + Math.floor(game.t*60)) % 40); ctx.fillRect(cx - 20 - len, yy, len, 2); } }
+}
+// the cheapest thing in the shop you can't afford yet (shown on the end screen)
+function nextBuy(){
+  const list = [];
+  CHARS.forEach(c => { if (!state.owned[c.id]) list.push({name:"the " + c.name, price:c.price}); });
+  ROCKERS.forEach(c => { if (!state.rockers[c.id]) list.push({name:c.name, price:c.price}); });
+  GADGETS.forEach(g => { if (!state.gadgets[g.id]) list.push({name:g.name, price:g.price}); });
+  STAGES.forEach(([id, name, price]) => { if (!state.stages[id]) list.push({name, price}); });
+  return list.filter(x => x.price > state.coins).sort((a, b) => a.price - b.price)[0] || null;
 }
 function crash(col){
   if (game.second){ game.second = false; game.invuln = 2; game.flash = 0; burst(PX, game.py - 20, "#2de2e6", 16); Sound.shieldPop(); game.banner = {text:"Second Chance!", sub:"Keep rocking", t:1.5}; return; }
@@ -1522,7 +1578,7 @@ function drawTrail(){
       case "o": ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 1.5, 0, Math.PI*2); ctx.stroke(); ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fillRect(x - 1, y - 2, 1, 1); break;
       case "n": ctx.fillRect(x - 2, y, 5, 1); ctx.fillRect(x, y - 2, 1, 5); ctx.fillRect(x - 1, y - 1, 1, 1); ctx.fillRect(x + 1, y + 1, 1, 1); ctx.fillRect(x + 1, y - 1, 1, 1); ctx.fillRect(x - 1, y + 1, 1, 1); break;
       case "u": ctx.fillRect(x - 2, y - 2, 5, 4); ctx.fillRect(x - 1, y + 2, 3, 1); ctx.fillStyle = "#14101c"; ctx.fillRect(x - 1, y - 1, 1, 1); ctx.fillRect(x + 1, y - 1, 1, 1); break;
-      case "g": { const w = Math.max(1, Math.abs(Math.cos(p.rot))*3); ctx.fillStyle = "#a8701c"; ctx.fillRect(x - w, y - 3, w*2, 6); ctx.fillStyle = "#ffd34d"; ctx.fillRect(x - w + .5, y - 2.5, w*2 - 1, 5); break; }
+      case "g": { const w = Math.max(1, Math.abs(Math.cos(p.rot))*3.5); ctx.fillStyle = "#a8701c"; ctx.beginPath(); ctx.ellipse(x, y, w + .6, 4, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = "#ffd34d"; ctx.beginPath(); ctx.ellipse(x, y, w, 3.4, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = "#1c1c22"; ctx.fillRect(x - .7, y - .7, 1.4, 1.4); break; }
       case "z": ctx.fillRect(x, y - 6, 2, 10); ctx.fillStyle = "#ffffff"; ctx.fillRect(x, y - 4, 1, 6); break;
       case "w": ctx.fillStyle = "#ffd34d"; ctx.fillRect(x, y, 2, 2); ctx.fillStyle = "rgba(255,200,120,.5)"; ctx.fillRect(x + 1, y - 4, 1, 4); break;
       case "y": ctx.fillRect(x - 3, y - 2, 6, 4); break;
@@ -1532,115 +1588,281 @@ function drawTrail(){
   ctx.globalAlpha = 1;
 }
 
-/* ============================== WORLDS ==============================
-   The arena is the default. Each Mythic guitar or rocker brings its own world (a Mythic rocker's world wins). */
-const WORLDS = {"Thunderstrike":"Storm Rooftop", "Phoenix Fire":"Volcano Fest", "Starlight Dream":"Cosmic Stage", "Neon Viper":"Neon Strip",
-  "THE CREATOR":"Platinum Stadium", "Electra Nova":"Synthwave Highway", "Raven Nightshade":"Midnight Castle", "Rex Thunderbolt":"Desert Festival"};
-const worldName = () => curStage() === "arena" ? null : curStage();
-const themeFor = c => WORLDS[c.name] ? {world: WORLDS[c.name]} : null;
+/* ============================== STAGES ==============================
+   Each stage has its own backdrop and its own band gear sitting on the stage floor,
+   scrolling past like the lab gear in a jetpack game. Gear is drawn in muted colors so
+   the lasers and speakers always stand out. Nothing blinks or pulses. */
+const worldName = () => curStage() === "arena" ? null : (STAGES.find(x => x[0] === curStage()) || [0, null])[1];
 const wrapX = (x, span) => ((x % span) + span) % span;
 const loopX = (scroll, speed, span) => -((scroll*speed) % span);
+const F = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+const circ = (x, y, r, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill(); };
+const ell = (x, y, rx, ry, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x, y, Math.max(.1, rx), Math.max(.1, ry), 0, 0, Math.PI*2); ctx.fill(); };
+const poly = (pts, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i+1]); ctx.closePath(); ctx.fill(); };
+function hash(k, seed){ let h = Math.imul(k | 0, 374761393) + Math.imul(seed | 0, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return (h ^ (h >>> 16)) >>> 0; }
 function vGrad(c1, c2, c3, y0, y1){ const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, c1); g.addColorStop(.6, c2); g.addColorStop(1, c3); ctx.fillStyle = g; ctx.fillRect(0, y0, GW, y1 - y0); }
-function truss(col, hi){ const y = CEIL - 12; ctx.fillStyle = shade(col, -.4); ctx.fillRect(0, 0, GW, CEIL);
-  ctx.fillStyle = col; ctx.fillRect(0, y, GW, 2); ctx.fillRect(0, CEIL - 2, GW, 2);
-  for (let x = loopX(game.dist*10, 1, 16); x < GW; x += 16){ ctx.fillRect(Math.floor(x), y, 1, 12); for (let k = 0; k < 8; k++) ctx.fillRect(Math.floor(x) + k*2, y + 2 + k, 1, 1); }
-  if (hi) { ctx.fillStyle = hi; ctx.fillRect(0, y, GW, 1); } }
-function floorBand(c1, c2, line){ const g = ctx.createLinearGradient(0, FLOOR, 0, GH); g.addColorStop(0, c1); g.addColorStop(1, c2); ctx.fillStyle = g; ctx.fillRect(0, FLOOR, GW, GH - FLOOR);
-  ctx.fillStyle = line; ctx.fillRect(0, FLOOR, GW, 2); for (let x = loopX(game.dist*10, 1, 40); x < GW; x += 40) ctx.fillRect(Math.floor(x), FLOOR + 2, 1, GH - FLOOR); }
-function crowd(col, y, speed){ ctx.fillStyle = col; for (let x = loopX(game.dist*10, speed, 9) - 9; x < GW + 9; x += 9){ const k = Math.abs(Math.floor((x + game.dist*10*speed)/9));
-  const h = 6 + (k*7) % 5; ctx.fillRect(Math.floor(x), y - h, 6, h + 30); ctx.fillRect(Math.floor(x) + 1, y - h - 4, 4, 4); if (k % 5 === 0){ ctx.fillRect(Math.floor(x) + 5, y - h - 10, 1, 7); } }
-  ctx.fillStyle = "rgba(255,200,120,.55)"; for (let x = loopX(game.dist*10, speed, 47); x < GW; x += 47) ctx.fillRect(Math.floor(x) + 5, y - 22 - (Math.floor(x) % 3), 1, 2); }
+const scrollPx = () => game.dist*10;
+// a row of things that repeat as you fly: list holds draw functions (null = empty spot)
+function propRow(list, spacing, seed, speed, y){
+  speed = speed || 1; y = y === undefined ? FLOOR : y;
+  const sc = scrollPx()*speed, k0 = Math.floor(sc/spacing) - 2, k1 = k0 + Math.ceil(GW/spacing) + 3;
+  for (let k = k0; k <= k1; k++){ const h = hash(k, seed), fn = list[h % list.length]; if (fn) fn(Math.round(k*spacing - sc + (h >>> 9) % Math.floor(spacing*.3)), y, h); }
+}
+function txt(str, x, y, size, col){ ctx.font = `${size}px "Press Start 2P", monospace`; ctx.textAlign = "left"; ctx.fillStyle = col; ctx.fillText(str, Math.round(x), Math.round(y)); }
+
+/* ---------- shared pieces ---------- */
+function truss(col, hi){ const y = CEIL - 12; F(0, 0, GW, CEIL, shade(col, -.4));
+  F(0, y, GW, 2, col); F(0, CEIL - 2, GW, 2, col);
+  for (let x = loopX(scrollPx(), 1, 16); x < GW; x += 16){ F(x, y, 1, 12, col); for (let k = 0; k < 8; k++) F(x + k*2, y + 2 + k, 1, 1, col); }
+  if (hi) F(0, y, GW, 1, hi); }
+// stage lamps hanging from the truss with soft, slow-swaying beams
 function lightBeams(cols, alpha){ cols.forEach((c, i) => { const x = GW*(.15 + i*.25) + Math.sin(game.t*.35 + i*1.7)*40; ctx.fillStyle = c.replace("ALPHA", alpha);
   ctx.beginPath(); ctx.moveTo(x - 5, CEIL); ctx.lineTo(x + 5, CEIL); ctx.lineTo(x + 70, FLOOR); ctx.lineTo(x - 70, FLOOR); ctx.fill(); }); }
-function starField(col, maxY){ stars.forEach(st => { ctx.fillStyle = col; ctx.fillRect(Math.floor(wrapX(st.x - game.dist*.4, GW)), Math.floor(CEIL + st.y % Math.max(10, maxY - CEIL)), st.s, st.s); }); }
+function lamps(col){ for (let x = loopX(scrollPx(), 1, 64) + 20; x < GW + 64; x += 64){ F(x - 1, CEIL - 2, 2, 4, "#2a2a30"); F(x - 5, CEIL + 1, 10, 7, "#1a1a20"); F(x - 4, CEIL + 7, 8, 2, col); } }
+// wooden stage boards with tape marks
+function boards(c1, c2, line, tape){ const g = ctx.createLinearGradient(0, FLOOR, 0, GH); g.addColorStop(0, c1); g.addColorStop(1, c2); ctx.fillStyle = g; ctx.fillRect(0, FLOOR, GW, GH - FLOOR);
+  F(0, FLOOR, GW, 2, line);
+  for (let y = FLOOR + 7; y < GH; y += 7) F(0, y, GW, 1, "rgba(0,0,0,.25)");
+  for (let x = loopX(scrollPx(), 1, 56); x < GW; x += 56) F(x, FLOOR + 2, 1, GH - FLOOR, "rgba(0,0,0,.22)");
+  if (tape) for (let x = loopX(scrollPx(), 1, 230) + 90; x < GW + 20; x += 230){ F(x, FLOOR + 9, 9, 2, tape); F(x + 4, FLOOR + 5, 2, 10, tape); } }
+function crowd(col, y, speed, lighters){ for (let x = loopX(scrollPx(), speed, 9) - 9; x < GW + 9; x += 9){ const k = Math.abs(Math.floor((x + scrollPx()*speed)/9));
+  const h = 6 + (k*7) % 5; F(x, y - h, 6, h + 30, col); F(x + 1, y - h - 4, 4, 4, col); if (k % 5 === 0) F(x + 5, y - h - 10, 1, 7, col);
+  if (lighters && k % 7 === 2){ F(x + 5, y - h - 13, 1, 3, "#3a3a3a"); F(x + 5, y - h - 16, 1, 3, "rgba(255,200,110,.7)"); } } }
+function starField(col, maxY){ stars.forEach(st => F(wrapX(st.x - game.dist*.4, GW), CEIL + st.y % Math.max(10, maxY - CEIL), st.s, st.s, col)); }
+function dim(a){ F(0, 0, GW, FLOOR, `rgba(0,0,0,${a})`); }
+
+/* ---------- band gear (x = left edge, y = the floor) ---------- */
+const G = {
+  amp(x, y, h){ const W = 38, cab = yy => { F(x, yy - 27, W, 27, "#121214"); F(x + 2, yy - 25, W - 4, 23, "#24242a"); for (let i = 0; i < 8; i++) for (let j = 0; j < 5; j++) F(x + 4 + i*4, yy - 23 + j*4, 2, 2, "#1a1a1e"); F(x, yy - 27, W, 1, "#4a4a50"); };
+    cab(y); cab(y - 28); F(x, y - 70, W, 14, "#121214"); F(x + 2, y - 68, W - 4, 4, "#7a7262"); for (let i = 0; i < 6; i++) F(x + 4 + i*5, y - 67, 2, 2, "#18181c"); F(x + 11, y - 62, 16, 3, "#8a8a90"); F(x + 2, y - 59, W - 4, 1, "#2a2a30"); },
+  combo(x, y, h){ const c = ["#2a1e14","#1c1c22","#3a2a1a"][h % 3]; F(x, y - 28, 32, 28, c); F(x + 3, y - 21, 26, 18, "#3a3428"); for (let i = 0; i < 6; i++) F(x + 5 + i*4, y - 19, 1, 14, "#2a261e"); F(x + 2, y - 27, 28, 5, "#6a6252"); for (let i = 0; i < 5; i++) F(x + 5 + i*5, y - 26, 2, 2, "#1a1a1e"); F(x + 12, y - 31, 8, 3, "#14141a"); },
+  mic(x, y, h){ F(x + 2, y - 2, 20, 2, "#34343a"); F(x + 6, y - 5, 12, 3, "#2a2a30"); F(x + 11, y - 54, 2, 50, "#5a5a62");
+    for (let i = 0; i < 14; i++) F(x + 12 + i, y - 54 - i*.45, 2, 2, "#5a5a62"); F(x + 25, y - 63, 6, 3, "#2a2a30"); F(x + 30, y - 64, 4, 5, "#8a8a92"); F(x + 13, y - 46, 1, 30, "#18181c"); },
+  wedge(x, y, h){ poly([x, y, x + 34, y, x + 30, y - 14, x + 8, y - 17], "#18181c"); poly([x + 4, y - 2, x + 30, y - 2, x + 27, y - 12, x + 10, y - 14], "#26262c"); for (let i = 0; i < 5; i++) F(x + 11 + i*4, y - 12, 1, 9, "#1a1a1e"); },
+  drums(x, y, h){ const head = ["#7a2a2a","#2a3a6a","#6a5a2a","#3a3a3a"][h % 4];
+    F(x - 6, y - 9, 96, 9, "#1e1a18"); F(x - 6, y - 9, 96, 2, "#3a3230");
+    F(x + 8, y - 66, 1, 57, "#4a4a50"); ell(x + 8, y - 66, 12, 2, "#7a6a3a"); F(x + 78, y - 70, 1, 61, "#4a4a50"); ell(x + 78, y - 70, 13, 2.4, "#7a6a3a");
+    F(x + 2, y - 44, 1, 35, "#4a4a50"); ell(x + 2, y - 44, 8, 1.6, "#7a6a3a"); ell(x + 2, y - 42, 8, 1.6, "#6a5a2a");
+    circ(x + 42, y - 27, 18, "#2a2024"); circ(x + 42, y - 27, 15, "#b8b0a0"); circ(x + 42, y - 27, 9, head); F(x + 36, y - 28, 12, 2, "#d8d0c0");
+    F(x + 14, y - 34, 16, 7, "#5a5a62"); F(x + 14, y - 34, 16, 2, "#9a9aa2"); F(x + 21, y - 27, 1, 18, "#4a4a50");
+    ell(x + 31, y - 48, 8, 6, "#3a2a2e"); ell(x + 31, y - 50, 7, 3, "#a8a090"); ell(x + 53, y - 48, 8, 6, "#3a2a2e"); ell(x + 53, y - 50, 7, 3, "#a8a090");
+    F(x + 62, y - 38, 16, 29, "#3a2a2e"); F(x + 62, y - 38, 16, 3, "#a8a090"); },
+  roadCase(x, y, h){ const w = 46, hh = 28, col = ["#26262c","#3a2420","#1e2a3a","#2a3022","#2a2a2a"][h % 5];
+    const box = (bx, by, bw, bh) => { F(bx, by - bh, bw, bh, col); F(bx, by - bh, bw, 2, "#7a7a82"); F(bx, by - 2, bw, 2, "#5a5a62"); F(bx, by - bh, 2, bh, "#6a6a72"); F(bx + bw - 2, by - bh, 2, bh, "#6a6a72");
+      [[0,0],[bw - 4,0],[0,bh - 4],[bw - 4,bh - 4]].forEach(([dx, dy]) => F(bx + dx, by - bh + dy, 4, 4, "#9a9aa2")); F(bx + bw/2 - 5, by - bh + 7, 10, 2, "#121216"); };
+    box(x, y, w, hh); txt(["TOUR 86","FRAGILE","STAGE L","AMPS","DRUMS","THIS SIDE UP"][(h >>> 4) % 6], x + 6, y - 7, 5, "rgba(230,226,210,.5)");
+    if ((h >>> 7) % 3 === 0){ box(x + 6, y - hh, 32, 18); } },
+  gtrStand(x, y, h){ const g = CHARS[(h >>> 5) % CHARS.length]; F(x + 4, y - 3, 18, 3, "#34343a"); F(x + 12, y - 18, 2, 16, "#4a4a52");
+    ctx.save(); ctx.translate(x + 13, y - 6); ctx.rotate(-Math.PI/2 + .1); ctx.scale(1.35, 1.35); paintGuitar(ctx, g, 0, false); ctx.restore(); F(x + 8, y - 16, 10, 2, "#2a2a30"); },
+  speakers(x, y, h){ for (let k = 0; k < 3; k++){ const by = y - k*25; F(x, by - 24, 32, 24, "#141418"); F(x + 2, by - 22, 28, 20, "#22222a"); circ(x + 11, by - 12, 7, "#121216"); circ(x + 11, by - 12, 3, "#3a3a44"); circ(x + 24, by - 17, 3, "#121216"); circ(x + 24, by - 7, 3, "#121216"); } },
+  cable(x, y, h){ ctx.strokeStyle = "#101014"; ctx.lineWidth = 2; for (let i = 0; i < 3; i++){ ctx.beginPath(); ctx.ellipse(x + 14 + i, y - 4, 12 - i*2, 3, 0, 0, Math.PI*2); ctx.stroke(); } F(x + 26, y - 3, 30, 2, "#101014"); },
+  couch(x, y, h){ const c = ["#3a3048","#4a2a22","#2a3a3a"][h % 3]; F(x + 2, y - 32, 60, 14, shade(c, -.15)); F(x, y - 20, 64, 14, c); F(x - 3, y - 26, 7, 20, shade(c, .1)); F(x + 60, y - 26, 7, 20, shade(c, .1)); F(x + 31, y - 20, 1, 10, shade(c, -.3)); F(x + 2, y - 6, 3, 6, "#1a1210"); F(x + 59, y - 6, 3, 6, "#1a1210");
+    F(x + 40, y - 26, 12, 8, "#6a5a3a"); },
+  bike(x, y, h){ ctx.strokeStyle = "#3a3a44"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x + 10, y - 10, 9, 0, Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(x + 44, y - 10, 9, 0, Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = "#7a2a2a"; ctx.beginPath(); ctx.moveTo(x + 10, y - 10); ctx.lineTo(x + 24, y - 10); ctx.lineTo(x + 38, y - 26); ctx.lineTo(x + 20, y - 26); ctx.lineTo(x + 10, y - 10); ctx.moveTo(x + 24, y - 10); ctx.lineTo(x + 18, y - 30); ctx.moveTo(x + 38, y - 26); ctx.lineTo(x + 44, y - 10); ctx.stroke();
+    F(x + 14, y - 32, 9, 3, "#1a1a1e"); F(x + 35, y - 33, 2, 6, "#3a3a44"); F(x + 33, y - 34, 8, 2, "#3a3a44"); },
+  boxes(x, y, h){ F(x, y - 20, 30, 20, "#6a4e32"); F(x + 14, y - 20, 2, 20, "#8a6e4a"); F(x + 4, y - 36, 24, 16, "#5a4228"); F(x + 15, y - 36, 2, 16, "#7a5e3a"); txt("JUNK", x + 3, y - 6, 5, "rgba(30,20,10,.55)"); },
+  stool(x, y, h){ F(x, y - 30, 18, 5, "#4a1a1a"); F(x + 1, y - 31, 16, 1, "#6a2a2a"); F(x + 8, y - 25, 2, 23, "#5a5a62"); F(x + 3, y - 11, 12, 1, "#5a5a62"); F(x + 2, y - 2, 14, 2, "#3a3a40"); },
+  rack(x, y, h){ F(x, y - 52, 2, 50, "#4a4a52"); F(x + 54, y - 52, 2, 50, "#4a4a52"); F(x, y - 52, 56, 2, "#5a5a62"); F(x - 2, y - 3, 60, 2, "#34343a");
+    ["#5a1a1a","#1a1a1e","#2a3a5a","#6a5a2a","#3a2a4a","#1a3a2a"].forEach((c, i) => { if ((h >>> i) % 4 === 0) return; F(x + 4 + i*8, y - 50, 1, 3, "#8a8a92"); F(x + 2 + i*8, y - 47, 8, 26, c); F(x + 2 + i*8, y - 47, 8, 3, shade(c, .2)); }); },
+  gtrRack(x, y, h){ F(x, y - 8, 60, 8, "#2a2228"); F(x, y - 8, 60, 2, "#4a3a3a"); for (let i = 0; i < 3; i++){ const g = CHARS[(h >>> (3 + i*4)) % CHARS.length];
+    ctx.save(); ctx.translate(x + 12 + i*18, y - 7); ctx.rotate(-Math.PI/2 + .06); ctx.scale(1.15, 1.15); paintGuitar(ctx, g, 0, false); ctx.restore(); } },
+  mirror(x, y, h){ F(x, y - 26, 50, 5, "#3a2a22"); F(x + 3, y - 21, 3, 21, "#2a1e18"); F(x + 44, y - 21, 3, 21, "#2a1e18");
+    F(x + 6, y - 62, 38, 34, "#2a2a30"); F(x + 9, y - 59, 32, 28, "#3a4a5a"); F(x + 11, y - 57, 8, 2, "rgba(255,255,255,.18)");
+    for (let i = 0; i < 6; i++) F(x + 8 + i*6, y - 64, 3, 3, "#d8c890"); for (let j = 0; j < 4; j++){ F(x + 4, y - 58 + j*8, 3, 3, "#d8c890"); F(x + 43, y - 58 + j*8, 3, 3, "#d8c890"); }
+    F(x + 12, y - 30, 4, 4, "#8a2a4a"); F(x + 30, y - 31, 6, 5, "#5a5a6a"); },
+  tesla(x, y, h){ F(x, y - 10, 26, 10, "#22222a"); F(x + 2, y - 12, 22, 2, "#3a3a44"); F(x + 10, y - 58, 6, 46, "#5a3a22"); for (let i = 0; i < 15; i++) F(x + 10, y - 57 + i*3, 6, 1, "#a8683a");
+    ell(x + 13, y - 62, 15, 5, "#6a6a76"); ell(x + 13, y - 63, 13, 3, "#8a8a96");
+    ctx.strokeStyle = "rgba(160,200,255,.5)"; ctx.lineWidth = 1; for (let a = 0; a < 2; a++){ ctx.beginPath(); let px = x + 13 + (a ? 12 : -12), py = y - 63; ctx.moveTo(px, py);
+      for (let s = 1; s <= 5; s++){ px += (a ? 6 : -6); py += ((h >>> (s + a*5)) % 9) - 5; ctx.lineTo(px, py); } ctx.stroke(); } },
+  barricade(x, y, h){ F(x, y - 26, 60, 3, "#5a5a62"); F(x, y - 12, 60, 2, "#4a4a52"); for (let i = 0; i < 8; i++) F(x + 2 + i*8, y - 24, 2, 22, "#4a4a52"); F(x - 4, y - 2, 14, 2, "#3a3a40"); F(x + 50, y - 2, 14, 2, "#3a3a40"); },
+  pyro(x, y, h){ F(x, y - 14, 24, 14, "#26222a"); for (let i = 0; i < 6; i++) poly([x + i*4, y - 2, x + i*4 + 2, y - 2, x + i*4 + 4, y - 6, x + i*4 + 2, y - 6], "#6a5a1a"); F(x + 7, y - 17, 10, 3, "#3a3a44");
+    const g = ctx.createLinearGradient(0, y - 66, 0, y - 17); g.addColorStop(0, "rgba(255,90,20,0)"); g.addColorStop(.5, "rgba(255,120,30,.45)"); g.addColorStop(1, "rgba(255,210,90,.6)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x + 6, y - 17); ctx.quadraticCurveTo(x - 2, y - 40, x + 12, y - 66); ctx.quadraticCurveTo(x + 26, y - 40, x + 18, y - 17); ctx.fill(); },
+  skull(x, y, h){ const c = "#7a746a", d = "#141012"; circ(x + 22, y - 32, 19, c); F(x + 10, y - 20, 24, 18, c); circ(x + 15, y - 33, 6, d); circ(x + 29, y - 33, 6, d); poly([x + 22, y - 26, x + 19, y - 20, x + 25, y - 20], d);
+    for (let i = 0; i < 5; i++) F(x + 12 + i*4.4, y - 14, 2, 8, "#5a544a"); F(x + 10, y - 3, 24, 3, "#5a544a"); ell(x + 18, y - 44, 4, 2, "#8a847a"); },
+  spikes(x, y, h){ for (let i = 0; i < 5; i++) poly([x + i*10, y, x + i*10 + 10, y, x + i*10 + 5, y - 14 - (i % 2)*8], "#2a2026"); },
+  synth(x, y, h){ ctx.strokeStyle = "#3a3a44"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 8, y); ctx.lineTo(x + 44, y - 30); ctx.moveTo(x + 44, y); ctx.lineTo(x + 8, y - 30); ctx.stroke();
+    F(x - 2, y - 38, 56, 9, "#22222a"); F(x, y - 33, 52, 4, "#c8c8d0"); for (let i = 0; i < 12; i++) if (i % 7 !== 2 && i % 7 !== 6) F(x + 3 + i*4, y - 33, 2, 2, "#1a1a1e");
+    F(x + 2, y - 37, 20, 2, ["#5a2a6a","#2a5a6a","#6a2a3a"][h % 3]); for (let i = 0; i < 5; i++) F(x + 28 + i*4, y - 37, 2, 2, "#8a8a92"); },
+  arcade(x, y, h){ const c = ["#2a1a4a","#3a1a2a","#1a2a3a"][h % 3]; F(x, y - 60, 28, 60, c); F(x + 2, y - 60, 24, 6, ["#8a3a6a","#3a7a8a","#8a7a3a"][h % 3]); F(x + 4, y - 50, 20, 15, "#0a1220");
+    F(x + 7, y - 46, 3, 3, "#3a8a5a"); F(x + 15, y - 42, 4, 2, "#8a5a3a"); F(x + 19, y - 47, 2, 2, "#8a8a3a"); F(x + 1, y - 33, 26, 5, shade(c, .15)); F(x + 6, y - 35, 2, 3, "#1a1a1e"); circ(x + 16, y - 31, 1.5, "#8a2a2a"); circ(x + 21, y - 31, 1.5, "#2a5a8a"); F(x + 6, y - 22, 16, 2, "#1a1a1e"); },
+  palm(x, y, h){ F(x + 8, y - 14, 16, 14, "#5a3a2a"); F(x + 6, y - 16, 20, 3, "#6a4a32"); for (let i = 0; i < 7; i++) F(x + 14 + Math.round(Math.sin(i*.6)*2), y - 22 - i*7, 5, 7, i % 2 ? "#4a3a2a" : "#5a4632");
+    ctx.strokeStyle = "#2a4a3a"; ctx.lineWidth = 3; [[-22, 6], [-14, -6], [18, -4], [24, 8], [2, -14]].forEach(([dx, dy]) => { ctx.beginPath(); ctx.moveTo(x + 16, y - 70); ctx.quadraticCurveTo(x + 16 + dx*.6, y - 82 + dy, x + 16 + dx, y - 68 + dy*1.2); ctx.stroke(); }); },
+  dish(x, y, h){ F(x + 10, y - 8, 20, 8, "#3a3a46"); F(x + 18, y - 30, 4, 22, "#5a5a66"); ctx.save(); ctx.translate(x + 20, y - 36); ctx.rotate(-.5); ell(0, 0, 18, 7, "#8a8a96"); ell(0, -1, 15, 5, "#6a6a76"); F(-1, -12, 2, 12, "#5a5a66"); circ(0, -13, 2, "#3a3a46"); ctx.restore(); },
+  rocks(x, y, h){ poly([x, y, x + 6, y - 14, x + 16, y - 18, x + 26, y - 10, x + 30, y], "#3a3648"); poly([x + 22, y, x + 30, y - 8, x + 40, y - 6, x + 44, y], "#2e2a3c");
+    poly([x + 12, y - 14, x + 15, y - 34, x + 19, y - 15], "#3a6a7a"); poly([x + 18, y - 15, x + 23, y - 28, x + 25, y - 12], "#2a5a6a"); poly([x + 33, y - 7, x + 36, y - 22, x + 38, y - 7], "#5a3a7a"); },
+  helmet(x, y, h){ circ(x + 16, y - 15, 15, "#9a9aa6"); circ(x + 16, y - 15, 13, "#b8b8c4"); ell(x + 19, y - 17, 9, 7, "#6a5a2a"); ell(x + 21, y - 19, 3, 2, "#a8945a"); F(x + 2, y - 4, 28, 4, "#7a7a86"); },
+  ufoSpk(x, y, h){ F(x + 14, y - 46, 3, 44, "#4a4a56"); F(x + 6, y - 3, 20, 3, "#3a3a46"); ell(x + 15, y - 50, 18, 6, "#5a5a6a"); ell(x + 15, y - 54, 9, 6, "#7a7a8a"); for (let i = 0; i < 5; i++) F(x + 1 + i*7, y - 50, 3, 2, "#3a3a4a"); },
+  candles(x, y, h){ F(x + 10, y - 3, 22, 3, "#4a3a22"); F(x + 19, y - 44, 4, 42, "#5a4a2a"); F(x + 5, y - 46, 32, 3, "#5a4a2a"); [x + 5, x + 19, x + 33].forEach((cx, i) => { F(cx, y - 56 - (i === 1 ? 4 : 0), 4, 10 + (i === 1 ? 4 : 0), "#c8c0a8");
+    poly([cx + 2, y - 64 - (i === 1 ? 4 : 0), cx, y - 58 - (i === 1 ? 4 : 0), cx + 4, y - 58 - (i === 1 ? 4 : 0)], "rgba(255,200,100,.8)"); }); },
+  coffin(x, y, h){ poly([x, y - 6, x + 10, y - 22, x + 58, y - 22, x + 64, y - 12, x + 58, y, x + 10, y], "#2a1e1a"); poly([x + 3, y - 7, x + 11, y - 19, x + 56, y - 19, x + 60, y - 11, x + 56, y - 3, x + 11, y - 3], "#3a2a22");
+    F(x + 30, y - 18, 2, 12, "#8a7a5a"); F(x + 26, y - 14, 10, 2, "#8a7a5a"); },
+  gargoyle(x, y, h){ F(x, y - 16, 30, 16, "#3a3640"); F(x + 2, y - 18, 26, 2, "#4a4650"); poly([x + 6, y - 18, x + 10, y - 40, x + 22, y - 44, x + 26, y - 18], "#2e2a34"); poly([x + 10, y - 40, x - 4, y - 50, x + 8, y - 32], "#2e2a34"); poly([x + 22, y - 42, x + 34, y - 54, x + 26, y - 30], "#2e2a34");
+    F(x + 18, y - 40, 2, 2, "#6a5a3a"); poly([x + 12, y - 44, x + 13, y - 50, x + 15, y - 44], "#2e2a34"); poly([x + 18, y - 45, x + 20, y - 51, x + 21, y - 45], "#2e2a34"); },
+  tower(x, y, h){ F(x + 4, y - 96, 3, 96, "#4a4a52"); F(x + 25, y - 96, 3, 96, "#4a4a52"); for (let i = 0; i < 12; i++){ F(x + 7, y - 92 + i*8, 18, 1, "#3a3a42"); for (let k = 0; k < 6; k++) F(x + 7 + k*3, y - 92 + i*8 + k, 1, 1, "#3a3a42"); }
+    for (let i = 0; i < 3; i++){ F(x + 2 + i*10, y - 104, 9, 8, "#1a1a20"); F(x + 3 + i*10, y - 97, 7, 2, "#c8c0a0"); } },
+};
+
+/* ---------- the stages ---------- */
 const ROUND_TINT = [["#050505","#0e0808","#1a0a0a"],["#060606","#120a0a","#220c0c"],["#050505","#100c0c","#1e1010"],["#070505","#160808","#2a0a0a"],["#050505","#0e0a0a","#1c0c0c"]];
 const WORLD_DRAW = {
   arena(){
     const w = ROUND_TINT[(game.round - 1) % ROUND_TINT.length];
     vGrad(w[0], w[1], w[2], 0, FLOOR);
-    lightBeams(["rgba(255,40,40,ALPHA)","rgba(255,240,230,ALPHA)","rgba(255,40,40,ALPHA)","rgba(255,240,230,ALPHA)"], .06);
-    // big banners hanging from the rafters
-    for (let x = loopX(game.dist*10, .2, 240); x < GW; x += 240){ ctx.fillStyle = "rgba(20,10,10,.9)"; ctx.fillRect(Math.floor(x) + 60, CEIL + 30, 50, 70); ctx.fillStyle = "rgba(227,36,43,.35)"; ctx.fillRect(Math.floor(x) + 64, CEIL + 38, 42, 4); ctx.fillRect(Math.floor(x) + 70, CEIL + 50, 30, 30); }
-    crowd("#020202", FLOOR - 4, .5);
-    truss("#3a3a40", "#7a7a84"); floorBand("#1a1414", "#080606", "#4a1a1a");
+    // the big backdrop drape with the logo
+    for (let x = loopX(scrollPx(), .2, 420) - 420; x < GW + 420; x += 420){ F(x + 40, CEIL + 16, 300, Math.min(130, FLOOR - CEIL - 100), "rgba(30,10,12,.9)"); F(x + 40, CEIL + 16, 300, 3, "rgba(120,30,34,.6)");
+      ctx.font = `30px "Metal Mania", Impact, sans-serif`; ctx.textAlign = "center"; ctx.fillStyle = "rgba(227,36,43,.28)"; ctx.fillText("GUITARCADE", x + 190, CEIL + 16 + Math.min(130, FLOOR - CEIL - 100)/2 + 10); }
+    lightBeams(["rgba(255,40,40,ALPHA)","rgba(255,240,230,ALPHA)","rgba(255,40,40,ALPHA)","rgba(255,240,230,ALPHA)"], .05);
+    crowd("#0a0606", FLOOR - 70, .35);
+    propRow([G.amp, G.mic, G.drums, G.speakers, G.wedge, G.gtrStand, G.amp, null], 150, 11);
+    dim(.12); truss("#3a3a40", "#7a7a84"); lamps("#c8a890"); boards("#2a1e18", "#0e0a08", "#5a2a1a", "rgba(200,190,160,.35)");
   },
-  "Storm Rooftop"(){
+  garage(){
+    vGrad("#1a1612", "#24201a", "#2c261e", 0, FLOOR);
+    // back wall: pegboard with tools, shelves and a little window
+    for (let x = loopX(scrollPx(), .5, 300) - 300; x < GW + 300; x += 300){ const top = FLOOR - 120;
+      F(x + 20, top, 110, 70, "#3a2e22"); for (let i = 0; i < 18; i++) for (let j = 0; j < 11; j++) F(x + 24 + i*6, top + 4 + j*6, 1, 1, "#2a2018");
+      F(x + 34, top + 12, 4, 26, "#5a5a62"); F(x + 30, top + 10, 12, 4, "#5a5a62"); F(x + 54, top + 14, 3, 30, "#7a3a2a"); F(x + 52, top + 12, 7, 3, "#5a5a62"); ctx.strokeStyle = "#5a5a62"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x + 82, top + 26, 9, 0, Math.PI*2); ctx.stroke(); F(x + 104, top + 12, 14, 3, "#6a5a3a"); F(x + 110, top + 15, 3, 22, "#6a5a3a");
+      F(x + 160, top + 4, 70, 4, "#4a3a28"); F(x + 160, top + 40, 70, 4, "#4a3a28"); [["#7a2a2a",10],["#2a4a7a",12],["#7a6a2a",9],["#3a5a3a",11]].forEach(([c, hh], i) => F(x + 164 + i*16, top + 4 - hh, 12, hh, c));
+      F(x + 168, top + 30, 26, 10, "#5a4a3a"); F(x + 200, top + 28, 20, 12, "#3a3a44");
+      F(x + 250, top + 10, 36, 28, "#2a2a22"); F(x + 252, top + 12, 32, 24, "#0e1424"); F(x + 267, top + 12, 2, 24, "#2a2a22"); F(x + 252, top + 23, 32, 2, "#2a2a22"); F(x + 256, top + 15, 2, 2, "rgba(255,255,255,.4)"); }
+    // the rolled-up garage door
+    F(0, CEIL, GW, 14, "#4a4438"); for (let x = 0; x < GW; x += 2) F(x, CEIL + 4, 1, 1, "#3a3428");
+    // string lights (steady)
+    ctx.strokeStyle = "#1a1612"; ctx.lineWidth = 1; ctx.beginPath(); for (let x = loopX(scrollPx(), .5, 40) - 40; x < GW + 40; x += 40){ ctx.moveTo(x, CEIL + 18); ctx.quadraticCurveTo(x + 20, CEIL + 30, x + 40, CEIL + 18); } ctx.stroke();
+    for (let x = loopX(scrollPx(), .5, 40) - 40; x < GW + 40; x += 40) [8, 20, 32].forEach((d, i) => circ(x + d, CEIL + 21 + (i === 1 ? 4 : 2), 2, ["#e8c070","#e88a6a","#8ac0e8"][i]));
+    propRow([G.couch, G.combo, G.drums, G.bike, G.boxes, G.gtrStand, G.combo, null], 160, 23);
+    dim(.1); F(0, 0, GW, CEIL, "#14100c");
+    { const g = ctx.createLinearGradient(0, FLOOR, 0, GH); g.addColorStop(0, "#4a463e"); g.addColorStop(1, "#24221e"); ctx.fillStyle = g; ctx.fillRect(0, FLOOR, GW, GH - FLOOR); F(0, FLOOR, GW, 2, "#5a564c");
+      for (let x = loopX(scrollPx(), 1, 180) + 40; x < GW + 60; x += 180){ ell(x, FLOOR + 10, 18, 3, "rgba(20,18,14,.45)"); } for (let x = loopX(scrollPx(), 1, 120); x < GW; x += 120) F(x, FLOOR + 2, 1, GH - FLOOR, "rgba(0,0,0,.2)"); }
+  },
+  club(){
+    vGrad("#140a0a", "#1e0e0c", "#26120e", 0, FLOOR);
+    // brick wall
+    const bs = loopX(scrollPx(), .5, 24); for (let r = 0; CEIL + r*9 < FLOOR; r++){ const y = CEIL + r*9; for (let x = bs - 24 + (r % 2)*12; x < GW + 24; x += 24) F(x, y, 22, 8, (r*5 + Math.floor((x - bs)/24)) % 4 ? "#3a1a14" : "#421e16"); }
+    // neon signs and gig posters
+    for (let x = loopX(scrollPx(), .5, 360) - 360; x < GW + 360; x += 360){ const top = Math.max(CEIL + 20, FLOOR - 150);
+      ctx.save(); ctx.shadowColor = "#ff4fa3"; ctx.shadowBlur = 5; ctx.font = `22px "Metal Mania", Impact, sans-serif`; ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,110,190,.75)"; ctx.fillText("LIVE", x + 40, top + 30);
+      ctx.shadowColor = "#2de2e6"; ctx.fillStyle = "rgba(90,230,240,.7)"; ctx.fillText("ROCK", x + 210, top + 50); ctx.restore();
+      [["#5a2a6a","#ffd34d"],["#1a3a5a","#ff6a4a"],["#6a5a2a","#1c1c22"]].forEach(([c, a], i) => { const px = x + 110 + i*28, py = top + 20 + (i % 2)*10; F(px, py, 22, 30, c); F(px + 3, py + 4, 16, 10, a); F(px + 3, py + 18, 16, 2, "rgba(255,255,255,.5)"); F(px + 3, py + 23, 10, 2, "rgba(255,255,255,.4)"); });
+      F(x + 290, top + 16, 50, 30, "#1a1210"); F(x + 293, top + 19, 44, 24, "#2a3a2a"); txt("TONIGHT", x + 296, top + 30, 5, "rgba(230,230,200,.6)"); txt("$5", x + 306, top + 39, 5, "rgba(230,230,200,.6)"); }
+    crowd("#0a0404", FLOOR - 4, .45);
+    propRow([G.stool, G.combo, G.mic, G.roadCase, G.wedge, G.stool, null], 140, 37);
+    dim(.12); F(0, 0, GW, CEIL, "#120806"); for (let x = loopX(scrollPx(), 1, 70); x < GW; x += 70){ F(x + 30, CEIL - 6, 10, 6, "#2a2a30"); F(x + 32, CEIL, 6, 2, "#c89a6a"); }
+    { F(0, FLOOR, GW, GH - FLOOR, "#141012"); const s = loopX(scrollPx(), 1, 16); for (let r = 0; FLOOR + 2 + r*8 < GH; r++) for (let x = s - 16 + (r % 2)*8; x < GW + 16; x += 16) F(x, FLOOR + 2 + r*8, 8, 8, "#2a2428"); F(0, FLOOR, GW, 2, "#5a2a2a"); }
+  },
+  backstage(){
+    vGrad("#121820", "#1a222c", "#222c38", 0, FLOOR);
+    // cinderblock corridor with doors and signs
+    const bs = loopX(scrollPx(), .5, 30); for (let r = 0; CEIL + r*14 < FLOOR; r++){ const y = CEIL + r*14; for (let x = bs - 30 + (r % 2)*15; x < GW + 30; x += 30) F(x, y, 29, 13, "#28323e"); }
+    for (let x = loopX(scrollPx(), .5, 340) - 340; x < GW + 340; x += 340){ const dy = FLOOR - 92;
+      F(x + 30, dy, 50, 92, "#3a2a22"); F(x + 33, dy + 3, 44, 89, "#5a4232"); circ(x + 70, dy + 50, 2, "#c8b070"); poly([x + 55, dy + 12, x + 58, dy + 20, x + 66, dy + 20, x + 60, dy + 25, x + 62, dy + 33, x + 55, dy + 28, x + 48, dy + 33, x + 50, dy + 25, x + 44, dy + 20, x + 52, dy + 20], "#c8a040"); txt("BAND", x + 44, dy + 44, 5, "rgba(240,230,200,.6)");
+      F(x + 120, dy + 6, 70, 18, "#1a1a20"); txt("STAGE >", x + 126, dy + 19, 7, "rgba(255,210,100,.75)");
+      F(x + 220, dy + 10, 40, 26, "#e8e8f0"); F(x + 222, dy + 12, 36, 22, "#2a2a6a"); txt("ALL", x + 228, dy + 22, 5, "#e8e8f0"); txt("ACCESS", x + 224, dy + 30, 5, "#ffd34d");
+      F(x + 120, dy + 40, 60, 3, "#6a6a72"); F(x + 120, dy + 50, 60, 3, "#6a6a72"); }
+    propRow([G.roadCase, G.rack, G.gtrRack, G.mirror, G.cable, G.roadCase, null], 150, 41);
+    dim(.1); F(0, 0, GW, CEIL, "#141a22"); for (let x = loopX(scrollPx(), 1, 120); x < GW; x += 120){ F(x + 20, CEIL - 6, 60, 5, "#3a4250"); F(x + 22, CEIL - 2, 56, 2, "#c8d8e0"); }
+    { const g = ctx.createLinearGradient(0, FLOOR, 0, GH); g.addColorStop(0, "#3a3a40"); g.addColorStop(1, "#1a1a1e"); ctx.fillStyle = g; ctx.fillRect(0, FLOOR, GW, GH - FLOOR); F(0, FLOOR, GW, 2, "#ffd34d"); F(0, FLOOR + 4, GW, 1, "rgba(255,211,77,.3)");
+      for (let x = loopX(scrollPx(), 1, 50); x < GW; x += 50) F(x, FLOOR + 2, 1, GH - FLOOR, "rgba(0,0,0,.2)"); }
+  },
+  thunder(){
     vGrad("#0a0e1a", "#1a2236", "#2a3448", 0, FLOOR);
-    for (let i = 0; i < 6; i++){ const x = wrapX(i*150 - game.dist*.6, GW + 160) - 80; ctx.fillStyle = "rgba(60,70,96,.7)"; ctx.beginPath(); ctx.ellipse(x, CEIL + 20 + (i % 3)*12, 70, 18, 0, 0, Math.PI*2); ctx.fill(); }
-    ctx.fillStyle = "#0e1424"; for (let x = loopX(game.dist*10, .25, 70) - 70; x < GW + 70; x += 70){ const h = 40 + (Math.abs(Math.floor((x + game.dist*2.5)/70))*31) % 50; ctx.fillRect(Math.floor(x), FLOOR - h, 56, h);
-      ctx.fillStyle = "rgba(255,214,140,.25)"; for (let wy = FLOOR - h + 6; wy < FLOOR - 6; wy += 10) ctx.fillRect(Math.floor(x) + 8 + (wy % 20), wy, 4, 4); ctx.fillStyle = "#0e1424"; }
-    ctx.fillStyle = "rgba(160,190,230,.25)"; for (let i = 0; i < 60; i++){ const x = wrapX(i*37 - game.t*90 - game.dist*4, GW), y = CEIL + wrapX(i*53 + game.t*240, FLOOR - CEIL); ctx.fillRect(Math.floor(x), Math.floor(y), 1, 5); }
-    truss("#2a3448", "#4a5a7a"); floorBand("#3a3e48", "#1a1c22", "#5a5e6a");
+    for (let i = 0; i < 6; i++){ const x = wrapX(i*150 - game.dist*.6, GW + 160) - 80; ell(x, CEIL + 20 + (i % 3)*12, 70, 18, "rgba(60,70,96,.7)"); }
+    // still lightning bolts frozen in the clouds
+    ctx.strokeStyle = "rgba(170,200,255,.35)"; ctx.lineWidth = 2; for (let x = loopX(scrollPx(), .08, 500) + 120; x < GW + 500; x += 500){ ctx.beginPath(); ctx.moveTo(x, CEIL + 24); ctx.lineTo(x - 10, CEIL + 50); ctx.lineTo(x + 4, CEIL + 54); ctx.lineTo(x - 8, CEIL + 86); ctx.stroke(); }
+    for (let x = loopX(scrollPx(), .25, 70) - 70; x < GW + 70; x += 70){ const h = 40 + (Math.abs(Math.floor((x + game.dist*2.5)/70))*31) % 50; F(x, FLOOR - h, 56, h, "#0e1424");
+      for (let wy = FLOOR - h + 6; wy < FLOOR - 6; wy += 10) F(x + 8 + (wy % 20), wy, 4, 4, "rgba(255,214,140,.22)"); }
+    for (let i = 0; i < 60; i++){ const x = wrapX(i*37 - game.t*90 - game.dist*4, GW), y = CEIL + wrapX(i*53 + game.t*240, FLOOR - CEIL); F(x, y, 1, 5, "rgba(160,190,230,.22)"); }
+    propRow([G.tesla, G.speakers, G.amp, G.barricade, G.cable, G.tesla, null], 150, 53);
+    dim(.08); truss("#2a3448", "#4a5a7a"); lamps("#a8c8e8");
+    { const g = ctx.createLinearGradient(0, FLOOR, 0, GH); g.addColorStop(0, "#3a3e48"); g.addColorStop(1, "#1a1c22"); ctx.fillStyle = g; ctx.fillRect(0, FLOOR, GW, GH - FLOOR); F(0, FLOOR, GW, 2, "#5a5e6a");
+      for (let x = loopX(scrollPx(), 1, 140) + 30; x < GW + 60; x += 140) ell(x, FLOOR + 8, 22, 2, "rgba(140,170,210,.18)"); for (let x = loopX(scrollPx(), 1, 40); x < GW; x += 40) F(x, FLOOR + 2, 1, GH - FLOOR, "rgba(0,0,0,.25)"); }
   },
-  "Volcano Fest"(){
-    vGrad("#1a0606", "#4a120a", "#7a2a10", 0, FLOOR);
-    for (let x = loopX(game.dist*10, .12, 260) - 260; x < GW + 260; x += 260){ const cx = x + 130; ctx.fillStyle = "#2a0e0a"; ctx.beginPath(); ctx.moveTo(cx - 120, FLOOR); ctx.lineTo(cx - 20, FLOOR - 110); ctx.lineTo(cx + 20, FLOOR - 110); ctx.lineTo(cx + 120, FLOOR); ctx.fill(); ctx.fillStyle = "rgba(255,120,40,.5)"; ctx.fillRect(cx - 18, FLOOR - 110, 36, 3); }
-    stars.forEach(st => { const y = FLOOR - wrapX(st.y*2 + game.t*(14 + st.s*8), FLOOR - CEIL); ctx.fillStyle = "rgba(255,140,50,.4)"; ctx.fillRect(Math.floor(wrapX(st.x - game.dist*.5, GW)), Math.floor(y), st.s, st.s); });
-    crowd("#120404", FLOOR - 4, .5);
-    truss("#4a1a10", "#a8401a"); floorBand("#3a1a12", "#120604", "#ff6a1a");
+  inferno(){
+    vGrad("#140404", "#3a0c08", "#6a1e0c", 0, FLOOR);
+    for (let x = loopX(scrollPx(), .12, 260) - 260; x < GW + 260; x += 260){ const cx = x + 130; poly([cx - 120, FLOOR, cx - 20, FLOOR - 110, cx + 20, FLOOR - 110, cx + 120, FLOOR], "#260a08"); F(cx - 18, FLOOR - 110, 36, 3, "rgba(255,120,40,.45)"); }
+    // the giant horned skull set piece
+    for (let x = loopX(scrollPx(), .3, 520) + 180; x < GW + 520; x += 520){ const cy = Math.max(CEIL + 70, FLOOR - 120);
+      poly([x - 46, cy - 10, x - 90, cy - 70, x - 30, cy - 28], "#3a1a14"); poly([x + 46, cy - 10, x + 90, cy - 70, x + 30, cy - 28], "#3a1a14");
+      circ(x, cy, 46, "#3a2420"); F(x - 30, cy + 20, 60, 34, "#3a2420"); circ(x - 17, cy - 2, 13, "#120404"); circ(x + 17, cy - 2, 13, "#120404"); circ(x - 17, cy - 2, 4, "rgba(255,120,40,.5)"); circ(x + 17, cy - 2, 4, "rgba(255,120,40,.5)");
+      poly([x, cy + 12, x - 7, cy + 24, x + 7, cy + 24], "#120404"); for (let i = 0; i < 6; i++) F(x - 26 + i*9, cy + 32, 4, 14, "#2a1814"); }
+    stars.forEach(st => { const y = FLOOR - wrapX(st.y*2 + game.t*(14 + st.s*8), FLOOR - CEIL); F(wrapX(st.x - game.dist*.5, GW), y, st.s, st.s, "rgba(255,140,50,.35)"); });
+    crowd("#100202", FLOOR - 4, .5);
+    propRow([G.pyro, G.skull, G.amp, G.spikes, G.speakers, G.pyro, null], 150, 67);
+    dim(.1); truss("#4a1a10", "#a8401a");
+    { const g = ctx.createLinearGradient(0, FLOOR, 0, GH); g.addColorStop(0, "#3a1a12"); g.addColorStop(1, "#120604"); ctx.fillStyle = g; ctx.fillRect(0, FLOOR, GW, GH - FLOOR); F(0, FLOOR, GW, 2, "#c8501a");
+      ctx.strokeStyle = "rgba(255,110,30,.35)"; ctx.lineWidth = 1; for (let x = loopX(scrollPx(), 1, 90); x < GW + 90; x += 90){ ctx.beginPath(); ctx.moveTo(x, FLOOR + 3); ctx.lineTo(x + 14, FLOOR + 10); ctx.lineTo(x + 8, FLOOR + 18); ctx.lineTo(x + 26, GH); ctx.stroke(); } }
   },
-  "Cosmic Stage"(){
+  synth(){
+    vGrad("#1a0a3a", "#6a1a6a", "#d85a7a", 0, FLOOR);
+    const sx = GW*.62, sy = FLOOR - 40; ctx.save(); ctx.beginPath(); ctx.arc(sx, sy, 62, Math.PI, 0); ctx.clip(); const g = ctx.createLinearGradient(0, sy - 62, 0, sy); g.addColorStop(0, "#ffe36e"); g.addColorStop(1, "#ff2e88"); ctx.fillStyle = g; ctx.fillRect(sx - 62, sy - 62, 124, 62);
+    for (let i = 0; i < 5; i++) F(sx - 62, sy - 30 + i*6, 124, 2 + i*.6, "#6a1a6a"); ctx.restore();
+    // neon skyline
+    for (let x = loopX(scrollPx(), .25, 80) - 80; x < GW + 80; x += 80){ const k = Math.abs(Math.floor((x + scrollPx()*.25)/80)), h = 30 + (k*37) % 46; F(x, FLOOR - 40 - h, 60, h + 40, "#1e0a30");
+      F(x, FLOOR - 40 - h, 60, 2, ["#ff4fa3","#2de2e6","#ffd34d"][k % 3]); for (let wy = FLOOR - 32 - h; wy < FLOOR - 44; wy += 9) F(x + 8 + (wy % 18)*2, wy, 4, 3, "rgba(255,180,230,.25)"); }
+    propRow([G.synth, G.arcade, G.palm, G.speakers, G.synth, G.arcade, null], 150, 79);
+    dim(.06); F(0, 0, GW, CEIL, "#1a0a3a"); F(0, CEIL - 2, GW, 2, "#ff4fa3");
+    F(0, FLOOR, GW, GH - FLOOR, "#14082a");
+    ctx.strokeStyle = "rgba(255,79,163,.55)"; ctx.lineWidth = 1; for (let i = 0; i < 6; i++){ const y = FLOOR + Math.pow(i/5, 1.7)*(GH - FLOOR); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(GW, y); ctx.stroke(); }
+    for (let x = loopX(scrollPx(), 1, 40) - 40; x < GW + 40; x += 40){ ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.lineTo(x - (x - GW/2)*.6, GH); ctx.stroke(); }
+    F(0, FLOOR, GW, 2, "#2de2e6");
+  },
+  cosmic(){
     vGrad("#04020c", "#0e0828", "#1a0e3a", 0, FLOOR);
-    starField("rgba(255,255,255,.55)", FLOOR - 10);
-    const px = wrapX(GW*.75 - game.dist*.8, GW + 120) - 60; ctx.fillStyle = "#b77bff"; ctx.beginPath(); ctx.arc(px, CEIL + 50, 22, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = "rgba(255,210,180,.6)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(px, CEIL + 50, 36, 8, -.25, 0, Math.PI*2); ctx.stroke();
-    ctx.fillStyle = "rgba(255,138,216,.12)"; ctx.beginPath(); ctx.ellipse(GW*.35, CEIL + 90, 180, 30, -.2, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = "#1a0e3a"; ctx.fillRect(0, 0, GW, CEIL); ctx.fillStyle = "#b77bff"; ctx.fillRect(0, CEIL - 2, GW, 2);
-    floorBand("#2a1a5a", "#0e0824", "#ff8ad8");
+    starField("rgba(255,255,255,.5)", FLOOR - 10);
+    ell(GW*.35, CEIL + 90, 180, 30, "rgba(255,138,216,.1)"); ell(GW*.7, CEIL + 60, 120, 22, "rgba(110,160,255,.08)");
+    const px = wrapX(GW*.78 - game.dist*.8, GW + 120) - 60; circ(px, CEIL + 52, 24, "#7a5ab0"); circ(px - 6, CEIL + 46, 8, "#8a6ac0"); ctx.strokeStyle = "rgba(255,210,180,.5)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(px, CEIL + 52, 38, 8, -.25, 0, Math.PI*2); ctx.stroke();
+    // the big planet you are standing on, curving away
+    circ(GW*.15 - wrapX(game.dist*.3, 40), FLOOR + 900, 960, "#1e1a2e");
+    for (let x = loopX(scrollPx(), .4, 200) - 200; x < GW + 200; x += 200){ ell(x + 60, FLOOR - 8, 22, 4, "#16121f"); ell(x + 150, FLOOR - 14, 12, 3, "#16121f"); }
+    propRow([G.dish, G.rocks, G.ufoSpk, G.helmet, G.rocks, G.speakers, null], 150, 89);
+    dim(.06); F(0, 0, GW, CEIL, "#120a28"); F(0, CEIL - 2, GW, 2, "#b77bff");
+    { const g = ctx.createLinearGradient(0, FLOOR, 0, GH); g.addColorStop(0, "#4a4458"); g.addColorStop(1, "#1a1624"); ctx.fillStyle = g; ctx.fillRect(0, FLOOR, GW, GH - FLOOR); F(0, FLOOR, GW, 2, "#8a82a0");
+      for (let x = loopX(scrollPx(), 1, 70); x < GW + 70; x += 70){ ell(x + 20, FLOOR + 9, 9, 2.5, "#2e2a3a"); ell(x + 52, FLOOR + 16, 5, 1.6, "#2e2a3a"); } }
   },
-  "Neon Strip"(){
-    vGrad("#0a0820", "#1a1040", "#2a1450", 0, FLOOR);
-    for (let x = loopX(game.dist*10, .3, 90) - 90; x < GW + 90; x += 90){ const k = Math.abs(Math.floor((x + game.dist*3)/90)), h = 70 + (k*29) % 60, bx = Math.floor(x);
-      ctx.fillStyle = "#120e26"; ctx.fillRect(bx, FLOOR - h, 70, h);
-      const neon = ["#ff4fa3","#2de2e6","#ffd34d","#39ff8a"][k % 4]; ctx.save(); ctx.shadowColor = neon; ctx.shadowBlur = 6; ctx.fillStyle = neon; ctx.globalAlpha = .75; ctx.fillRect(bx + 10, FLOOR - h + 12, 50, 3); ctx.fillRect(bx + 10, FLOOR - h + 12, 3, 16); ctx.restore();
-      ctx.fillStyle = "rgba(255,214,140,.3)"; for (let wy = FLOOR - h + 34; wy < FLOOR - 10; wy += 12) ctx.fillRect(bx + 20 + (wy % 24), wy, 5, 5); }
-    ctx.fillStyle = "#120e26"; ctx.fillRect(0, 0, GW, CEIL); ctx.save(); ctx.shadowColor = "#ff4fa3"; ctx.shadowBlur = 6; ctx.fillStyle = "#ff4fa3"; ctx.fillRect(0, CEIL - 3, GW, 2); ctx.restore();
-    floorBand("#2a2a3a", "#101018", "#2de2e6");
+  cathedral(){
+    vGrad("#08060e", "#140e1e", "#1e1428", 0, FLOOR);
+    // organ pipes and stained glass
+    for (let x = loopX(scrollPx(), .3, 420) - 420; x < GW + 420; x += 420){ const base = FLOOR - 30;
+      for (let i = 0; i < 15; i++){ const ph = 60 + Math.abs(7 - i)*-6 + 50, px = x + 40 + i*12; F(px, base - ph, 9, ph, "#3a3448"); F(px + 1, base - ph, 2, ph, "#4a4458"); F(px, base - 18, 9, 3, "#14101c"); poly([px, base - ph, px + 9, base - ph, px + 4.5, base - ph - 6], "#3a3448"); }
+      F(x + 34, base, 192, 30, "#1e1826");
+      const wx = x + 300, wy = Math.max(CEIL + 14, base - 140); ctx.save(); ctx.beginPath(); ctx.moveTo(wx, wy + 110); ctx.lineTo(wx, wy + 30); ctx.quadraticCurveTo(wx + 30, wy - 12, wx + 60, wy + 30); ctx.lineTo(wx + 60, wy + 110); ctx.closePath(); ctx.clip();
+      [["#4a1a3a",0],["#1a2a5a",1],["#5a4a1a",2],["#1a4a3a",3]].forEach(([c, i]) => { F(wx + (i % 2)*30, wy + Math.floor(i/2)*45, 30, 45, c); F(wx, wy + 90, 60, 30, "#3a1a3a"); });
+      ctx.restore(); ctx.strokeStyle = "#0a0810"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(wx + 30, wy + 6); ctx.lineTo(wx + 30, wy + 110); ctx.moveTo(wx, wy + 60); ctx.lineTo(wx + 60, wy + 60); ctx.stroke(); }
+    starField("rgba(255,255,255,.2)", CEIL + 40);
+    propRow([G.candles, G.coffin, G.gargoyle, G.amp, G.candles, G.coffin, null], 150, 97);
+    dim(.08); F(0, 0, GW, CEIL, "#120c1a"); for (let x = loopX(scrollPx(), 1, 40); x < GW + 40; x += 40){ ctx.fillStyle = "#1e1628"; ctx.beginPath(); ctx.arc(x + 20, CEIL, 20, Math.PI, 0); ctx.fill(); }
+    { F(0, FLOOR, GW, GH - FLOOR, "#18141e"); const s = loopX(scrollPx(), 1, 24); for (let r = 0; FLOOR + 2 + r*12 < GH; r++) for (let x = s - 24 + (r % 2)*12; x < GW + 24; x += 24) F(x, FLOOR + 2 + r*12, 23, 11, "#221c2a"); F(0, FLOOR, GW, 2, "#5a5068");
+      for (let x = loopX(scrollPx(), 1, 300) + 100; x < GW + 100; x += 300) F(x, FLOOR + 3, 80, GH - FLOOR, "rgba(122,26,26,.25)"); }
   },
-  "Platinum Stadium"(){
-    vGrad("#04102a", "#0a2048", "#123060", 0, FLOOR);
-    lightBeams(["rgba(220,235,255,ALPHA)","rgba(220,235,255,ALPHA)","rgba(255,230,160,ALPHA)","rgba(220,235,255,ALPHA)"], .06);
-    const gs = FLOOR - 90; ctx.fillStyle = "#0e1c3a"; ctx.fillRect(0, gs, GW, 90);
-    for (let r = 0; r < 10; r++) for (let x = loopX(game.dist*10, .35, 10) + (r % 2)*5; x < GW; x += 10){ const k = Math.abs(Math.floor((x + game.dist*3.5)/10)*7 + r*3) % 4; ctx.fillStyle = ["#3a5a8a","#5a4a7a","#3a7a7a","#7a6a4a"][k]; ctx.fillRect(Math.floor(x), gs + 4 + r*8, 4, 3); }
-    for (let x = loopX(game.dist*10, .2, 200); x < GW; x += 200){ ctx.fillStyle = "#d8dce8"; ctx.beginPath(); ctx.arc(Math.floor(x) + 100, CEIL + 40, 16, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = "#8a8e9a"; ctx.beginPath(); ctx.arc(Math.floor(x) + 100, CEIL + 40, 4, 0, Math.PI*2); ctx.fill(); }
-    truss("#c8a040", "#ffd34d"); floorBand("#2a3a5a", "#0e1424", "#d8dce8");
-  },
-  "Synthwave Highway"(){
-    vGrad("#1a0a3a", "#6a1a6a", "#ff6a8a", 0, FLOOR);
-    const sx = GW*.6, sy = FLOOR - 20; ctx.save(); ctx.beginPath(); ctx.arc(sx, sy, 60, Math.PI, 0); ctx.clip(); const g = ctx.createLinearGradient(0, sy - 60, 0, sy); g.addColorStop(0, "#ffe36e"); g.addColorStop(1, "#ff2e88"); ctx.fillStyle = g; ctx.fillRect(sx - 60, sy - 60, 120, 60);
-    ctx.fillStyle = "#6a1a6a"; for (let i = 0; i < 5; i++) ctx.fillRect(sx - 60, sy - 30 + i*6, 120, 2 + i*.6); ctx.restore();
-    ctx.strokeStyle = "rgba(45,226,230,.45)"; ctx.lineWidth = 1; ctx.beginPath(); for (let x = 0; x <= GW; x += 10) ctx.lineTo(x, FLOOR - 20 - Math.abs(Math.sin((x + game.dist*1.2)/60))*30); ctx.stroke();
-    ctx.fillStyle = "#1a0a3a"; ctx.fillRect(0, 0, GW, CEIL); ctx.fillStyle = "#ff4fa3"; ctx.fillRect(0, CEIL - 2, GW, 2);
-    ctx.fillStyle = "#14082a"; ctx.fillRect(0, FLOOR, GW, GH - FLOOR);
-    ctx.strokeStyle = "rgba(255,79,163,.6)"; for (let i = 0; i < 6; i++){ const y = FLOOR + Math.pow(i/5, 1.7)*(GH - FLOOR); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(GW, y); ctx.stroke(); }
-    for (let x = loopX(game.dist*10, 1, 40) - 40; x < GW + 40; x += 40){ ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.lineTo(x - (x - GW/2)*.6, GH); ctx.stroke(); }
-  },
-  "Midnight Castle"(){
-    vGrad("#0a0818", "#1a1430", "#2a1e40", 0, FLOOR);
-    starField("rgba(255,255,255,.35)", FLOOR - 80);
-    ctx.fillStyle = "#e8e4f4"; ctx.beginPath(); ctx.arc(GW*.78, CEIL + 36, 18, 0, Math.PI*2); ctx.fill();
-    for (let x = loopX(game.dist*10, .15, 300) - 300; x < GW + 300; x += 300){ const bx = Math.floor(x); ctx.fillStyle = "#120e22"; ctx.fillRect(bx + 40, FLOOR - 100, 140, 100); ctx.fillRect(bx + 30, FLOOR - 140, 30, 140); ctx.fillRect(bx + 160, FLOOR - 130, 30, 130);
-      ctx.beginPath(); ctx.moveTo(bx + 26, FLOOR - 140); ctx.lineTo(bx + 45, FLOOR - 170); ctx.lineTo(bx + 64, FLOOR - 140); ctx.fill(); ctx.beginPath(); ctx.moveTo(bx + 156, FLOOR - 130); ctx.lineTo(bx + 175, FLOOR - 158); ctx.lineTo(bx + 194, FLOOR - 130); ctx.fill();
-      ctx.fillStyle = "rgba(255,200,120,.35)"; ctx.fillRect(bx + 40, FLOOR - 120, 4, 8); ctx.fillRect(bx + 170, FLOOR - 110, 4, 8); ctx.fillRect(bx + 100, FLOOR - 70, 6, 10); }
-    ctx.fillStyle = "rgba(160,120,200,.12)"; ctx.fillRect(0, FLOOR - 30, GW, 30);
-    ctx.fillStyle = "#1a1428"; ctx.fillRect(0, 0, GW, CEIL); for (let x = loopX(game.dist*10, 1, 30); x < GW; x += 30){ ctx.fillStyle = "#2a2238"; ctx.fillRect(Math.floor(x), CEIL - 8, 26, 6); }
-    floorBand("#3a3448", "#14101c", "#5a5068");
-  },
-  "Desert Festival"(){
-    vGrad("#c8784e", "#e09a62", "#ecbc84", 0, FLOOR);
-    ctx.fillStyle = "rgba(255,248,220,.85)"; ctx.beginPath(); ctx.arc(GW*.2, CEIL + 40, 18, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = "#c8865a"; for (let x = loopX(game.dist*10, .1, 320) - 320; x < GW + 320; x += 320){ ctx.beginPath(); ctx.moveTo(x + 20, FLOOR); ctx.lineTo(x + 50, FLOOR - 60); ctx.lineTo(x + 150, FLOOR - 60); ctx.lineTo(x + 180, FLOOR); ctx.fill(); }
-    for (let x = loopX(game.dist*10, .4, 150); x < GW; x += 150){ const bx = Math.floor(x); ctx.fillStyle = "#e0263a"; ctx.beginPath(); ctx.moveTo(bx, FLOOR); ctx.lineTo(bx + 30, FLOOR - 36); ctx.lineTo(bx + 60, FLOOR); ctx.fill(); ctx.fillStyle = "#f4f0e6"; ctx.beginPath(); ctx.moveTo(bx + 18, FLOOR); ctx.lineTo(bx + 30, FLOOR - 36); ctx.lineTo(bx + 42, FLOOR); ctx.fill();
-      ctx.fillStyle = "#5a3a22"; ctx.fillRect(bx + 29, FLOOR - 50, 2, 14); ctx.fillStyle = "#2f5bd1"; ctx.fillRect(bx + 31, FLOOR - 50, 8, 5); }
-    ctx.fillStyle = "#e88a3a"; ctx.fillRect(0, 0, GW, CEIL); for (let x = loopX(game.dist*10, 1, 20); x < GW; x += 20){ ctx.fillStyle = ["#e0263a","#ffd34d","#2f5bd1","#39c86a"][Math.abs(Math.floor((x + game.dist*10)/20)) % 4]; ctx.beginPath(); ctx.moveTo(x, CEIL - 6); ctx.lineTo(x + 12, CEIL - 6); ctx.lineTo(x + 6, CEIL + 4); ctx.fill(); }
-    floorBand("#e8c080", "#b8884a", "#c8a060");
+  stadium(){
+    vGrad("#030a1c", "#081838", "#0e2550", 0, FLOOR);
+    starField("rgba(255,255,255,.3)", CEIL + 50);
+    lightBeams(["rgba(220,235,255,ALPHA)","rgba(255,220,150,ALPHA)","rgba(220,235,255,ALPHA)","rgba(255,120,120,ALPHA)"], .045);
+    // stands full of fans with lighters
+    const gs = FLOOR - 100; F(0, gs, GW, 100, "#0c1830");
+    for (let r = 0; r < 11; r++) for (let x = loopX(scrollPx(), .3, 10) + (r % 2)*5; x < GW; x += 10){ const k = Math.abs(Math.floor((x + scrollPx()*.3)/10)*7 + r*3); F(x, gs + 4 + r*8, 4, 3, ["#2a3a5a","#3a3050","#2a4a4a","#4a4030"][k % 4]); if (k % 23 === 5) F(x + 1, gs + 1 + r*8, 1, 2, "rgba(255,200,110,.6)"); }
+    // the giant video screens show you
+    for (let x = loopX(scrollPx(), .2, 360) + 80; x < GW + 360; x += 360){ const sy = Math.max(CEIL + 12, gs - 92); F(x - 4, sy - 4, 108, 72, "#14141a"); F(x, sy, 100, 64, "#10203a");
+      ctx.save(); ctx.globalAlpha = .6; drawChar(ctx, curRocker(), {x:x + 50, y:sy + 64, s:2.3, t:0, glow:false}); ctx.restore(); F(x, sy, 100, 64, "rgba(30,60,120,.18)"); for (let y2 = sy; y2 < sy + 64; y2 += 3) F(x, y2, 100, 1, "rgba(0,0,0,.12)"); F(x + 46, sy + 68, 8, gs - sy - 68, "#14141a"); }
+    propRow([G.tower, G.speakers, G.pyro, G.amp, G.drums, G.speakers, G.pyro, null], 160, 103);
+    dim(.08); truss("#8a7030", "#c8a040"); lamps("#e8e0c0");
+    boards("#1e2838", "#0a0e18", "#c8a040", "rgba(200,200,220,.3)");
   },
 };
-const STAGE_THUMB = {arena:["#050505","#1a0a0a","#e3242b"], "Storm Rooftop":["#0a0e1a","#2a3448","#7fd7ff"], "Volcano Fest":["#1a0606","#7a2a10","#ff6a1a"], "Desert Festival":["#c8784e","#ecbc84","#e0263a"],
-  "Cosmic Stage":["#04020c","#1a0e3a","#ff8ad8"], "Neon Strip":["#0a0820","#2a1450","#2de2e6"], "Synthwave Highway":["#1a0a3a","#ff6a8a","#ff4fa3"], "Midnight Castle":["#0a0818","#2a1e40","#e8e4f4"], "Platinum Stadium":["#04102a","#123060","#ffd34d"]};
-function stageThumb(cv, id){ const x = cv.getContext("2d"), [a, b, c] = STAGE_THUMB[id] || STAGE_THUMB.arena, g = x.createLinearGradient(0, 0, 0, cv.height);
-  g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, cv.width, cv.height);
-  x.fillStyle = c; x.globalAlpha = .8; x.fillRect(0, cv.height - 14, cv.width, 3); x.globalAlpha = .25; for (let i = 0; i < 5; i++){ x.beginPath(); x.moveTo(30 + i*40, 0); x.lineTo(40 + i*40, 0); x.lineTo(60 + i*40, cv.height - 14); x.lineTo(10 + i*40, cv.height - 14); x.fill(); } x.globalAlpha = 1; }
-function drawBG(){ const w = worldName(); (WORLD_DRAW[w] || WORLD_DRAW.arena)(); }
+function drawBG(){ (WORLD_DRAW[curStage()] || WORLD_DRAW.arena)(); }
+// stage previews in the shop: draw the real stage into a small canvas
+function stageThumb(cvs, id){
+  const saved = {ctx, GW, GH, CEIL, FLOOR, dist: game.dist, round: game.round, t: game.t};
+  const x = cvs.getContext("2d"); x.imageSmoothingEnabled = false;
+  GW = 360; GH = Math.round(360*cvs.height/cvs.width); CEIL = 18; FLOOR = GH - 24; game.dist = 37; game.round = 1; game.t = 2;
+  ctx = x; ctx.setTransform(cvs.width/GW, 0, 0, cvs.height/GH, 0, 0);
+  try { (WORLD_DRAW[id] || WORLD_DRAW.arena)(); } catch (e) { console.error(e); }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ({ctx, GW, GH, CEIL, FLOOR} = saved); game.dist = saved.dist; game.round = saved.round; game.t = saved.t;
+}
+
 
 /* ---------- drawing obstacles ---------- */
 function drawLaser(o){
@@ -1656,7 +1878,7 @@ function drawLaser(o){
 }
 function drawSpeaker(o){
   if (o.state === "warn"){
-    const x = GW - 22, y = Math.round(o.y), s = 1 + .08*Math.sin(game.t*6);
+    const x = GW - 22, y = Math.round(o.y), s = 1;
     ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
     ctx.fillStyle = "#ffd34d"; ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(11, 9); ctx.lineTo(-11, 9); ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#2a1a06"; ctx.fillRect(-1, -4, 3, 8); ctx.fillRect(-1, 6, 3, 2); ctx.restore(); return;
@@ -1684,11 +1906,15 @@ function drawWall(mt){
   if (mt > 1.9){ for (let i = 0; i < 4; i++){ const r = ((mt - 1.9)*260 + i*60) % (GW*.9); ctx.strokeStyle = `rgba(255,220,140,${Math.max(0, .6 - r/GW)})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(wx, GH/2, r, Math.PI*.6, Math.PI*1.4); ctx.stroke(); } }
   if (mt > 3.2){ ctx.fillStyle = `rgba(0,0,0,${Math.min(1, (mt - 3.2)*2.5)})`; ctx.fillRect(0, 0, GW, GH); }
 }
+// coins are guitar picks: a rounded triangle that turns as it spins
+function pickPath(r){ ctx.beginPath(); ctx.moveTo(0, r*1.25); ctx.bezierCurveTo(-r*.7, r*.55, -r*1.15, -r*.05, -r*1.0, -r*.55); ctx.bezierCurveTo(-r*.85, -r*1.15, r*.85, -r*1.15, r*1.0, -r*.55); ctx.bezierCurveTo(r*1.15, -r*.05, r*.7, r*.55, 0, r*1.25); ctx.closePath(); }
 function drawCoin(k){
-  const w = Math.max(1, Math.abs(Math.cos(k.spin))*k.r);
-  ctx.fillStyle = "#a8701c"; ctx.beginPath(); ctx.ellipse(k.x, k.y, w+1, k.r+1, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = "#f2b33d"; ctx.beginPath(); ctx.ellipse(k.x, k.y, w, k.r, 0, 0, Math.PI*2); ctx.fill();
-  if (w > 3){ ctx.fillStyle = "#fff3b0"; ctx.fillRect(k.x-1, k.y-k.r+2, 2, 3); }
+  const sx = Math.max(.12, Math.abs(Math.cos(k.spin))), r = k.r + 1;
+  ctx.save(); ctx.translate(k.x, k.y); ctx.scale(sx, 1);
+  pickPath(r + 1.2); ctx.fillStyle = "#6a3e0c"; ctx.fill();
+  pickPath(r); ctx.fillStyle = "#ffb23f"; ctx.fill();
+  if (sx > .5){ ctx.fillStyle = "#ffd98a"; ctx.fillRect(-r*.55, -r*.7, r*.5, 2); ctx.fillStyle = "#e08a1a"; ctx.fillRect(-1, r*.35, 2, 2); }
+  ctx.restore();
 }
 function textFont(size, kind){ return kind === "num" ? `${size}px "Press Start 2P", "Pixelify Sans", monospace` : `${Math.round(size*1.15)}px "Metal Mania", "Pixelify Sans", Impact, sans-serif`; }
 function text(str, x, y, size, col, align, kind){
@@ -1744,9 +1970,9 @@ function draw(){
     if (game.monsterEnd){ text("BLOWN AWAY BY", GW/2, 56+oy, 17, "#ff6a60", "center"); text("THE WALL OF SOUND!", GW/2, 82+oy, GW < 420 ? 20 : 26, "#e3242b", "center"); }
     else text("ROCKED OUT!", GW/2, 76+oy, 30, "#e3242b", "center");
     text(fmt(Math.floor(game.dist)) + "m", GW/2, 108+oy, 20, "#ffffff", "center", "num");
-    text(`ROUND ${game.round}  ·  +${game.runCoins} COINS`, GW/2, 128+oy, 9, "#ffe08a", "center", "num");
+    text(`ROUND ${game.round}  ·  +${game.runCoins} PICKS`, GW/2, 128+oy, 9, "#ffe08a", "center", "num");
     if (game.newBest) text("New best distance!", GW/2, 148+oy, 14, "#2de2e6", "center");
-    text(state.coins >= 100 ? (isFS() ? "Tap Exit to open a guitar case" : "You can open a guitar case below") : (100-state.coins) + " coins until your next guitar case", GW/2, 166+oy, 12, "#f3e8ff", "center");
+    { const nx = nextBuy(); text(nx ? fmt(nx.price - state.coins) + " picks to unlock " + nx.name : "You own everything. Legend!", GW/2, 166+oy, 12, "#f3e8ff", "center"); }
     text(isPhone() ? "Tap to play again" : "Press Space or click to play again", GW/2, 188+oy, 13, "#c8bce8", "center");
   }
   if (game.paused){ ctx.fillStyle = "rgba(10,6,24,.5)"; ctx.fillRect(0,0,GW,GH); text("PAUSED", GW/2, 110+oy, 28, "#f3e8ff", "center"); text("Tap or press P to continue", GW/2, 134+oy, 12, "#c8bce8", "center"); }
@@ -1756,7 +1982,7 @@ function frame(now){
   const dt = Math.max(0, Math.min(.033, (now-last)/1000)); last = now;
   update(dt); draw();
   const playing = game.state === "running" || game.state === "monster";
-  if (!playing && Math.floor(now/120) !== frame.k){ frame.k = Math.floor(now/120); renderNow(); if (shopTab === "look") drawLookPreview(now/1000);
+  if (!playing && Math.floor(now/120) !== frame.k){ frame.k = Math.floor(now/120); renderNow(); 
     cardCanvases.forEach(({ctx:cx,c})=>{ cx.clearRect(0,0,168,96); drawChar(cx, c, {x:84, y:56, s:3.6, t:now/1000}); }); }
   if (!playing && ensureDaily.day !== todayKey()){ ensureDaily.day = todayKey(); renderDaily(); }
   requestAnimationFrame(frame);
@@ -1836,8 +2062,8 @@ async function submitScore(dist){
   if (Saves.mode !== "fire" || !Saves.fs || dist <= 0) return;
   lbSubscribe();
   if (dist <= LB.myBest) return;
-  LB.myBest = dist; LB.myChar = encodeLook(state.look); LB.myGtr = curCar().id; renderLB();
-  try { await myDailyRef().set({name: state.name || "Rocker", best: dist, char: encodeLook(state.look), gtr: curCar().id, at: Date.now()}); toast("New best today: " + fmt(dist) + " m"); }
+  LB.myBest = dist; LB.myChar = curRocker().id; LB.myGtr = curCar().id; renderLB();
+  try { await myDailyRef().set({name: state.name || "Rocker", best: dist, char: curRocker().id, gtr: curCar().id, at: Date.now()}); toast("New best today: " + fmt(dist) + " m"); }
   catch { $("lbMsg").textContent = "Your score couldn't post to the leaderboard. Check that the newest Firestore rules are published."; }
 }
 function renderLB(){
@@ -1849,7 +2075,7 @@ function renderLB(){
     const li = document.createElement("li"); if (Saves.mode === "fire" && r.id === Saves.uid) li.className = "me";
     const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = i + 1;
     const cv = document.createElement("canvas"); cv.width = 144; cv.height = 80;
-    const ch0 = {name: "", tier: 0}, rlook = lookOf(decodeLook(Math.max(0, +r.char || 0))), rpack = CHARS[+r.gtr] || CHARS[0];
+    const ch0 = {name: "", tier: 0}, rlook = ROCKERS[+r.char] || ROCKERS[0], rpack = CHARS[+r.gtr] || CHARS[0];
     const nm = document.createElement("span"); nm.className = "who2";
     const n1 = document.createElement("span"); n1.className = "nm"; n1.textContent = cleanName(r.name) || "Rocker";
     const n2 = document.createElement("span"); n2.className = "car"; n2.textContent = rpack.name; if (isCreator(ch0)) n2.classList.add("creator");
@@ -1885,7 +2111,7 @@ $("nameForm").addEventListener("submit", async e => {
   const n = cleanName($("nameInput").value);
   if (!n){ toast("Use letters or numbers for your name"); return; }
   state.name = n; $("nameInput").value = n; Saves.save(true); toast("Leaderboard name saved");
-  if (Saves.mode === "fire" && LB.myBest > 0){ try { await myDailyRef().set({name:n, best:LB.myBest, char: LB.myChar ?? encodeLook(state.look), gtr: LB.myGtr ?? state.selected, at:Date.now()}); } catch {} }
+  if (Saves.mode === "fire" && LB.myBest > 0){ try { await myDailyRef().set({name:n, best:LB.myBest, char: LB.myChar ?? curRocker().id, gtr: LB.myGtr ?? state.selected, at:Date.now()}); } catch {} }
 });
 
 let authMode = "signup";
