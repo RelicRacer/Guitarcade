@@ -297,6 +297,46 @@ textarea{width:100%;resize:vertical;min-height:64px;font-family:ui-monospace,Men
 .panel h2{font-size:26px;letter-spacing:.02em}
 .btn{text-shadow:0 1px 0 rgba(0,0,0,.4)}
 .cf-name{letter-spacing:.02em}
+/* daily challenges */
+.daily{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.ch{padding:12px;border-radius:12px;background:#141010;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.ch.done{border-color:#3a8a3a;background:#101810}
+.ch-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.ch-t{font-weight:700} .ch-r{font-family:var(--num);font-size:9px;color:#ffe08a;white-space:nowrap}
+.ch-p{font-family:var(--num);font-size:9px;color:var(--muted)}
+.ch.done .progress i{background:linear-gradient(90deg,#3ad87a,#a8ffb0)}
+/* shop */
+.cards.packs{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+@media (max-width:560px){.cards.packs{grid-template-columns:repeat(2,minmax(0,1fr))}.stgs{grid-template-columns:repeat(2,minmax(0,1fr))}.gads{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.card.shop{gap:6px;padding:10px 8px}
+.card.shop .cs2{font-size:12px;color:var(--muted);min-height:1.4em}
+.card.shop .btn{width:100%}
+.slots{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.slot{flex:1;min-width:150px;padding:12px;border-radius:12px;border:2px solid var(--sand);background:#1a0e0e;font-family:var(--display);text-align:center}
+.slot.empty{border-style:dashed;border-color:var(--line);color:var(--muted)}
+.slot.locked{border-style:dashed;border-color:var(--line)}
+.gads{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.gad{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#141010}
+.gad.on{border-color:var(--sand);box-shadow:0 0 0 1px var(--sand) inset}
+.gad b{font-family:var(--display);font-size:16px} .gad span{font-size:13px;color:var(--muted);flex:1}
+.lookwrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:640px){.lookwrap{grid-template-columns:minmax(0,1fr)} #lookCv{margin:0 auto}}
+#lookCv{width:220px;height:250px;border-radius:12px;background:radial-gradient(circle at 50% 70%,#3a0a0e 0,#0c0808 75%);image-rendering:pixelated}
+@media (max-width:640px){#lookCv{width:176px;height:200px}}
+.lrow{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.lh{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.lopts{display:flex;flex-wrap:wrap;gap:6px}
+.lopt{position:relative;border:1px solid var(--line);background:#141010;color:var(--ink);border-radius:8px;padding:6px 10px;font-size:13px;display:flex;align-items:center;gap:6px}
+.lopt.on{border-color:var(--sand);box-shadow:0 0 0 1px var(--sand) inset}
+.lopt.sw{width:34px;height:30px;padding:0;background:var(--c);justify-content:center}
+.lopt small{font-family:var(--num);font-size:8px;color:#ffe08a;background:rgba(0,0,0,.7);padding:1px 3px;border-radius:4px}
+.lopt.sw small{position:absolute;bottom:-6px;right:-6px}
+.lopt.locked{opacity:.8}
+.stgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.stg{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#141010}
+.stg.on{border-color:var(--sand)}
+.stg canvas{width:100%;height:auto;aspect-ratio:200/90;border-radius:8px}
+.stg b{font-family:var(--display)}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -319,17 +359,16 @@ window.FIREBASE_CONFIG = {
     <div class="brand"><h1 id="brandTitle">Guitarcade</h1><span>80s rock · fly forever</span></div>
     <div class="purse">
       <div class="chip" title="Coins to spend"><span class="coin-ic"></span><span id="hudCoins">0</span><small>coins</small></div>
-      <div class="chip" title="Guitars collected"><span id="hudOwned">1</span><small id="hudTotal">/ 100 guitars</small></div>
-      <div class="chip" title="Rockers collected"><span id="hudRock">1</span><small id="hudRockTotal">/ 100 rockers</small></div>
+      <div class="chip" title="Guitar packs owned"><span id="hudOwned">1</span><small id="hudTotal">/ 16 packs</small></div>
       <div class="chip" title="Best run"><small>Best</small><span id="hudBest">0 m</span></div>
     </div>
   </header>
 
-  <div class="test-bar" id="testBar" hidden><b>Test mode</b><span>Every guitar and rocker is unlocked to try. Coins, cases, best scores and the leaderboard are paused.</span><button class="btn small" id="testOff" type="button">Exit test mode</button></div>
+  <div class="test-bar" id="testBar" hidden><b>Test mode</b><span>Everything in the shop can be tried for free. Coins, challenges, best scores and the leaderboard are paused.</span><button class="btn small" id="testOff" type="button">Exit test mode</button></div>
   <section class="acct" id="acct" aria-labelledby="acctH">
     <div class="acct-copy">
       <h2 id="acctH">Save your band</h2>
-      <p id="acctLead">Sign up free to save your progress, keep your coins, guitars and rockers. Then play on any device.</p>
+      <p id="acctLead">Sign up free to save your progress, keep your coins, guitar packs and look. Then play on any device.</p>
       <div class="status"><span class="dot" id="saveDot"></span><span id="saveText">Checking for your account…</span></div>
     </div>
     <form id="authBox" class="acct-form" hidden novalidate>
@@ -354,13 +393,13 @@ window.FIREBASE_CONFIG = {
     <div class="screen"><div class="fs-bar"><button class="fs-exit" id="fsExit" type="button">Exit</button><button class="snd-btn" data-snd="sfx" type="button" aria-pressed="true">Sound: On</button></div><div class="over-cta" id="overCta" hidden>
       <div class="oc-card">
         <h3>Rocked out! <span id="ocSum"></span></h3>
-        <p>You're not signed in, so your coins, guitars and rockers are only saved on this device. Sign up to save your progress and get on today's leaderboard.</p>
+        <p>You're not signed in, so your coins, guitar packs and look are only saved on this device. Sign up to save your progress and get on today's leaderboard.</p>
         <div class="row oc-btns"><button class="btn big" id="ocSignup" type="button">Sign up to save</button><button class="btn ghost" id="ocLogin" type="button">Log in</button></div>
         <button class="oc-again" id="ocAgain" type="button">Play again without saving</button>
       </div>
     </div><canvas id="game" width="960" height="360" aria-label="Guitarcade game screen. Hold space or press and hold to fly."></canvas></div>
     <div class="controls">
-      <div class="runner-now"><canvas id="nowCv" width="112" height="64"></canvas><div><b id="nowName">—</b> with the <b id="nowGtr">—</b><br><span id="nowPerk"></span></div></div>
+      <div class="runner-now"><canvas id="nowCv" width="112" height="64"></canvas><div>Flying the <b id="nowGtr">—</b><br><span id="nowPerk"></span></div></div>
       <div class="keys">Hold <kbd>Space</kbd>, <kbd>↑</kbd> or the mouse button to fly · let go to drop · <kbd>P</kbd> pause</div>
       <div class="tap-hint">Hold your finger on the game to fly. Let go to drop.</div>
       <div class="snd"><button class="snd-btn" data-snd="sfx" type="button" aria-pressed="true">Sound: On</button></div>
@@ -381,44 +420,27 @@ window.FIREBASE_CONFIG = {
         <div><dt>Furthest round</dt><dd id="recRound">—</dd></div>
         <div><dt>Runs played</dt><dd id="recRuns">0</dd></div>
         <div><dt>Coins earned, all time</dt><dd id="recLife">0</dd></div>
-        <div><dt>Cases opened</dt><dd id="recChests">0</dd></div>
+        <div><dt>Challenges completed</dt><dd id="recChests">0</dd></div>
       </dl>
     </section>
   </div>
 
-  <div class="grid2">
-    <section class="panel" aria-labelledby="chestH">
-      <h2 id="chestH">Guitar Case</h2>
-      <p class="sub">Save up 100 coins and pop open a case for a random guitar or rocker. Duplicates pay back coins.</p>
-      <div class="chest-stage" id="chestStage">
-        <canvas id="chestCv" width="300" height="300"></canvas>
-      </div>
-      <div class="progress" aria-hidden="true"><i id="chestBar"></i></div>
-      <div class="chest-row">
-        <button class="btn" id="openChest" type="button">Open case · 100</button>
-        <span class="sub" id="chestHint"></span>
-      </div>
-    </section>
+  <section class="panel" aria-labelledby="dailyH">
+    <div class="lb-head"><h2 id="dailyH">Daily challenges</h2><span class="sub" id="dailyBonus"></span></div>
+    <div class="daily" id="daily"></div>
+  </section>
 
-    <section class="panel" aria-labelledby="oddsH">
-      <h2 id="oddsH">Rarity &amp; drop odds</h2>
-      <p class="sub">Rarity only changes the look. Guitars leave their own trail when you fly; every one flies the same way.</p>
-      <div class="tablewrap">
-        <table class="odds">
-          <thead><tr><th>Rarity</th><th>Guitars</th><th>Rockers</th><th>Case odds</th><th>Dupe refund</th><th>Found</th></tr></thead>
-          <tbody id="oddsBody"></tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-
-  <section class="panel" aria-labelledby="collH">
+  <section class="panel" aria-labelledby="shopH">
     <div class="coll-head">
-      <div><h2 id="collH">Collection</h2><p class="sub">Tap a guitar or rocker you own to play with it.</p></div>
-      <div class="filters kinds" id="kindTabs" role="group" aria-label="Guitars or rockers"></div>
+      <div><h2 id="shopH">Shop</h2><p class="sub">Spend your coins on guitar packs, abilities, new looks and stages. You have <b id="shopCoins">0</b> coins.</p></div>
+      <div class="filters kinds" id="shopTabs" role="group" aria-label="Shop sections">
+        <button type="button" data-t="packs" aria-pressed="true">Guitar packs</button><button type="button" data-t="abilities" aria-pressed="false">Abilities</button><button type="button" data-t="look" aria-pressed="false">Your look</button><button type="button" data-t="stages" aria-pressed="false">Stages</button>
+      </div>
     </div>
-    <div class="filters" id="filters" role="group" aria-label="Filter by rarity"></div>
-    <div class="cards" id="cards"></div>
+    <div id="tab-packs"><p class="sub">Your guitar pack is your jetpack. Each one shoots out something different when you fly.</p><div class="cards packs" id="packs"></div></div>
+    <div id="tab-abilities" hidden><p class="sub">Equip abilities to help every run. You start with 2 slots.</p><div class="slots" id="slots"></div><div class="gads" id="gadgets"></div></div>
+    <div id="tab-look" hidden><div class="lookwrap"><canvas id="lookCv" width="220" height="250" aria-label="Your rocker"></canvas><div id="lookOpts"></div></div></div>
+    <div id="tab-stages" hidden><p class="sub">Pick where you play.</p><div class="stgs" id="stages"></div></div>
   </section>
 
   <section class="panel" aria-labelledby="saveH">
@@ -427,7 +449,7 @@ window.FIREBASE_CONFIG = {
       <div class="box">
         <h3>Play without an account</h3>
         <div id="localBox">
-          <p class="sub" style="margin-bottom:8px">Profiles saved on this device only. Each one keeps its own coins, guitars and rockers.</p>
+          <p class="sub" style="margin-bottom:8px">Profiles saved on this device only. Each one keeps its own coins, packs and look.</p>
           <div class="row"><select id="profileSel" aria-label="Choose player"></select><button class="btn ghost small" id="delProfile" type="button">Delete</button></div>
           <div class="confirm" id="delConfirm" hidden><span id="delText"></span><button class="btn small" id="delYes" type="button">Delete</button><button class="btn ghost small" id="delNo" type="button">Keep</button></div>
           <div class="row" style="margin-top:8px"><input type="text" id="newProfile" maxlength="20" placeholder="New player name" aria-label="New player name"><button class="btn small" id="addProfile" type="button">Add player</button></div>
@@ -446,231 +468,77 @@ window.FIREBASE_CONFIG = {
   </section>
 </div>
 <div class="rotate" id="rotate" aria-live="polite"><div class="phone" aria-hidden="true"></div><h2>Turn your phone upright</h2><p>Guitarcade plays in portrait mode only.</p></div>
-<div class="chest-full" id="chestFull" hidden role="dialog" aria-modal="true" aria-labelledby="cfName">
-  <div class="cf-rays" aria-hidden="true"></div>
-  <canvas class="cf-fx" id="cfFx" aria-hidden="true"></canvas>
-  <div class="cf-flash" id="cfFlash" aria-hidden="true"></div>
-  <div class="cf-inner">
-    <canvas class="cf-char" id="cfChar" width="400" height="400" aria-hidden="true"></canvas>
-    <canvas class="cf-chest" id="cfChest" width="300" height="300" aria-hidden="true"></canvas>
-    <div class="cf-hint" id="cfHint">Opening…</div>
-    <div class="cf-info">
-      <span class="cf-tier" id="cfTier"></span>
-      <div class="cf-name" id="cfName"></div>
-      <div class="cf-note" id="cfNote"></div>
-      <div class="cf-btns"><button class="btn big" id="cfRun" type="button">Rock with this one</button><button class="btn ghost" id="cfAgain" type="button">Open another · 100</button><button class="btn ghost" id="cfClose" type="button">Close</button></div>
-    </div>
-  </div>
-</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (() => {
 "use strict";
-const GUITAR_LIST = [ // [tier, name, shape, color, accent, graphic, trail, extras]. New guitars always go at the END of this list.
-[0, "Halcyon Viper", "super", "#b8202e", "#ffd34d", "", "s", ""],
-[0, "Ironclad Wedge", "vee", "#2a4a9a", "#2de2e6", "", "s", ""],
-[0, "Kestrel Nomad", "xplor", "#b8202e", "#2de2e6", "", "s", ""],
-[0, "Ironclad Heritage", "single", "#c8782a", "#e0263a", "", "s", ""],
-[0, "Kestrel Shuriken", "star", "#b8202e", "#ff4fa3", "", "s", ""],
-[0, "Ironclad Synth-Strap", "keytar", "#d8b07a", "#b77bff", "", "s", ""],
-[0, "Raptor Rumble", "bass", "#c8782a", "#e0263a", "", "s", ""],
-[0, "Raptor Ghost", "headless", "#c8782a", "#b77bff", "", "s", ""],
-[0, "Cobalt Gemini", "double", "#c8782a", "#ffd34d", "", "s", ""],
-[0, "Cobalt Razor", "super", "#c8782a", "#1c1c22", "", "s", ""],
-[0, "Raptor Arrow", "vee", "#d8b07a", "#ff4fa3", "", "s", ""],
-[0, "Raptor Ranger", "xplor", "#1c1c22", "#b77bff", "", "s", ""],
-[0, "Vortex Classic", "single", "#f2f0ea", "#ffd34d", "", "s", ""],
-[0, "Cobalt Shuriken", "star", "#b8202e", "#ffd34d", "", "s", ""],
-[0, "Starforge Keymaster", "keytar", "#f2f0ea", "#e0263a", "", "s", ""],
-[0, "Kestrel Thunder Bass", "bass", "#c8782a", "#e0263a", "", "s", ""],
-[0, "Vortex Ghost", "headless", "#d8b07a", "#ffffff", "", "s", ""],
-[0, "Vortex Gemini", "double", "#2a4a9a", "#7ad83a", "", "s", ""],
-[0, "Kestrel Viper", "super", "#c8782a", "#b77bff", "", "s", ""],
-[0, "Vortex Arrow", "vee", "#b8202e", "#2de2e6", "", "s", ""],
-[0, "Starforge Nomad", "xplor", "#c8782a", "#ffd34d", "", "s", ""],
-[0, "Ironclad Crown", "single", "#b8202e", "#ffd34d", "", "s", ""],
-[0, "Halcyon Comet", "star", "#d8b07a", "#ff4fa3", "", "s", ""],
-[0, "Cobalt Synth-Strap", "keytar", "#b8202e", "#ffd34d", "", "s", ""],
-[0, "Starforge Thunder Bass", "bass", "#1c1c22", "#b77bff", "", "s", ""],
-[0, "Starforge Phantom", "headless", "#c8782a", "#1c1c22", "", "s", ""],
-[0, "Halcyon Gemini", "double", "#f2f0ea", "#2de2e6", "", "s", ""],
-[0, "Halcyon Razor", "super", "#2a4a9a", "#ff4fa3", "", "s", ""],
-[0, "Raptor Talon", "vee", "#2a4a9a", "#ffffff", "", "s", ""],
-[0, "Kestrel Outlaw", "xplor", "#1c1c22", "#b77bff", "", "s", ""],
-[0, "Raptor Heritage", "single", "#c8782a", "#1c1c22", "", "s", ""],
-[0, "Halcyon Synth-Strap", "keytar", "#1c1c22", "#7ad83a", "", "s", ""],
-[0, "Raptor Thunder Bass", "bass", "#d8b07a", "#ffffff", "", "s", ""],
-[1, "Vortex Specter Deluxe", "headless", "#e0263a", "#ff4fa3", "", "s", ""],
-[1, "Valkyr Twinfire Deluxe", "double", "#e8b830", "#7ad83a", "", "s", ""],
-[1, "Cobalt Razor Deluxe", "super", "#e0263a", "#b77bff", "", "s", ""],
-[1, "Starforge Wedge Deluxe", "vee", "#e8b830", "#ffffff", "", "s", ""],
-[1, "Valkyr Outlaw Deluxe", "xplor", "#7a3cc8", "#ffd34d", "", "s", ""],
-[1, "Halcyon Crown Deluxe", "single", "#7ad83a", "#b77bff", "", "s", ""],
-[1, "Cobalt Supernova Deluxe", "star", "#e0263a", "#ffd34d", "", "m", ""],
-[1, "Vortex Keymaster Deluxe", "keytar", "#e0263a", "#7ad83a", "z", "s", ""],
-[1, "Halcyon Rumble Deluxe", "bass", "#ff4fa3", "#ffffff", "", "m", ""],
-[1, "Raptor Specter Deluxe", "headless", "#2f6ad8", "#7ad83a", "z", "s", ""],
-[1, "Ironclad Twinfire Deluxe", "double", "#7a3cc8", "#2de2e6", "", "s", ""],
-[1, "Vortex Viper Deluxe", "super", "#7a3cc8", "#ffffff", "", "s", ""],
-[1, "Vortex Talon Deluxe", "vee", "#e8b830", "#ffffff", "z", "s", ""],
-[1, "Starforge Ranger Deluxe", "xplor", "#ff4fa3", "#1c1c22", "", "s", ""],
-[1, "Halcyon Heritage Deluxe", "single", "#7a3cc8", "#ff4fa3", "", "s", ""],
-[1, "Starforge Comet Deluxe", "star", "#ff4fa3", "#b77bff", "z", "m", ""],
-[1, "Kestrel Keymaster Deluxe", "keytar", "#7a3cc8", "#ffffff", "", "m", ""],
-[1, "Halcyon Low Rider Deluxe", "bass", "#e8b830", "#e0263a", "", "s", ""],
-[1, "Halcyon Specter Deluxe", "headless", "#e0263a", "#ffffff", "z", "s", ""],
-[1, "Vortex Stinger Deluxe", "super", "#e0263a", "#ffffff", "z", "s", ""],
-[1, "Valkyr Wedge Deluxe", "vee", "#7a3cc8", "#ffd34d", "z", "m", ""],
-[1, "Kestrel Outlaw Deluxe", "xplor", "#ff4fa3", "#2de2e6", "", "s", ""],
-[1, "Raptor Classic Deluxe", "single", "#7ad83a", "#e0263a", "", "s", ""],
-[1, "Starforge Shuriken Deluxe", "star", "#ff4fa3", "#2de2e6", "z", "m", ""],
-[1, "Cobalt Synth-Strap Deluxe", "keytar", "#2f6ad8", "#b77bff", "", "s", ""],
-[2, "Kestrel Low Rider Custom", "bass", "#f2f0ea", "#ff4fa3", "z", "m", ""],
-[2, "Raptor Phantom Custom", "headless", "#ff4fa3", "#2de2e6", "u", "m", ""],
-[2, "Cobalt Gemini Custom", "double", "#1c1c22", "#b77bff", "", "m", ""],
-[2, "Starforge Stinger Custom", "super", "#e0263a", "#7ad83a", "", "m", ""],
-[2, "Starforge Talon Custom", "vee", "#1c1c22", "#2de2e6", "z", "b", ""],
-[2, "Vortex Ranger Custom", "xplor", "#f2f0ea", "#ffffff", "z", "b", ""],
-[2, "Cobalt Crown Custom", "single", "#ffd34d", "#ff4fa3", "u", "m", ""],
-[2, "Cobalt Shuriken Custom", "star", "#ff4fa3", "#b77bff", "z", "b", ""],
-[2, "Kestrel Synth-Strap Custom", "keytar", "#f2f0ea", "#ff4fa3", "", "m", ""],
-[2, "Starforge Rumble Custom", "bass", "#ff4fa3", "#7ad83a", "q", "k", ""],
-[2, "Valkyr Ghost Custom", "headless", "#ffd34d", "#ff4fa3", "z", "k", ""],
-[2, "Starforge Twinfire Custom", "double", "#1c1c22", "#ffffff", "q", "m", ""],
-[2, "Valkyr Blade Custom", "super", "#ffd34d", "#e0263a", "q", "k", ""],
-[2, "Vortex Talon Custom", "vee", "#1c1c22", "#ffd34d", "q", "m", ""],
-[2, "Valkyr Ranger Custom", "xplor", "#1c1c22", "#ff4fa3", "u", "m", ""],
-[2, "Kestrel Crown Custom", "single", "#2de2e6", "#1c1c22", "z", "m", ""],
-[2, "Cobalt Comet Custom", "star", "#f2f0ea", "#1c1c22", "z", "m", ""],
-[2, "Cobalt Keymaster Custom", "keytar", "#2de2e6", "#ffd34d", "", "b", ""],
-[2, "Cobalt Rumble Custom", "bass", "#1c1c22", "#7ad83a", "u", "m", ""],
-[3, "Starforge Specter Elite", "headless", "#ff4fa3", "#ffffff", "q", "m", ""],
-[3, "Halcyon Twinfire Elite", "double", "#ff4fa3", "#ffffff", "w", "r", ""],
-[3, "Halcyon Blade Elite", "super", "#2de2e6", "#ffffff", "q", "r", ""],
-[3, "Valkyr Talon Elite", "vee", "#2de2e6", "#ffd34d", "y", "r", ""],
-[3, "Cobalt Outlaw Elite", "xplor", "#ff6a1a", "#2de2e6", "p", "m", ""],
-[3, "Halcyon Crown Elite", "single", "#1c1c22", "#ffffff", "z", "r", ""],
-[3, "Starforge Shuriken Elite", "star", "#2de2e6", "#7ad83a", "z", "r", ""],
-[3, "Cobalt Synth-Strap Elite", "keytar", "#2de2e6", "#7ad83a", "w", "k", ""],
-[3, "Cobalt Thunder Bass Elite", "bass", "#b77bff", "#1c1c22", "w", "b", ""],
-[3, "Kestrel Specter Elite", "headless", "#2de2e6", "#ffffff", "y", "b", ""],
-[3, "Kestrel Twinfire Elite", "double", "#3ad87a", "#ffffff", "p", "r", ""],
-[3, "Halcyon Viper Elite", "super", "#3ad87a", "#2de2e6", "z", "r", ""],
-[3, "Starforge Talon Elite", "vee", "#3ad87a", "#ffffff", "y", "r", ""],
-[4, "Valkyr Ranger Signature", "xplor", "#ffd34d", "#ff4fa3", "q", "h", ""],
-[4, "Cobalt Heritage Signature", "single", "#3a8aff", "#1c1c22", "y", "f", "x"],
-[4, "Vortex Comet Signature", "star", "#ff2e88", "#b77bff", "q", "f", "x"],
-[4, "Ironclad Keymaster Signature", "keytar", "#e0263a", "#1c1c22", "y", "h", ""],
-[4, "Ironclad Rumble Signature", "bass", "#3a8aff", "#1c1c22", "q", "l", "x"],
-[4, "Ironclad Ghost Signature", "headless", "#ff2e88", "#2de2e6", "f", "f", "x"],
-[5, "Thunderstrike", "super", "#2a2a5a", "#7fd7ff", "w", "l", "n"],
-[5, "Phoenix Fire", "vee", "#e0401a", "#ffd34d", "f", "f", "n"],
-[5, "Starlight Dream", "star", "#f2e8ff", "#ff8ad8", "y", "r", "nx"],
-[5, "Neon Viper", "xplor", "#1a1a24", "#39ff8a", "z", "k", "ng"]
+/* ============================== GUITAR PACKS, ABILITIES, LOOKS AND STAGES ==============================
+   Everything is bought with coins in the shop. New items always go at the END of their list so saves stay valid. */
+// [name, guitar shape, color, accent, finish, what it shoots out, price, extras]
+const PACK_LIST = [
+  ["Garage Strat",    "super",    "#e0263a", "#ffffff", "",  "s", 0,    ""],
+  ["Note Blaster",    "single",   "#1c1c22", "#ffd34d", "z", "m", 150,  ""],
+  ["Bubble Bass",     "bass",     "#2de2e6", "#ffffff", "",  "o", 250,  ""],
+  ["Confetti Keytar", "keytar",   "#ff4fa3", "#ffd34d", "",  "c", 300,  ""],
+  ["Hellfire V",      "vee",      "#1c1c22", "#ff6a1a", "f", "f", 450,  ""],
+  ["Thunder Axe",     "xplor",    "#2a2a5a", "#7fd7ff", "w", "l", 600,  ""],
+  ["Star Power",      "star",     "#b77bff", "#ffffff", "y", "r", 700,  ""],
+  ["Heartbreaker",    "single",   "#ff4fa3", "#ffffff", "q", "h", 800,  ""],
+  ["Laser Show",      "headless", "#1c1c22", "#ff3a3a", "z", "z", 1000, ""],
+  ["Snowblind",       "xplor",    "#e8f4ff", "#7fd7ff", "y", "n", 1100, ""],
+  ["Skull Crusher",   "vee",      "#2a2a34", "#e8e8f0", "w", "u", 1300, ""],
+  ["Sound Wave",      "bass",     "#ffd34d", "#1c1c22", "z", "b", 1400, ""],
+  ["Firework Finale", "star",     "#2f5bd1", "#ff4fa3", "y", "w", 1800, ""],
+  ["Gold Record",     "single",   "#ffd34d", "#fff3b0", "y", "g", 2200, ""],
+  ["Rainbow Riff",    "double",   "#f4f4f8", "#ff4fa3", "q", "y", 2800, ""],
+  ["THE CREATOR",     "double",   "#2f5bd1", "#ffd34d", "w", "x", 5000, "n"],
 ];
-const ROCKER_LIST = [ // [tier, name, hair, hair color, skin, top color, top, pants color, pants pattern, boots, extras]. New rockers always go at the END.
-[0, "Jett Ravenwood", "mohawk", "#7a4a2a", "#c88a5a", "#7a1a1a", "tank", "#1c1c22", "", "#1c1c22", ""],
-[0, "Trixie Voss", "spiky", "#f2d06a", "#c88a5a", "#7a1a1a", "tank", "#2de2e6", "", "#e8e8f0", "h"],
-[0, "Colt Rivers", "long", "#f2d06a", "#c88a5a", "#e8e8f0", "tank", "#3a3a44", "", "#e8e8f0", "h"],
-[0, "Rikki Saint", "spiky", "#7a4a2a", "#c88a5a", "#3a3a44", "jacket", "#ffd34d", "", "#e8e8f0", ""],
-[0, "Sable Danger", "spiky", "#c8783a", "#f8dcc8", "#7a1a1a", "tank", "#3a3a44", "", "#e8e8f0", ""],
-[0, "Tasha Voss", "teased", "#f2d06a", "#e8b48e", "#7a1a1a", "jacket", "#e8e8f0", "", "#7a1a1a", ""],
-[0, "Trixie Cross", "curly", "#1c1c22", "#c88a5a", "#e8e8f0", "tank", "#ffd34d", "", "#2a2a34", ""],
-[0, "Jinx Vortex", "mohawk", "#1c1c22", "#e8b48e", "#2a2a5a", "tank", "#7a1a1a", "", "#2a2a34", "h"],
-[0, "Zane Blackwell", "poof", "#1c1c22", "#e8b48e", "#1c1c22", "vest", "#e8e8f0", "", "#7a1a1a", ""],
-[0, "Remy Fury", "spiky", "#1c1c22", "#c88a5a", "#1c1c22", "ruffle", "#e8e8f0", "", "#2a2a34", ""],
-[0, "Sonny Lux", "teased", "#c8783a", "#c88a5a", "#3a3a44", "jacket", "#3a3a44", "", "#2a2a34", "h"],
-[0, "Starla Fury", "spiky", "#2a1a10", "#f8dcc8", "#e8e8f0", "vest", "#e8e8f0", "", "#1c1c22", "h"],
-[0, "Jinx Diamond", "spiky", "#c8783a", "#8a5a3a", "#1c1c22", "vest", "#7a1a1a", "", "#e8e8f0", ""],
-[0, "Starla Hart", "long", "#f2d06a", "#f8dcc8", "#3a3a44", "tank", "#ff4fa3", "", "#2a2a34", "h"],
-[0, "Lexi Diamond", "long", "#c8783a", "#c88a5a", "#1c1c22", "tank", "#2de2e6", "", "#2a2a34", "h"],
-[0, "Cass Danger", "mullet", "#1c1c22", "#8a5a3a", "#e8e8f0", "ruffle", "#1c1c22", "", "#1c1c22", "h"],
-[0, "Shayne Thorne", "mullet", "#f2d06a", "#e8b48e", "#e8e8f0", "tank", "#ffd34d", "", "#1c1c22", ""],
-[0, "Rikki Blackwell", "spiky", "#c8783a", "#f6d2b4", "#1c1c22", "ruffle", "#7a1a1a", "", "#e8e8f0", "h"],
-[0, "Kaz Riot", "mullet", "#c8783a", "#f8dcc8", "#3a3a44", "tank", "#ff4fa3", "", "#1c1c22", "h"],
-[0, "Kaz Cross", "mullet", "#1c1c22", "#f8dcc8", "#1c1c22", "ruffle", "#2a2a5a", "", "#e8e8f0", ""],
-[0, "Ryder Rivers", "spiky", "#7a4a2a", "#e8b48e", "#1c1c22", "jacket", "#e8e8f0", "", "#e8e8f0", ""],
-[0, "Shayne Sterling", "poof", "#f2d06a", "#8a5a3a", "#e8e8f0", "tank", "#ffd34d", "", "#7a1a1a", "h"],
-[0, "Vixen Rivers", "mohawk", "#2a1a10", "#c88a5a", "#3a3a44", "tank", "#1c1c22", "", "#e8e8f0", ""],
-[0, "Sasha Danger", "teased", "#7a4a2a", "#8a5a3a", "#2a2a5a", "tank", "#1c1c22", "", "#2a2a34", ""],
-[0, "Colt Wilde", "teased", "#2a1a10", "#c88a5a", "#2a2a5a", "tank", "#ffd34d", "", "#1c1c22", ""],
-[0, "Remy Steele", "long", "#7a4a2a", "#e8b48e", "#1c1c22", "tank", "#2de2e6", "", "#e8e8f0", ""],
-[0, "Roxy Voss", "teased", "#f2d06a", "#c88a5a", "#7a1a1a", "tank", "#7a1a1a", "", "#2a2a34", ""],
-[0, "Dex Rivers", "mullet", "#c8783a", "#f6d2b4", "#e8e8f0", "ruffle", "#7a1a1a", "", "#7a1a1a", "h"],
-[0, "Jinx Blackwell", "mohawk", "#c8783a", "#f8dcc8", "#7a1a1a", "ruffle", "#ffd34d", "", "#2a2a34", "h"],
-[0, "Lyric Saint", "mohawk", "#1c1c22", "#f6d2b4", "#1c1c22", "vest", "#ffd34d", "", "#1c1c22", "h"],
-[0, "Dallas Voss", "mullet", "#f2d06a", "#f8dcc8", "#7a1a1a", "jacket", "#2de2e6", "", "#e8e8f0", ""],
-[0, "Kaz Sinclair", "spiky", "#1c1c22", "#5a3a24", "#1c1c22", "ruffle", "#e8e8f0", "", "#e8e8f0", ""],
-[0, "Lexi Payne", "curly", "#2a1a10", "#c88a5a", "#2a2a5a", "jacket", "#2de2e6", "", "#1c1c22", "h"],
-[1, "Sonny Knight", "mullet", "#e8e8f0", "#c88a5a", "#e8e8f0", "jacket", "#e8e8f0", "z", "#1c1c22", "s"],
-[1, "Maxx Diamond", "teased", "#5a3a22", "#f8dcc8", "#2a4aa8", "ruffle", "#3a3a44", "z", "#7a1a1a", "s"],
-[1, "Dallas Bishop", "curly", "#a83a1a", "#e8b48e", "#1c1c22", "tank", "#1c1c22", "", "#7a1a1a", ""],
-[1, "Kitty Payne", "poof", "#a83a1a", "#8a5a3a", "#5a2a7a", "tank", "#7a1a1a", "", "#1c1c22", "h"],
-[1, "Ryder Steele", "mullet", "#1c1c22", "#c88a5a", "#1c1c22", "ruffle", "#1c1c22", "", "#1c1c22", "s"],
-[1, "Starla Royale", "teased", "#5a3a22", "#5a3a24", "#2a4aa8", "tank", "#ff4fa3", "z", "#2a2a34", ""],
-[1, "Dallas Saint", "poof", "#f8e080", "#e8b48e", "#2a4aa8", "vest", "#2de2e6", "z", "#7a1a1a", ""],
-[1, "Vance Knight", "curly", "#a83a1a", "#5a3a24", "#e8e8f0", "jacket", "#1c1c22", "", "#e8e8f0", ""],
-[1, "Sonny Thorne", "mullet", "#5a3a22", "#f8dcc8", "#1c1c22", "tank", "#e8e8f0", "", "#7a1a1a", "s"],
-[1, "Remy Blackwell", "teased", "#e8e8f0", "#e8b48e", "#c8283a", "tank", "#3a3a44", "z", "#7a1a1a", "h"],
-[1, "Tasha Riot", "poof", "#a83a1a", "#f8dcc8", "#e8e8f0", "tank", "#ffd34d", "", "#1c1c22", "s"],
-[1, "Rocco Danger", "teased", "#f8e080", "#f6d2b4", "#e8e8f0", "vest", "#2a2a5a", "z", "#e8e8f0", "h"],
-[1, "Dex Diamond", "mullet", "#e8e8f0", "#f8dcc8", "#2a4aa8", "ruffle", "#3a3a44", "", "#7a1a1a", "s"],
-[1, "Sonny Rivers", "poof", "#1c1c22", "#e8b48e", "#c8283a", "tank", "#3a3a44", "z", "#e8e8f0", "h"],
-[1, "Lyric Blackwell", "mohawk", "#f8e080", "#f8dcc8", "#1c1c22", "jacket", "#ffd34d", "", "#7a1a1a", "h"],
-[1, "Storm Danger", "teased", "#5a3a22", "#e8b48e", "#e8e8f0", "vest", "#e8e8f0", "z", "#7a1a1a", "h"],
-[1, "Ryder Blackwell", "mohawk", "#a83a1a", "#8a5a3a", "#5a2a7a", "vest", "#7a1a1a", "", "#2a2a34", "h"],
-[1, "Remy Lux", "long", "#5a3a22", "#f6d2b4", "#2a4aa8", "jacket", "#e8e8f0", "", "#7a1a1a", ""],
-[1, "Ryder Wilde", "teased", "#5a3a22", "#f6d2b4", "#2a4aa8", "ruffle", "#ffd34d", "", "#e8e8f0", "h"],
-[1, "Sasha Royale", "poof", "#a83a1a", "#8a5a3a", "#5a2a7a", "jacket", "#7a1a1a", "z", "#7a1a1a", ""],
-[1, "Remy Rampage", "long", "#f8e080", "#f8dcc8", "#1c1c22", "ruffle", "#3a3a44", "", "#e8e8f0", ""],
-[1, "Cass Vortex", "mohawk", "#e8e8f0", "#e8b48e", "#1c1c22", "vest", "#2a2a5a", "z", "#2a2a34", "s"],
-[1, "Dahlia Valentine", "long", "#a83a1a", "#8a5a3a", "#1c1c22", "vest", "#2de2e6", "z", "#2a2a34", ""],
-[1, "Vance Malone", "teased", "#f8e080", "#f8dcc8", "#2a4aa8", "jacket", "#ff4fa3", "", "#7a1a1a", "h"],
-[1, "Remy Knight", "teased", "#f8e080", "#c88a5a", "#c8283a", "ruffle", "#1c1c22", "z", "#7a1a1a", "s"],
-[2, "Colt Diamond", "mohawk", "#c8283a", "#5a3a24", "#c8283a", "tank", "#3a3a44", "z", "#7a1a1a", "s"],
-[2, "Dahlia Royale", "curly", "#ff4fa3", "#8a5a3a", "#c8283a", "tank", "#2de2e6", "z", "#2a2a34", "s"],
-[2, "Dex Steele", "mohawk", "#c8283a", "#5a3a24", "#ffd34d", "ruffle", "#1c1c22", "p", "#e8e8f0", "b"],
-[2, "Ryder Bishop", "curly", "#ff4fa3", "#e8b48e", "#c8283a", "vest", "#3a3a44", "", "#2a2a34", "b"],
-[2, "Roxy Ravenwood", "poof", "#ff4fa3", "#5a3a24", "#2de2e6", "tank", "#2a2a5a", "p", "#7a1a1a", "s"],
-[2, "Sasha Cross", "mullet", "#2a1a10", "#5a3a24", "#c8283a", "jacket", "#ffd34d", "z", "#7a1a1a", "h"],
-[2, "Dahlia Malone", "curly", "#ff4fa3", "#f6d2b4", "#1c1c22", "vest", "#7a1a1a", "p", "#7a1a1a", "b"],
-[2, "Lexi Rivers", "spiky", "#2a1a10", "#8a5a3a", "#ff4fa3", "jacket", "#2a2a5a", "p", "#7a1a1a", "s"],
-[2, "Zane Malone", "teased", "#f8e080", "#f6d2b4", "#1c1c22", "vest", "#e8e8f0", "z", "#2a2a34", "b"],
-[2, "Shayne Hart", "curly", "#f8e080", "#c88a5a", "#ff4fa3", "tank", "#1c1c22", "", "#1c1c22", "b"],
-[2, "Jett Knight", "teased", "#2a1a10", "#5a3a24", "#ff4fa3", "jacket", "#3a3a44", "p", "#1c1c22", "b"],
-[2, "Sonny Steele", "poof", "#2de2e6", "#e8b48e", "#2de2e6", "ruffle", "#2a2a5a", "z", "#2a2a34", "s"],
-[2, "Dallas Royale", "long", "#2a1a10", "#c88a5a", "#1c1c22", "vest", "#1c1c22", "z", "#e8e8f0", "s"],
-[2, "Dahlia Diamond", "mohawk", "#c8283a", "#f8dcc8", "#1c1c22", "vest", "#ff4fa3", "", "#2a2a34", "h"],
-[2, "Zane Vortex", "mohawk", "#ff4fa3", "#c88a5a", "#c8283a", "tank", "#3a3a44", "z", "#e8e8f0", "h"],
-[2, "Lyric Sterling", "mohawk", "#2a1a10", "#c88a5a", "#1c1c22", "ruffle", "#e8e8f0", "", "#7a1a1a", "s"],
-[2, "Ryder Cross", "poof", "#f8e080", "#e8b48e", "#ffd34d", "tank", "#ffd34d", "", "#e8e8f0", "h"],
-[2, "Dahlia Fury", "mohawk", "#2a1a10", "#e8b48e", "#1c1c22", "jacket", "#ffd34d", "z", "#2a2a34", "b"],
-[2, "Tasha Sterling", "long", "#f8e080", "#8a5a3a", "#ffd34d", "jacket", "#ffd34d", "", "#1c1c22", "s"],
-[3, "Kaz Blackwell", "spiky", "#e8e8f0", "#f6d2b4", "#ff4fa3", "tank", "#ffd34d", "q", "#1c1c22", "b"],
-[3, "Sasha Payne", "teased", "#f8e080", "#e8b48e", "#ffd34d", "jacket", "#2de2e6", "z", "#1c1c22", "b"],
-[3, "Remy Payne", "spiky", "#e8e8f0", "#c88a5a", "#1c1c22", "vest", "#2a2a5a", "p", "#2a2a34", "s"],
-[3, "Ryder Lux", "mullet", "#f8e080", "#f8dcc8", "#ff4fa3", "jacket", "#ff4fa3", "q", "#2a2a34", "h"],
-[3, "Dahlia Payne", "long", "#f8e080", "#8a5a3a", "#ff4fa3", "vest", "#ffd34d", "q", "#7a1a1a", "s"],
-[3, "Rikki Royale", "spiky", "#b77bff", "#f8dcc8", "#ff4fa3", "vest", "#ff4fa3", "z", "#e8e8f0", "bg"],
-[3, "Rocco Valentine", "spiky", "#f8e080", "#c88a5a", "#ff4fa3", "tank", "#7a1a1a", "z", "#7a1a1a", "bg"],
-[3, "Vance Bishop", "poof", "#f8e080", "#f6d2b4", "#ff4fa3", "tank", "#7a1a1a", "q", "#1c1c22", "b"],
-[3, "Zane Sinclair", "long", "#ff4fa3", "#e8b48e", "#1c1c22", "vest", "#2a2a5a", "p", "#e8e8f0", "sg"],
-[3, "Vance Sterling", "poof", "#e8e8f0", "#c88a5a", "#b77bff", "ruffle", "#e8e8f0", "q", "#e8e8f0", "s"],
-[3, "Roxy Malone", "poof", "#ff4fa3", "#e8b48e", "#ffd34d", "vest", "#e8e8f0", "p", "#7a1a1a", "sg"],
-[3, "Remy Malone", "long", "#ff4fa3", "#8a5a3a", "#e8e8f0", "jacket", "#3a3a44", "z", "#1c1c22", "b"],
-[3, "Rikki Diamond", "mohawk", "#ff4fa3", "#e8b48e", "#e8e8f0", "vest", "#2a2a5a", "q", "#2a2a34", "s"],
-[4, "Sable Saint", "poof", "#e8e8ff", "#5a3a24", "#1c1c22", "vest", "#ffd34d", "p", "#e8e8f0", "b"],
-[4, "Raven Steele", "curly", "#ff8a3d", "#5a3a24", "#e8e8ff", "tank", "#7a1a1a", "p", "#7a1a1a", "x"],
-[4, "Cass Fury", "mohawk", "#ff2e88", "#8a5a3a", "#ff2e88", "ruffle", "#3a3a44", "q", "#7a1a1a", "x"],
-[4, "Cass Blackwell", "teased", "#e8e8ff", "#f6d2b4", "#e8e8ff", "ruffle", "#3a3a44", "y", "#e8e8f0", "s"],
-[4, "Trixie Rivers", "long", "#ffd34d", "#8a5a3a", "#1c1c22", "jacket", "#2a2a5a", "y", "#1c1c22", "b"],
-[4, "Tasha Cross", "mohawk", "#e8e8ff", "#e8b48e", "#1c1c22", "jacket", "#2de2e6", "q", "#2a2a34", "s"],
-[5, "THE CREATOR", "slick", "#2a1a10", "#f6d2b4", "#2f5bd1", "suit", "#2f5bd1", "", "#1c1c22", "snc"],
-[5, "Electra Nova", "teased", "#e8e8ff", "#f8dcc8", "#ff2e88", "jacket", "#1c1c22", "y", "#e8e8f0", "snx"],
-[5, "Raven Nightshade", "long", "#1c1c22", "#f6e0d0", "#3a1a4a", "ruffle", "#1c1c22", "", "#1c1c22", "ng"],
-[5, "Rex Thunderbolt", "poof", "#ffd34d", "#e8b48e", "#e0263a", "vest", "#ffd34d", "z", "#1c1c22", "snw"]
+const TRAIL_NAME = {s:"Smoke", m:"Music notes", o:"Bubbles", c:"Confetti", f:"Flames", l:"Lightning", r:"Stars", h:"Hearts", z:"Laser beams",
+  n:"Snowflakes", u:"Skulls", b:"Sound waves", w:"Fireworks", g:"Gold coins", y:"Rainbow", x:"Gold notes and stars"};
+// abilities: equip up to 2 (a 3rd slot can be bought)
+const GADGETS = [
+  {id:"magnet",    name:"Coin Magnet",            info:"Pulls in nearby coins all the time",            price:600},
+  {id:"headstart", name:"Head Start",             info:"Start every run with a Power Chord Rush",      price:500},
+  {id:"second",    name:"Second Chance",          info:"Survive one crash per run",                    price:1200},
+  {id:"lucky",     name:"Lucky Boxes",            info:"Power-up boxes show up twice as often",         price:400},
+  {id:"longpu",    name:"Long-Lasting Power-Ups", info:"Power-ups last 50% longer",                     price:500},
+  {id:"bonus",     name:"Coin Bonus",             info:"1 in 4 coins is worth double",                  price:900},
+  {id:"warn",      name:"Early Warning",          info:"Speakers and laser beams warn you sooner",      price:300},
+  {id:"encore",    name:"Opening Act",            info:"Start every run with a Bodyguard shield",       price:700},
 ];
+const SLOT3_PRICE = 1500;
+// the rocker's look: each part is a list of [value, price]
+const LOOK_PARTS = [
+  {key:"hair",   label:"Hair",         kind:"text",   opts:[["poof",0],["long",0],["spiky",0],["mullet",0],["slick",0],["curly",80],["mohawk",120],["teased",160]]},
+  {key:"hairC",  label:"Hair color",   kind:"color",  opts:[["#2a1a10",0],["#7a4a2a",0],["#f8e080",0],["#1c1c22",0],["#a83a1a",50],["#e8e8f0",80],["#ff4fa3",120],["#2de2e6",120],["#7dff5a",120],["#b77bff",120]]},
+  {key:"skin",   label:"Skin",         kind:"color",  opts:[["#f6d2b4",0],["#e8b48e",0],["#c88a5a",0],["#8a5a3a",0],["#5a3a24",0],["#f8dcc8",0]]},
+  {key:"topS",   label:"Top",          kind:"text",   opts:[["tank",0],["vest",0],["jacket",60],["ruffle",150],["suit",400]]},
+  {key:"top",    label:"Top color",    kind:"color",  opts:[["#1c1c22",0],["#e8e8f0",0],["#7a1a1a",0],["#2a4aa8",0],["#e0263a",60],["#ff4fa3",80],["#2de2e6",80],["#ffd34d",80],["#b77bff",100],["#2f5bd1",100]]},
+  {key:"pantP",  label:"Pants style",  kind:"text",   opts:[["",0],["z",80],["q",150],["p",200],["y",250]]},
+  {key:"pants",  label:"Pants color",  kind:"color",  opts:[["#1c1c22",0],["#2a2a5a",0],["#3a3a44",0],["#7a1a1a",50],["#e8e8f0",60],["#ff4fa3",100],["#2de2e6",100],["#ffd34d",100]]},
+  {key:"boots",  label:"Boots",        kind:"color",  opts:[["#1c1c22",0],["#e8e8f0",0],["#2a2a34",0],["#7a1a1a",40],["#ffd34d",120]]},
+  {key:"acc",    label:"Extras",       kind:"text",   opts:[["",0],["h",0],["s",60],["b",80],["sh",120],["w",150],["sw",200]]},
+];
+const OPT_NAME = {poof:"Big poof", long:"Long", spiky:"Spiky", mullet:"Mullet", slick:"Slicked back", curly:"Curly", mohawk:"Mohawk", teased:"Teased",
+  tank:"Tank top", vest:"Vest", jacket:"Leather jacket", ruffle:"Ruffled shirt", suit:"Suit and tie",
+  "":"None", z:"Stripes", q:"Checkers", p:"Leopard", y:"Metal flake",
+  h:"Headband", s:"Shades", b:"Bandana", sh:"Shades + headband", w:"Lightning face paint", sw:"Shades + face paint"};
+const DEFAULT_LOOK = {hair:0, hairC:1, skin:0, topS:0, top:0, pantP:0, pants:0, boots:0, acc:1};
+// stages (backgrounds you fly through)
+const STAGES = [["arena","The Arena",0],["Storm Rooftop","Storm Rooftop",400],["Volcano Fest","Volcano Fest",500],["Desert Festival","Desert Festival",550],
+  ["Cosmic Stage","Cosmic Stage",600],["Neon Strip","Neon Strip",650],["Synthwave Highway","Synthwave Highway",800],["Midnight Castle","Midnight Castle",800],["Platinum Stadium","Platinum Stadium",1000]];
+// daily challenges: three are picked each day
+const CHALLENGES = {
+  dist:     {text:n => `Fly ${fmt(n)} m in one run`,         ns:[600, 900, 1300],  reward:[40, 60, 90],  max:true},
+  coins:    {text:n => `Collect ${n} coins today`,           ns:[60, 120, 200],    reward:[40, 60, 90]},
+  runs:     {text:n => `Play ${n} runs today`,               ns:[3, 5, 8],         reward:[30, 50, 70]},
+  pu:       {text:n => `Grab ${n} power-ups today`,          ns:[2, 4, 6],         reward:[40, 60, 80]},
+  round:    {text:n => `Reach round ${n} in one run`,        ns:[2, 3, 4],         reward:[40, 70, 100], max:true},
+  beams:    {text:n => `Survive ${n} laser-beam attacks today`, ns:[2, 4, 6],      reward:[40, 60, 90]},
+  speakers: {text:n => `Dodge ${n} flying speakers today`,   ns:[5, 10, 16],       reward:[40, 60, 90]},
+};
+const DAILY_BONUS = 100;
 /* ============================== GUITARS & ROCKERS ============================== */
 const TIERS = [
   {key:"common",    name:"Common",    color:"#b9bcc9", weight:51.5,refund:10},
@@ -681,7 +549,6 @@ const TIERS = [
   {key:"mythic",    name:"Mythic",    color:"#ff5ea8", weight:1,   refund:100},
 ];
 const SHAPE_NAME = {super:"Super-strat", vee:"Flying wedge", xplor:"Explorer-style", single:"Single-cut", star:"Star", keytar:"Keytar", bass:"Bass", headless:"Headless", double:"Double-neck"};
-const TRAIL_NAME = {s:"Smoke", m:"Music notes", b:"Sound rings", k:"Sparks", r:"Stars", f:"Flames", l:"Lightning", h:"Hearts"};
 // Letters: B body, P pickups, N neck, H headstock, W/K keytar keys. Rows are padded to the same width.
 const GUITAR_SHAPES = {
   super:[ "..BB", "...BB", "..BBBB..................HH", ".BBBBBBB...............HHH", "BBPPBBBBNNNNNNNNNNNNNNNHH", "BBBBPPBBNNNNNNNNNNNNNNN", "BBBBBBBB", ".BBBBBB", "..BBB", ".BB"],
@@ -695,19 +562,21 @@ const GUITAR_SHAPES = {
   double:[ "..BBB.................HH", ".BBBBBNNNNNNNNNNNNNNNNHHH", "BBPBBBNNNNNNNNNNNNNNNNHH", "BBBBBB", "BBBBBB", "BBPBBBNNNNNNNNNNNNNNNNHH", ".BBBBBNNNNNNNNNNNNNNNNHHH", "..BBB.................HH"],
 };
 for (const k in GUITAR_SHAPES){ const r = GUITAR_SHAPES[k], w = Math.max(...r.map(x => x.length)); GUITAR_SHAPES[k] = r.map(x => x.padEnd(w, ".")); }
+const tierOfPrice = p => p === 0 ? 0 : p <= 300 ? 1 : p <= 800 ? 2 : p <= 1500 ? 3 : p <= 2800 ? 4 : 5;
 const CHARS = [];
-GUITAR_LIST.forEach(([tier, name, shape, main, accent, pat, trail, ex]) => CHARS.push({id:CHARS.length, kind:"g", tier, name, shape, main, accent, pat, trail, ex}));
-const ROCK0 = CHARS.length;     // rockers start at id 100
-ROCKER_LIST.forEach(([tier, name, hair, hairC, skin, top, topS, pants, pantP, boots, ex]) => CHARS.push({id:CHARS.length, kind:"r", tier, name, hair, hairC, skin, top, topS, pants, pantP, boots, ex}));
-const GUITARS = CHARS.filter(c => c.kind === "g"), ROCKERS = CHARS.filter(c => c.kind === "r");
-const SORTED = [...CHARS].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "g" ? -1 : 1) || a.tier - b.tier || a.id - b.id);
-const DISPLAY_NO = {}; SORTED.forEach(c => DISPLAY_NO[c.id] = (c.kind === "g" ? GUITARS : ROCKERS).filter(x => x.tier < c.tier || (x.tier === c.tier && x.id <= c.id)).length);
-const carNo = c => "#" + String(DISPLAY_NO[c.id]).padStart(3, "0");
-const isCreator = c => c.name === "THE CREATOR";
-const tierCounts = TIERS.map((_, i) => CHARS.filter(c => c.tier === i).length);
-const kindCount = (k, i) => CHARS.filter(c => c.kind === k && c.tier === i).length;
-const itemKind = c => c.kind === "g" ? "Guitar" : "Rocker";
-const itemDesc = c => c.kind === "g" ? `${SHAPE_NAME[c.shape]} · ${TRAIL_NAME[c.trail]} trail` : "Rocker";
+PACK_LIST.forEach(([name, shape, main, accent, pat, trail, price, ex]) => CHARS.push({id:CHARS.length, kind:"g", tier:tierOfPrice(price), name, shape, main, accent, pat, trail, price, ex}));
+const GUITARS = CHARS;
+const isCreator = c => c && c.name === "THE CREATOR";
+// turn a saved look (a list of choices) into something the drawing code understands
+function lookOf(L){
+  const v = k => { const part = LOOK_PARTS.find(p => p.key === k), i = Math.min(part.opts.length - 1, Math.max(0, (L && Number.isInteger(L[k])) ? L[k] : DEFAULT_LOOK[k])); return part.opts[i][0]; };
+  const acc = v("acc"), topS = v("topS");
+  return {kind:"r", tier:0, name:"You", hair:v("hair"), hairC:v("hairC"), skin:v("skin"), top:v("top"), topS, pants:v("pants"), pantP:v("pantP"), boots:v("boots"), ex: acc + (topS === "suit" ? "c" : "")};
+}
+// pack a look into one number (for the leaderboard) and back
+const LOOK_BITS = [3,4,3,3,4,3,3,3,3];
+function encodeLook(L){ let n = 0; LOOK_PARTS.forEach((p, i) => { n = n*(1 << LOOK_BITS[i]) + Math.min((1 << LOOK_BITS[i]) - 1, (L && L[p.key]) || 0); }); return n; }
+function decodeLook(n){ const L = {}; for (let i = LOOK_PARTS.length - 1; i >= 0; i--){ const b = 1 << LOOK_BITS[i]; L[LOOK_PARTS[i].key] = n % b; n = Math.floor(n / b); } return L; }
 
 function hexRGB(h){h=h.replace("#","");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
 const shadeCache = {};
@@ -845,19 +714,27 @@ function drawPlayer(ctx, rk, gt, o){
 const TRAIL_AT = (() => { const a = GUITAR_TILT, dx = -4*GUITAR_SC, dy = 0; return {x: GUITAR_AT.x + dx*Math.cos(a) - dy*Math.sin(a), y: GUITAR_AT.y + dx*Math.sin(a) + dy*Math.cos(a)}; })();
 
 /* ============================== STATE & SAVES ============================== */
-const newState = () => ({v:1, name:"", coins:0, lifetimeCoins:0, best:0, bestRound:0, runs:0, chests:0, owned:{"0":1,"100":1}, selected:0, selR:100, updatedAt:0});
+const newState = () => ({v:2, name:"", coins:0, lifetimeCoins:0, best:0, bestRound:0, runs:0, chests:0, owned:{"0":1}, selected:0,
+  gadgets:{}, equip:[], slots:2, look:Object.assign({}, DEFAULT_LOOK), looksOwned:{}, stages:{arena:1}, stage:"arena", daily:null, updatedAt:0});
 function cleanName(n){ return typeof n === "string" ? n.replace(/[^A-Za-z0-9 _.\-']/g,"").replace(/\s+/g," ").trim().slice(0,16) : ""; }
 function sanitize(s){
   const d = newState(); if (!s || typeof s !== "object") return d;
   const num = (v, def) => (Number.isFinite(+v) && +v >= 0) ? Math.floor(+v) : def;
   d.coins = num(s.coins,0); d.lifetimeCoins = num(s.lifetimeCoins,d.coins); d.best = num(s.best,0); d.bestRound = num(s.bestRound,0);
-  d.name = cleanName(s.name);
-  d.runs = num(s.runs,0); d.chests = num(s.chests,0); d.updatedAt = num(s.updatedAt,0);
-  d.owned = {};
-  if (s.owned && typeof s.owned === "object") for (const k in s.owned){ const i = +k; if (Number.isInteger(i) && i>=0 && i<CHARS.length && num(s.owned[k],0)>0) d.owned[i] = num(s.owned[k],1); }
-  d.owned[0] = d.owned[0] || 1; d.owned[ROCK0] = d.owned[ROCK0] || 1;
-  d.selected = d.owned[s.selected] && CHARS[+s.selected].kind === "g" ? +s.selected : 0;
-  d.selR = d.owned[s.selR] && CHARS[+s.selR] && CHARS[+s.selR].kind === "r" ? +s.selR : ROCK0;
+  d.name = cleanName(s.name); d.runs = num(s.runs,0); d.chests = num(s.chests,0); d.updatedAt = num(s.updatedAt,0);
+  if (s.v === 2){
+    if (s.owned && typeof s.owned === "object") for (const k in s.owned){ const i = +k; if (Number.isInteger(i) && i >= 0 && i < CHARS.length && s.owned[k]) d.owned[i] = 1; }
+    d.selected = d.owned[s.selected] ? +s.selected : 0;
+    if (s.gadgets && typeof s.gadgets === "object") GADGETS.forEach(g => { if (s.gadgets[g.id]) d.gadgets[g.id] = 1; });
+    d.slots = s.slots === 3 ? 3 : 2;
+    if (Array.isArray(s.equip)) d.equip = s.equip.filter(id => d.gadgets[id]).filter((id, i, a) => a.indexOf(id) === i).slice(0, d.slots);
+    if (s.looksOwned && typeof s.looksOwned === "object") for (const k in s.looksOwned) if (/^[a-zA-Z]+:\d+$/.test(k) && s.looksOwned[k]) d.looksOwned[k] = 1;
+    if (s.look && typeof s.look === "object") LOOK_PARTS.forEach(p => { const i = num(s.look[p.key], -1); if (i >= 0 && i < p.opts.length && (p.opts[i][1] === 0 || d.looksOwned[p.key + ":" + i])) d.look[p.key] = i; });
+    if (s.stages && typeof s.stages === "object") STAGES.forEach(([id]) => { if (s.stages[id]) d.stages[id] = 1; });
+    d.stage = d.stages[s.stage] ? s.stage : "arena";
+    if (s.daily && typeof s.daily === "object" && typeof s.daily.day === "string" && Array.isArray(s.daily.ids) && s.daily.ids.length === 3)
+      d.daily = {day: s.daily.day, ids: s.daily.ids.map(String), lv: (s.daily.lv || [0,0,0]).map(x => Math.min(2, num(x, 0))), p: (s.daily.p || [0,0,0]).map(x => num(x, 0)), done: (s.daily.done || [0,0,0]).map(x => x ? 1 : 0), bonus: s.daily.bonus ? 1 : 0};
+  }
   return d;
 }
 let state = newState();
@@ -900,7 +777,7 @@ const Saves = {
   },
 };
 
-function encodeSave(s){ const j = JSON.stringify({name:s.name,coins:s.coins,lifetimeCoins:s.lifetimeCoins,best:s.best,bestRound:s.bestRound,runs:s.runs,chests:s.chests,owned:s.owned,selected:s.selected,selR:s.selR});
+function encodeSave(s){ const j = JSON.stringify({v:2,name:s.name,coins:s.coins,lifetimeCoins:s.lifetimeCoins,best:s.best,bestRound:s.bestRound,runs:s.runs,chests:s.chests,owned:s.owned,selected:s.selected,gadgets:s.gadgets,equip:s.equip,slots:s.slots,look:s.look,looksOwned:s.looksOwned,stages:s.stages,stage:s.stage,daily:s.daily});
   return "GC1-" + btoa(unescape(encodeURIComponent(j))); }
 function decodeSave(code){
   code = (code||"").trim().replace(/\s+/g,"");
@@ -930,80 +807,177 @@ function setSaveStatus(kind){
   else if (kind === "err"){ dot.classList.add("err"); txt.textContent = "This browser is blocking saves. Use your save code to keep progress."; }
 }
 
-function ownedKind(k){ return CHARS.filter(c => c.kind === k && state.owned[c.id]).length; }
+/* ---------- daily challenges ---------- */
+function dayHash(day){ let h = 7; for (const ch of day) h = (h*31 + ch.charCodeAt(0)) >>> 0; return h; }
+function ensureDaily(){
+  const day = todayKey(); if (state.daily && state.daily.day === day) return;
+  const keys = Object.keys(CHALLENGES), h = dayHash(day), ids = [];
+  let k = h; while (ids.length < 3){ const id = keys[k % keys.length]; if (!ids.includes(id)) ids.push(id); k = Math.floor(k/7) + 13 + ids.length*5; }
+  state.daily = {day, ids, lv: ids.map((_, i) => (h >> (i*2)) % 3), p:[0,0,0], done:[0,0,0], bonus:0};
+}
+function dailyProgress(kind, amt){
+  if (TEST.on) return; ensureDaily(); const d = state.daily; let changed = false;
+  d.ids.forEach((id, i) => { if (id !== kind || d.done[i]) return; const ch = CHALLENGES[id], goal = ch.ns[d.lv[i]];
+    d.p[i] = ch.max ? Math.max(d.p[i], amt) : d.p[i] + amt; changed = true;
+    if (d.p[i] >= goal){ d.p[i] = goal; d.done[i] = 1; const r = ch.reward[d.lv[i]]; state.coins += r; state.lifetimeCoins += r; state.chests++; toast(`Challenge complete! +${r} coins`); Sound.reveal(1); } });
+  if (changed && !d.bonus && d.done.every(Boolean)){ d.bonus = 1; state.coins += DAILY_BONUS; state.lifetimeCoins += DAILY_BONUS; setTimeout(() => toast(`All 3 challenges done! +${DAILY_BONUS} bonus coins`), 2300); }
+  if (changed){ Saves.save(); renderDaily(); renderHUD(); }
+}
+function renderDaily(){
+  ensureDaily(); const d = state.daily, box = $("daily"); box.textContent = "";
+  d.ids.forEach((id, i) => { const ch = CHALLENGES[id], goal = ch.ns[d.lv[i]], p = Math.min(goal, d.p[i]);
+    const row = document.createElement("div"); row.className = "ch" + (d.done[i] ? " done" : "");
+    row.innerHTML = `<div class="ch-top"><span class="ch-t"></span><span class="ch-r"></span></div><div class="progress"><i style="width:${p/goal*100}%"></i></div><span class="ch-p"></span>`;
+    row.querySelector(".ch-t").textContent = (d.done[i] ? "✓ " : "") + ch.text(goal);
+    row.querySelector(".ch-r").textContent = "+" + ch.reward[d.lv[i]] + " coins";
+    row.querySelector(".ch-p").textContent = d.done[i] ? "Complete" : `${fmt(p)} / ${fmt(goal)}`;
+    box.append(row); });
+  $("dailyBonus").textContent = d.bonus ? `All done! You earned the ${DAILY_BONUS}-coin bonus. New challenges at midnight Eastern.` : `Finish all 3 for a ${DAILY_BONUS}-coin bonus · new challenges at midnight Eastern`;
+}
+
+/* ---------- ownership (test mode unlocks everything to try) ---------- */
+const ownsPack = id => TEST.on || !!state.owned[id];
+const ownsGadget = id => TEST.on || !!state.gadgets[id];
+const ownsLook = (k, i) => TEST.on || LOOK_PARTS.find(p => p.key === k).opts[i][1] === 0 || !!state.looksOwned[k + ":" + i];
+const ownsStage = id => TEST.on || !!state.stages[id];
+const equipped = id => state.equip.includes(id);
+function spend(price, what){
+  if (TEST.on){ toast("Buying is off in test mode, but you can try it on"); return false; }
+  if (state.coins < price){ toast(`You need ${fmt(price - state.coins)} more coins for ${what}`); return false; }
+  state.coins -= price; return true;
+}
+// after test mode, put back anything that isn't really owned
+function fixEquips(){
+  if (!state.owned[state.selected]) state.selected = 0;
+  state.equip = state.equip.filter(id => state.gadgets[id]).slice(0, state.slots);
+  LOOK_PARTS.forEach(p => { if (!(p.opts[state.look[p.key]] && (p.opts[state.look[p.key]][1] === 0 || state.looksOwned[p.key + ":" + state.look[p.key]]))) state.look[p.key] = DEFAULT_LOOK[p.key]; });
+  if (!state.stages[state.stage]) state.stage = "arena";
+}
+
 function renderHUD(){
   $("hudCoins").textContent = fmt(state.coins);
-  $("hudOwned").textContent = ownedKind("g"); $("hudTotal").textContent = "/ " + GUITARS.length + " guitars";
-  $("hudRock").textContent = ownedKind("r"); $("hudRockTotal").textContent = "/ " + ROCKERS.length + " rockers";
+  $("hudOwned").textContent = Object.keys(state.owned).length; $("hudTotal").textContent = "/ " + CHARS.length + " packs";
   $("hudBest").textContent = fmt(state.best) + " m";
   $("recBest").textContent = fmt(state.best) + " m";
   $("recRound").textContent = state.bestRound ? "Round " + state.bestRound : "—";
   $("recRuns").textContent = fmt(state.runs);
   $("recLife").textContent = fmt(state.lifetimeCoins);
   $("recChests").textContent = fmt(state.chests);
-  const g = curCar(), r = curRocker();
-  $("nowName").textContent = r.name; $("nowName").classList.toggle("creator", isCreator(r)); $("nowName").style.color = TIERS[r.tier].color;
+  const g = curCar();
   $("nowGtr").textContent = g.name; $("nowGtr").style.color = TIERS[g.tier].color;
-  $("nowPerk").textContent = TRAIL_NAME[g.trail] + " trail" + (worldName() ? " · " + worldName() : "");
-  $("chestBar").style.width = Math.min(100, state.coins) + "%";
-  const can = state.coins >= 100 && !chestBusy;
-  $("openChest").disabled = !can;
-  $("chestHint").textContent = state.coins >= 100 ? (Math.floor(state.coins/100) + " case" + (state.coins>=200?"s":"") + " ready") : (100 - state.coins) + " more coins to go";
+  $("nowPerk").textContent = TRAIL_NAME[g.trail] + " · " + (STAGES.find(s => s[0] === curStage()) || STAGES[0])[1] + (state.equip.length ? " · " + state.equip.map(id => GADGETS.find(x => x.id === id).name).join(", ") : "");
+  $("shopCoins").textContent = fmt(state.coins);
 }
-function renderOdds(){
-  $("oddsBody").innerHTML = TIERS.map((t,i)=>`<tr><td style="color:${t.color}">${t.name}</td><td>${kindCount("g", i)}</td><td>${kindCount("r", i)}</td><td>${pct(t.weight)}</td><td>+${t.refund}</td><td>${tierFound(i)} / ${tierCounts[i]}</td></tr>`).join("");
+let shopTab = "packs";
+function renderShop(){
+  document.querySelectorAll("#shopTabs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.t === shopTab));
+  ["packs","abilities","look","stages"].forEach(t => $("tab-" + t).hidden = t !== shopTab);
+  if (shopTab === "packs") renderPacks(); else if (shopTab === "abilities") renderGadgets(); else if (shopTab === "look") renderLook(); else renderStages();
 }
-let filter = -1, kindTab = "g";
-function renderFilters(){
-  $("kindTabs").innerHTML = [["g","Guitars"],["r","Rockers"]].map(([k, n]) => `<button type="button" data-k="${k}" aria-pressed="${kindTab===k}">${n} ${ownedKind(k)}/${k === "g" ? GUITARS.length : ROCKERS.length}</button>`).join("");
-  const pool = CHARS.filter(c => c.kind === kindTab);
-  const opts = [{i:-1,name:"All"}].concat(TIERS.map((t,i)=>({i,name:t.name})));
-  $("filters").innerHTML = opts.map(o=>{ const inT = pool.filter(c => o.i < 0 || c.tier === o.i); return `<button type="button" data-f="${o.i}" aria-pressed="${filter===o.i}" ${o.i>=0?`style="color:${TIERS[o.i].color}"`:""}>${o.name} ${inT.filter(c => state.owned[c.id]).length}/${inT.length}</button>`; }).join("");
-}
-function drawCard(ctx, c, sil, t){ if (c.kind === "g") drawChar(ctx, c, {x:84, y:62, s:4, t, sil}); else drawChar(ctx, c, {x:84, y:94, s:4.4, t, sil}); }
 const cardCanvases = [];
-const isSel = c => c.kind === "g" ? (TEST.on ? TEST.car : state.selected) === c.id : (TEST.on ? TEST.rock : state.selR) === c.id;
-function renderCards(){
-  const box = $("cards"); box.textContent = "";
-  cardCanvases.length = 0;
-  SORTED.forEach(c => {
-    if (c.kind !== kindTab || (filter >= 0 && c.tier !== filter)) return;
-    const own = TEST.on || !!state.owned[c.id], t = TIERS[c.tier];
-    const b = document.createElement("button"); b.type = "button";
-    b.className = "card" + (own ? "" : " locked") + (isSel(c) ? " sel" : "");
-    b.style.setProperty("--rc", t.color);
-    b.setAttribute("aria-label", own ? `${c.name}, ${t.name} ${itemKind(c).toLowerCase()}${isSel(c) ? ", playing now" : ""}` : `Locked ${t.name} ${itemKind(c).toLowerCase()}`);
+function renderPacks(){
+  const box = $("packs"); box.textContent = ""; cardCanvases.length = 0;
+  CHARS.forEach(c => {
+    const own = ownsPack(c.id), on = curCar().id === c.id, t = TIERS[c.tier];
+    const b = document.createElement("div"); b.className = "card shop" + (on ? " sel" : ""); b.style.setProperty("--rc", t.color);
     const cv = document.createElement("canvas"); cv.width = 168; cv.height = 96;
-    const num = document.createElement("span"); num.className = "num"; num.textContent = carNo(c);
-    const nm = document.createElement("span"); nm.className = "cn"; nm.textContent = own ? c.name : "???"; if (own && isCreator(c)) nm.classList.add("creator");
-    const st = document.createElement("span"); st.className = "cs"; st.textContent = c.kind === "g" ? (own ? TRAIL_NAME[c.trail] : SHAPE_NAME[c.shape]) : (own && WORLDS[c.name] ? WORLDS[c.name] : "");
-    if (c.kind === "g" && own && WORLDS[c.name]) st.textContent = WORLDS[c.name];
-    const rr = document.createElement("span"); rr.className = "cr"; rr.textContent = t.name;
-    b.append(num, cv, nm, st, rr);
-    if (own && state.owned[c.id] > 1){ const n = document.createElement("span"); n.className="cnt"; n.textContent = "×" + state.owned[c.id]; b.append(n); }
-    if (own) b.addEventListener("click", () => selectChar(c.id));
-    box.append(b);
-    const ctx = setupCanvas(cv);
-    drawCard(ctx, c, !own, 0);
-    if (c.tier >= 4 && own) cardCanvases.push({ctx, c});
+    const nm = document.createElement("span"); nm.className = "cn"; nm.textContent = c.name; if (isCreator(c)) nm.classList.add("creator");
+    const st = document.createElement("span"); st.className = "cs2"; st.textContent = "Shoots " + TRAIL_NAME[c.trail].toLowerCase();
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn small" + (own ? " ghost" : "");
+    btn.textContent = on ? "Equipped" : own ? "Equip" : "Buy · " + fmt(c.price); btn.disabled = on;
+    btn.addEventListener("click", () => {
+      if (!own){ if (!spend(c.price, "the " + c.name)) return; state.owned[c.id] = 1; Sound.reveal(Math.min(5, c.tier)); toast("Unlocked the " + c.name + "!"); }
+      if (TEST.on) TEST.car = c.id; else state.selected = c.id;
+      Saves.save(true); renderAll(); });
+    b.append(cv, nm, st, btn); box.append(b);
+    const x = setupCanvas(cv); drawChar(x, c, {x:84, y:56, s:3.6, t:0});
+    if (c.tier >= 4) cardCanvases.push({ctx:x, c});
   });
 }
-function renderNow(){ const cv=$("nowCv"), ctx=setupCanvas(cv); ctx.clearRect(0,0,112,64); drawPlayer(ctx, curRocker(), curCar(), {x:60, y:60, s:1.6, t:performance.now()/1000, pose:"idle"}); }
-function renderAll(){ renderHUD(); renderOdds(); renderFilters(); renderCards(); renderNow(); renderAccount(); renderCode(); }
+function renderGadgets(){
+  const slots = $("slots"); slots.textContent = "";
+  for (let i = 0; i < 3; i++){
+    const s = document.createElement("div"); s.className = "slot";
+    if (i >= state.slots){ const b = document.createElement("button"); b.type = "button"; b.className = "btn small ghost"; b.textContent = "Unlock slot 3 · " + fmt(SLOT3_PRICE);
+      b.addEventListener("click", () => { if (!spend(SLOT3_PRICE, "a third slot")) return; state.slots = 3; Sound.reveal(2); Saves.save(true); renderAll(); }); s.append(b); s.classList.add("locked"); }
+    else { const id = state.equip[i]; s.textContent = id ? GADGETS.find(g => g.id === id).name : "Empty slot"; if (!id) s.classList.add("empty"); }
+    slots.append(s);
+  }
+  const box = $("gadgets"); box.textContent = "";
+  GADGETS.forEach(g => {
+    const own = ownsGadget(g.id), on = equipped(g.id);
+    const d = document.createElement("div"); d.className = "gad" + (on ? " on" : "");
+    d.innerHTML = `<b></b><span></span>`; d.querySelector("b").textContent = g.name; d.querySelector("span").textContent = g.info;
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn small" + (own ? " ghost" : "");
+    btn.textContent = on ? "Unequip" : own ? "Equip" : "Buy · " + fmt(g.price);
+    btn.addEventListener("click", () => {
+      if (on){ state.equip = state.equip.filter(x => x !== g.id); }
+      else {
+        if (!own){ if (!spend(g.price, g.name)) return; state.gadgets[g.id] = 1; Sound.reveal(2); toast("Unlocked " + g.name + "!"); }
+        if (state.equip.length >= state.slots){ toast("Your slots are full. Unequip an ability first."); Saves.save(true); renderAll(); return; }
+        state.equip.push(g.id);
+      }
+      Saves.save(true); renderAll(); });
+    d.append(btn); box.append(d);
+  });
+}
+function renderLook(){
+  const box = $("lookOpts"); box.textContent = "";
+  LOOK_PARTS.forEach(p => {
+    const row = document.createElement("div"); row.className = "lrow";
+    const h = document.createElement("span"); h.className = "lh"; h.textContent = p.label; row.append(h);
+    const list = document.createElement("div"); list.className = "lopts";
+    p.opts.forEach(([val, price], i) => {
+      const own = ownsLook(p.key, i), on = state.look[p.key] === i;
+      const b = document.createElement("button"); b.type = "button"; b.className = "lopt" + (on ? " on" : "") + (own ? "" : " locked");
+      if (p.kind === "color"){ b.classList.add("sw"); b.style.setProperty("--c", val); b.setAttribute("aria-label", (own ? "" : "Locked, ") + p.label + (price && !own ? ", " + price + " coins" : "")); }
+      else b.textContent = OPT_NAME[val] || val;
+      if (!own){ const pr = document.createElement("small"); pr.textContent = fmt(price); b.append(pr); }
+      b.addEventListener("click", () => {
+        if (!own){ if (!spend(price, "that")) return; state.looksOwned[p.key + ":" + i] = 1; Sound.click(); }
+        state.look[p.key] = i; Saves.save(); renderLook(); renderNow(); renderHUD(); });
+      list.append(b); });
+    row.append(list); box.append(row);
+  });
+  drawLookPreview();
+}
+function drawLookPreview(t){ const cv = $("lookCv"), x = setupCanvas(cv); x.clearRect(0, 0, cv.width, cv.height); drawPlayer(x, curRocker(), curCar(), {x:cv.width/2 + 10, y:cv.height - 10, s:6, t: t || 0, pose:"idle"}); }
+function renderStages(){
+  const box = $("stages"); box.textContent = "";
+  STAGES.forEach(([id, name, price]) => {
+    const own = ownsStage(id), on = curStage() === id;
+    const d = document.createElement("div"); d.className = "stg" + (on ? " on" : "");
+    const cv = document.createElement("canvas"); cv.width = 200; cv.height = 90;
+    const nm = document.createElement("b"); nm.textContent = name;
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn small" + (own ? " ghost" : "");
+    btn.textContent = on ? "Selected" : own ? "Play here" : "Buy · " + fmt(price); btn.disabled = on;
+    btn.addEventListener("click", () => {
+      if (!own){ if (!spend(price, name)) return; state.stages[id] = 1; Sound.reveal(2); toast("Unlocked " + name + "!"); }
+      if (TEST.on) TEST.stage = id; else state.stage = id;
+      Saves.save(true); renderAll(); });
+    d.append(cv, nm, btn); box.append(d);
+    stageThumb(cv, id);
+  });
+}
+function renderNow(){ const cv=$("nowCv"), x=setupCanvas(cv); x.clearRect(0,0,112,64); drawPlayer(x, curRocker(), curCar(), {x:60, y:60, s:1.6, t:performance.now()/1000, pose:"idle"}); }
+function renderAll(){ renderHUD(); renderDaily(); renderShop(); renderNow(); renderAccount(); renderCode(); }
+$("shopTabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; shopTab = b.dataset.t; renderShop(); });
 
 /* ---------- Test mode (secret) ----------
    Tap the "Guitarcade" title 7 times fast, or type "testrock" on a keyboard.
-   Every guitar and rocker opens up. Nothing in test mode touches real progress: no coins, no cases,
-   no best score, no leaderboard. It switches off when the page reloads.
-   In test mode, type "wallofsound" to bring on the Wall of Sound. */
-const TEST = { on:false, car:0, rock:ROCK0 };
+   Every pack, ability, look and stage can be tried. Nothing in test mode touches real progress:
+   no coins, no best score, no challenges, no leaderboard. It switches off when the page reloads.
+   In test mode, type "wallofsound", "powerup" or "laserbeam" for those events. */
+const TEST = { on:false, car:0, stage:"arena" };
 const curCar = () => TEST.on ? CHARS[TEST.car] : CHARS[state.selected];
+const curStage = () => TEST.on ? TEST.stage : state.stage;
 function setTest(on){
   if (game.state === "running") endRun();
-  TEST.on = on; TEST.car = state.selected; TEST.rock = state.selR;
+  TEST.on = on; TEST.car = state.selected; TEST.stage = state.stage;
+  if (!on){ fixEquips(); Saves.save(); }
   $("testBar").hidden = !on;
   document.body.classList.toggle("testing", on);
-  renderAll(); toast(on ? "Test mode on: every guitar and rocker unlocked" : "Test mode off");
+  renderAll(); toast(on ? "Test mode on: try anything in the shop" : "Test mode off");
 }
 { let taps = [];
   $("brandTitle").addEventListener("click", () => { const now = Date.now(); taps = taps.filter(t => now - t < 2500); taps.push(now); if (taps.length >= 7){ taps = []; setTest(!TEST.on); } });
@@ -1014,17 +988,6 @@ function setTest(on){
     else if (TEST.on && typed.endsWith("laserbeam")){ typed = ""; if (game.state === "running") game.nextBeam = 0; toast(game.state === "running" ? "Laser beams charging!" : "Start a run, then type laserbeam"); }
     else if (TEST.on && typed.endsWith("wallofsound")){ typed = ""; TEST.kraken = true; if (game.state === "running") game.monsterAt = game.dist + 20; toast("You hear a deep rumble… start a run"); } });
 }
-function selectChar(id){
-  const c = CHARS[id];
-  if (TEST.on){ if (c.kind === "g") TEST.car = id; else TEST.rock = id; renderHUD(); renderCards(); renderNow(); toast("Test playing with " + c.name); return; }
-  if (!state.owned[id]) return;
-  if (c.kind === "g"){ if (state.selected === id) return; state.selected = id; } else { if (state.selR === id) return; state.selR = id; }
-  Saves.save(); renderHUD(); renderCards(); renderNow();
-  toast(c.kind === "g" ? "Now playing the " + c.name : "Now rocking as " + c.name);
-}
-$("filters").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; filter = +b.dataset.f; renderFilters(); renderCards(); });
-$("kindTabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; kindTab = b.dataset.k; filter = -1; renderFilters(); renderCards(); });
-
 /* ---------- account box ---------- */
 function renderAccount(){
   const cloud = Saves.mode === "fire";
@@ -1071,7 +1034,7 @@ $("copyCode").addEventListener("click", () => {
 });
 let pendingImport = null;
 $("loadCode").addEventListener("click", () => {
-  try { pendingImport = decodeSave($("codeBox").value); $("loadConfirm").hidden = false; $("codeMsg").textContent = `Code holds ${fmt(pendingImport.coins)} coins and ${Object.keys(pendingImport.owned).length} guitars and rockers.`; }
+  try { pendingImport = decodeSave($("codeBox").value); $("loadConfirm").hidden = false; $("codeMsg").textContent = `Code holds ${fmt(pendingImport.coins)} coins and ${Object.keys(pendingImport.owned).length} guitar packs.`; }
   catch (e) { $("codeMsg").textContent = e.message; }
 });
 $("loadNo").addEventListener("click", () => { pendingImport = null; $("loadConfirm").hidden = true; $("codeMsg").textContent = ""; renderCode(); });
@@ -1214,125 +1177,6 @@ document.addEventListener("click", e => {
   b.blur();
 });
 
-/* ============================== TREASURE CHEST ============================== */
-let chestBusy = false, lastPull = null;
-const chestCtx = setupCanvas($("chestCv"));
-// a hard-shell guitar case: black tolex, silver latches and corners, purple plush inside
-function drawChest(open, t, ctx = chestCtx){
-  ctx.clearRect(0,0,300,300);
-  ctx.save(); ctx.translate(150,172); ctx.scale(6,6);
-  const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
-  const TOL = "#1c1a22", TOL2 = "#2e2a36", SIL = "#c8ccd8", PL = "#8a0c12", PL2 = "#b8161e";
-  P(-17,8,34,2,"rgba(0,0,0,.4)");
-  // case bottom: guitar-shaped outline (wide body on the left, narrow neck on the right)
-  P(-16,-1,13,9,TOL); P(-15,-2,11,1,TOL); P(-3,1,19,5,TOL); P(16,2,1,3,TOL);
-  P(-16,-1,13,1,TOL2); P(-3,1,19,1,TOL2);
-  [[-16,6],[-5,6],[14,4]].forEach(([x,y]) => P(x, y, 2, 2, SIL));
-  if (!open){
-    P(-16,-7,13,7,TOL); P(-15,-8,11,1,TOL); P(-3,-4,19,6,TOL); P(16,-3,1,4,TOL); P(-16,-7,13,1,TOL2); P(-3,-4,19,1,TOL2);
-    P(-16,-1,33,1,"#0c0a10");
-    P(-12,-2,3,3,SIL); P(-4,-2,3,3,SIL); P(8,0,3,2,SIL); P(-11,-1,1,1,"#5a5a68"); P(-3,-1,1,1,"#5a5a68");   // latches
-    P(-9,-9,6,1,"#0c0a10"); P(-10,-8,1,1,"#0c0a10"); P(-3,-8,1,1,"#0c0a10");                            // handle
-    P(-14,-5,3,1,"#e3242b"); P(-14,-4,1,1,"#e3242b"); P(10,-2,2,1,"#f4efec");                             // stickers
-  } else {
-    P(-16,-15,13,7,TOL); P(-3,-12,19,5,TOL); P(-16,-15,13,1,TOL2);
-    P(-15,0,11,6,PL); P(-3,2,17,3,PL); P(-15,0,11,1,PL2); P(-3,2,17,1,PL2);
-    P(-12,-2,24,1,"rgba(255,200,190,.5)");
-  }
-  ctx.restore();
-  if (!open){ ctx.fillStyle = "rgba(255,90,80,"+(.25+.2*Math.sin(t*3))+")"; [[74,86],[236,104],[210,60]].forEach(([x,y],i)=>{const s=4+2*Math.sin(t*4+i);ctx.fillRect(x-s/2,y-s/2,s,s)}); }
-}
-function rollChar(){
-  let r = Math.random() * 100, tier = 0;
-  for (let i=0;i<TIERS.length;i++){ if (r < TIERS[i].weight){ tier=i; break; } r -= TIERS[i].weight; tier = i; }
-  const pool = CHARS.filter(c=>c.tier===tier);
-  return pool[Math.floor(Math.random()*pool.length)];
-}
-const cfChestCtx = setupCanvas($("cfChest")), cfCharCtx = setupCanvas($("cfChar"));
-let cfOpen = false, cfRevealed = false;
-// how dramatic each rarity's opening is
-const CHEST_FX = [
-  {dur:1.0, rayop:0,   rayspd:18, glow:0,  flash:0,   conf:0,   coins:0,  hints:[]},
-  {dur:1.2, rayop:.14, rayspd:20, glow:8,  flash:0,   conf:22,  coins:0,  hints:[]},
-  {dur:1.5, rayop:.2,  rayspd:15, glow:12, flash:.35, conf:50,  coins:0,  hints:[[.6,"Something's glowing…"]]},
-  {dur:1.9, rayop:.28, rayspd:10, glow:18, flash:.6,  conf:100, coins:0,  hints:[[.4,"Something's glowing…"],[.75,"It's getting stronger!"]]},
-  {dur:2.4, rayop:.34, rayspd:7,  glow:26, flash:.85, conf:160, coins:40, hints:[[.3,"Something's glowing…"],[.6,"It's getting stronger!"],[.85,"Here it comes…"]]},
-  {dur:3.2, rayop:.42, rayspd:4,  glow:34, flash:1,   conf:260, coins:70, hints:[[.25,"Something's glowing…"],[.5,"The ground is shaking…"],[.75,"This is no ordinary chest…"],[.92,"!!!"]]},
-];
-const cfFx = $("cfFx"), cfFxCtx = cfFx.getContext("2d");
-let cfParts = [], cfTimers = [];
-function cfSize(){ const d = Math.min(devicePixelRatio || 1, 2); cfFx.width = innerWidth * d; cfFx.height = innerHeight * d; cfFxCtx.setTransform(d,0,0,d,0,0); }
-function cfBurst(tier){
-  const fx = CHEST_FX[tier], r = $("cfChest").getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height*.45;
-  const cols = [["#ffffff"],["#6fd36a","#c8f5c0","#ffffff"],["#4aa8ff","#bfe2ff","#ffffff"],["#b77bff","#ff8ad8","#ffffff"],["#ffb23f","#ffd34d","#fff3b0","#ffffff"],["#ff4f6b","#ffd34d","#5fe03a","#2de2e6","#b77bff","#ffffff"]][tier];
-  for (let i = 0; i < fx.conf; i++){ const a = Math.random()*Math.PI*2, sp = 200 + Math.random()*(300 + tier*120);
-    cfParts.push({k:"c", x:cx, y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 200, r:Math.random()*6, vr:(Math.random()-.5)*12, w:5 + Math.random()*5, h:3 + Math.random()*4, col:cols[i % cols.length], life:2.4 + Math.random()*1.2}); }
-  for (let i = 0; i < fx.coins; i++) cfParts.push({k:"o", x:Math.random()*innerWidth, y:-20 - Math.random()*innerHeight*.8, vx:(Math.random()-.5)*40, vy:120 + Math.random()*160, r:0, vr:4 + Math.random()*6, life:5});
-}
-function cfDraw(dt){
-  const W = innerWidth, H = innerHeight; cfFxCtx.clearRect(0, 0, W, H);
-  cfParts.forEach(p => { p.life -= dt; p.vy += (p.k === "o" ? 160 : 520)*dt; p.vx *= .99; p.x += p.vx*dt; p.y += p.vy*dt; p.r += p.vr*dt;
-    cfFxCtx.save(); cfFxCtx.globalAlpha = Math.min(1, p.life); cfFxCtx.translate(p.x, p.y);
-    if (p.k === "o"){ const w = Math.abs(Math.cos(p.r))*8 + 1; cfFxCtx.fillStyle = "#a8701c"; cfFxCtx.beginPath(); cfFxCtx.ellipse(0,0,w+1,9,0,0,Math.PI*2); cfFxCtx.fill(); cfFxCtx.fillStyle = "#ffd34d"; cfFxCtx.beginPath(); cfFxCtx.ellipse(0,0,w,8,0,0,Math.PI*2); cfFxCtx.fill(); }
-    else { cfFxCtx.rotate(p.r); cfFxCtx.fillStyle = p.col; cfFxCtx.fillRect(-p.w/2, -p.h/2, p.w, p.h * Math.abs(Math.cos(p.r*1.3)) + 1); }
-    cfFxCtx.restore(); });
-  cfParts = cfParts.filter(p => p.life > 0 && p.y < H + 40);
-}
-function openChest(){
-  if (TEST.on){ toast("Cases are paused in test mode"); return; }
-  if (chestBusy || state.coins < 100) return;
-  Sound.wake();
-  chestBusy = true; state.coins -= 100; state.chests++;
-  const c = rollChar(), isNew = !state.owned[c.id], t = TIERS[c.tier];
-  state.owned[c.id] = (state.owned[c.id]||0) + 1;
-  if (!isNew) state.coins += t.refund;
-  Saves.save(true); renderHUD();
-  lastPull = c;
-  if (game.state === "running") game.paused = true;
-  const el = $("chestFull"), fx = CHEST_FX[c.tier];
-  cfTimers.forEach(clearTimeout); cfTimers = []; cfParts = []; cfSize();
-  el.hidden = false; el.classList.remove("revealed","glowing","quake","dim"); el.classList.add("shaking");
-  el.dataset.tier = c.tier;
-  el.style.setProperty("--cf", t.color); el.style.setProperty("--rayop", fx.rayop); el.style.setProperty("--rayspd", fx.rayspd + "s");
-  el.style.setProperty("--glowpx", fx.glow + "px"); el.style.setProperty("--flash", fx.flash); el.style.setProperty("--shk", ".16s");
-  $("cfHint").textContent = "Opening…";
-  Sound.shake(fx.dur, c.tier);
-  const later = (sec, f) => cfTimers.push(setTimeout(f, sec*1000));
-  fx.hints.forEach(([at, txt]) => later(fx.dur*at, () => { $("cfHint").textContent = txt; }));
-  if (fx.glow) later(fx.dur*(c.tier >= 3 ? .4 : .7), () => el.classList.add("glowing"));
-  if (c.tier >= 3) later(fx.dur*.6, () => el.style.setProperty("--shk", ".08s"));
-  if (c.tier >= 4) later(fx.dur*.85, () => el.style.setProperty("--shk", ".05s"));
-  if (c.tier >= 5) later(.3, () => el.classList.add("dim"));
-  cfOpen = true; cfRevealed = false; document.body.style.overflow = "hidden";
-  $("cfTier").textContent = ""; $("cfName").textContent = ""; $("cfNote").textContent = "";
-  later(fx.dur, () => {
-    $("cfTier").textContent = t.name; $("cfTier").style.color = t.color;
-    $("cfName").textContent = c.name; $("cfName").style.color = c.tier >= 3 ? t.color : "var(--ink)"; $("cfName").classList.toggle("creator", isCreator(c));
-    $("cfNote").textContent = (c.kind === "g" ? `Guitar · ${TRAIL_NAME[c.trail]} trail · ` : "Rocker · ") + (themeFor(c) ? `Unlocks the ${themeFor(c).world} world · ` : "") + (isNew ? `New ${c.kind === "g" ? "guitar" : "rocker"}! ${carNo(c)} of ${c.kind === "g" ? GUITARS.length : ROCKERS.length}` : `You already had this one · +${t.refund} coins back`);
-    el.classList.remove("shaking","dim"); el.classList.add("revealed"); cfRevealed = true; Sound.reveal(c.tier);
-    if (fx.flash){ const f = $("cfFlash"); f.classList.remove("go","go2"); void f.offsetWidth; f.classList.add(c.tier >= 5 ? "go2" : "go"); }
-    if (c.tier >= 4){ el.classList.remove("quake"); void el.offsetWidth; el.classList.add("quake"); }
-    if (c.tier >= 5) $("cfTier").textContent = "Mythic!";
-    cfBurst(c.tier);
-    $("cfRun").hidden = (c.kind === "g" ? state.selected : state.selR) === c.id;
-    $("cfAgain").hidden = state.coins < 100;
-    $("cfAgain").textContent = "Open another · 100";
-    chestBusy = false;
-    renderAll();
-    setTimeout(() => ($("cfRun").hidden ? $("cfClose") : $("cfRun")).focus({preventScroll:true}), 400);
-  });
-}
-function closeChest(){
-  if (!cfOpen || chestBusy) return;
-  cfOpen = false; $("chestFull").hidden = true; $("chestFull").classList.remove("revealed","shaking","glowing","quake","dim"); cfParts = []; cfTimers.forEach(clearTimeout);
-  document.body.style.overflow = "";
-}
-$("openChest").addEventListener("click", openChest);
-$("testOff").addEventListener("click", () => setTest(false));
-$("cfClose").addEventListener("click", closeChest);
-$("cfAgain").addEventListener("click", () => { cfOpen = false; openChest(); });
-$("cfRun").addEventListener("click", () => { if (lastPull) selectChar(lastPull.id); closeChest(); });
-
 /* ============================== GAME ============================== */
 const cv = $("game"), ctx = setupCanvas(cv);
 // Wide screens see a 640 x 240 view. Phones in full screen see 370 across and as tall as the screen.
@@ -1382,13 +1226,18 @@ const WALL_CHANCE = 0.01;                    // the Wall of Sound shows up in ab
 const game = {state:"ready", t:0, speed:0, dist:0, round:1, roundDist:0, runCoins:0, py:214, vy:0, onFloor:true, holding:false,
   obs:[], coins:[], parts:[], trail:[], nextObs:0, nextSpeaker:0, banner:null, flash:0, paused:false, mt:0};
 const stars = Array.from({length:70},()=>({x:Math.random()*1000, y:Math.random()*400, s:Math.random()<.2?2:1, p:Math.random()*6}));
-const curRocker = () => TEST.on ? CHARS[TEST.rock] : CHARS[state.selR];
+const curRocker = () => lookOf(state.look);
+const hasGadget = id => state.equip.includes(id) && ownsGadget(id);
 function resetRun(){
   Object.assign(game, {t:0, speed:370, dist:0, round:1, roundDist:0, runCoins:0, py:FLOOR, vy:0, onFloor:true, obs:[], coins:[], parts:[], trail:[], nextObs:420, nextSpeaker:7, beams:[], nextBeam:14, boxes:[], nextBox:9, pu:{magnet:0, shield:0, dash:0, double:0}, invuln:0,
     banner:{text:"Round 1", sub: worldName() || (TEST.on ? "Test show" : "Let's rock!"), t:1.8}, flash:0, paused:false, monsterEnd:false, mt:0});
 }
 function startRun(){
   resetRun(); game.state = "running";
+  game.second = hasGadget("second");
+  if (hasGadget("encore")) game.pu.shield = 30;
+  if (hasGadget("headstart")){ game.pu.dash = 3.5; game.banner = {text:"Head start!", sub:"", t:1.4}; }
+  if (hasGadget("lucky")) game.nextBox = 5;
   game.monsterAt = (!TEST.on && Math.random() < WALL_CHANCE) ? 150 + Math.random()*750 : (TEST.kraken ? 40 : Infinity); TEST.kraken = false; $("overCta").hidden = true;
   if (!isFS()){ const r = document.querySelector(".cabinet").getBoundingClientRect(); if (r.top < 0 || r.bottom > window.innerHeight) document.querySelector(".cabinet").scrollIntoView({behavior:"smooth", block: r.height > window.innerHeight ? "start" : "center"}); }
 }
@@ -1398,6 +1247,7 @@ function endRun(){
   const d = Math.floor(game.dist);
   if (TEST.on){ game.newBest = false; return; }
   state.runs++;
+  dailyProgress("runs", 1); dailyProgress("dist", d); dailyProgress("round", game.round);
   const newBest = d > state.best;
   if (newBest) state.best = d;
   if (game.round > state.bestRound) state.bestRound = game.round;
@@ -1441,7 +1291,7 @@ function coinPattern(x0){
   else if (kind === 2) for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) add(x0 + i*18, Math.min(bot - 30, y) + j*16);
   else for (let i = 0; i < 9; i++) add(x0 + i*18, y - Math.sin(i/8*Math.PI)*40 + 20);
 }
-function spawnSpeaker(){ game.obs.push({type:"speaker", state:"warn", wt:1.4, x:GW + 30, y: game.py - 12*PS, w:26, h:22}); }
+function spawnSpeaker(){ game.obs.push({type:"speaker", state:"warn", wt: hasGadget("warn") ? 1.9 : 1.4, x:GW + 30, y: game.py - 12*PS, w:26, h:22}); }
 function hit(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
 function laserHits(o, box){
   const c = Math.cos(o.ang), s = Math.sin(o.ang);
@@ -1500,16 +1350,17 @@ function update(dt){
     if (game.round >= 2){ game.nextSpeaker -= dt; if (game.nextSpeaker <= 0){ spawnSpeaker(); game.nextSpeaker = Math.max(3, 9 - game.round) + Math.random()*4; } }
     if (game.pu.dash <= 0){ game.nextBeam -= dt; if (game.nextBeam <= 0) spawnBeams(); }
   }
-  game.nextBox -= dt; if (game.nextBox <= 0){ spawnBox(); game.nextBox = 14 + Math.random()*10; }
+  game.nextBox -= dt; if (game.nextBox <= 0){ spawnBox(); game.nextBox = (14 + Math.random()*10) * (hasGadget("lucky") ? .5 : 1); }
   const box = pbox();
   // full-width laser beams: warning line, then the beam fires, then shuts off
   for (const b of game.beams){
     b.t += dt;
-    if (b.phase === "warn" && b.t >= 1.6){ b.phase = "fire"; b.t = 0; Sound.beamFire(); }
+    if (b.phase === "warn" && b.t >= (hasGadget("warn") ? 2.2 : 1.6)){ b.phase = "fire"; b.t = 0; Sound.beamFire(); }
     else if (b.phase === "fire" && b.t >= 1.1){ b.phase = "off"; b.t = 0; }
     if (b.phase === "fire" && !safe && box.y < b.y + 5 && box.y + box.h > b.y - 5){ if (useShield()) {} else return crash(b.col); }
   }
   game.beams = game.beams.filter(b => !(b.phase === "off" && b.t >= .35));
+  if (beamsOn && !game.beams.length){ dailyProgress("beams", 1); }
   if (beamsOn && !game.beams.length) game.nextBeam = Math.max(8, 16 - game.round) + Math.random()*6;
   // power-up boxes
   game.boxes.forEach(b => { b.x -= dx; b.ph += dt; });
@@ -1522,13 +1373,14 @@ function update(dt){
       else { o.x -= dx + 260*dt; if (!safe && !o.dead && hit(box, {x:o.x - o.w/2 + 3, y:o.y - o.h/2 + 3, w:o.w - 6, h:o.h - 6})){ if (useShield()) o.dead = true; else return crash("#ffd34d"); } }
     }
   }
-  game.obs = game.obs.filter(o => o.type === "laser" ? o.x > -o.len : (o.state === "warn" || o.x > -40));
+  game.obs = game.obs.filter(o => { if (o.type === "laser") return o.x > -o.len; if (o.state === "warn" || o.x > -40) return true; if (!o.dead) dailyProgress("speakers", 1); return false; });
   game.coins.forEach(c => { c.x -= dx; c.spin += dt*6;
-    if (game.pu.magnet > 0 || game.pu.dash > 0){ const tx = PX, ty = game.py - 13*PS, ddx = tx - c.x, ddy = ty - c.y, d = Math.hypot(ddx, ddy); if (d < 170){ const sp = Math.min(d, (520 + dx/dt)*dt); c.x += ddx/d*sp; c.y += ddy/d*sp; } } });
+    const magR = (game.pu.magnet > 0 || game.pu.dash > 0) ? 170 : hasGadget("magnet") ? 85 : 0;
+    if (magR){ const tx = PX, ty = game.py - 13*PS, ddx = tx - c.x, ddy = ty - c.y, d = Math.hypot(ddx, ddy); if (d < magR){ const sp = Math.min(d, (520 + dx/dt)*dt); c.x += ddx/d*sp; c.y += ddy/d*sp; } } });
   game.coins = game.coins.filter(c => {
     if (c.x < -20) return false;
     if (hit(box, {x:c.x - c.r, y:c.y - c.r, w:c.r*2, h:c.r*2})){
-      const v = game.pu.double > 0 ? 2 : 1;
+      const v = (game.pu.double > 0 ? 2 : 1) * (hasGadget("bonus") && Math.random() < .25 ? 2 : 1); dailyProgress("coins", v);
       if (!TEST.on){ state.coins += v; state.lifetimeCoins += v; } game.runCoins += v; Sound.coin();
       burst(c.x, c.y, "#ffe08a", 4); renderHUD(); return false; }
     return true; });
@@ -1553,7 +1405,7 @@ const POWERUPS = {
 function spawnBox(){ game.boxes.push({x: GW + 20, y: CEIL + 50 + Math.random()*(FLOOR - CEIL - 90), ph: 0}); }
 function grabPowerUp(){
   const keys = Object.keys(POWERUPS), k = keys[Math.floor(Math.random()*keys.length)], p = POWERUPS[k];
-  game.pu[k] = p.time; if (k === "dash") thrustOff();
+  game.pu[k] = p.time * (hasGadget("longpu") ? 1.5 : 1); if (k === "dash") thrustOff(); dailyProgress("pu", 1);
   game.banner = {text: p.name + "!", sub: p.sub, t: 1.8}; Sound.powerup();
 }
 function useShield(){
@@ -1598,44 +1450,82 @@ function drawPlayerFx(){
   if (game.pu.dash > 0){ ctx.fillStyle = "rgba(255,211,77,.5)"; for (let i = 0; i < 6; i++){ const yy = cy - 18 + i*7, len = 30 + ((i*37 + Math.floor(game.t*60)) % 40); ctx.fillRect(cx - 20 - len, yy, len, 2); } }
 }
 function crash(col){
+  if (game.second){ game.second = false; game.invuln = 2; game.flash = 0; burst(PX, game.py - 20, "#2de2e6", 16); Sound.shieldPop(); game.banner = {text:"Second Chance!", sub:"Keep rocking", t:1.5}; return; }
   burst(PX, game.py - 20, col, 18); burst(PX, game.py - 20, "#ffffff", 8); game.flash = .25; Sound.crash(); endRun();
 }
 
 /* ---------- guitar trails ---------- */
-const MYTHIC_TRAIL = {"Thunderstrike":["#7fd7ff","#ffffff","#c8b0ff"], "Phoenix Fire":["#ff6a1a","#ffd34d","#ff3a2a"], "Starlight Dream":["#ff8ad8","#ffffff","#bfe6ff"], "Neon Viper":["#39ff8a","#2de2e6","#c8ff7a"]};
+/* ---------- what each guitar pack shoots out ---------- */
+const RAINBOW = ["#ff3a3a","#ff8a3d","#ffd34d","#7dff5a","#2de2e6","#3a8aff","#b77bff"];
 function trailCols(g){
-  if (MYTHIC_TRAIL[g.name]) return MYTHIC_TRAIL[g.name];
-  if (g.trail === "s") return g.tier === 0 ? ["#e0e0e8","#b8b8c4","#d0d0dc"] : ["#e0e0e8", shade(g.main, .45), shade(g.accent, .45)];
-  if (g.trail === "f") return ["#ff6a1a","#ffd34d","#ff3a2a"];
-  if (g.trail === "l") return ["#bfe6ff","#ffffff","#7fd7ff"];
-  return [g.main === "#1c1c22" ? "#e8e8f0" : g.main, g.accent, "#ffffff"];
+  switch (g.trail){
+    case "s": return ["#e0e0e8","#b8b8c4","#d0d0dc"];
+    case "f": return ["#ff6a1a","#ffd34d","#ff3a2a"];
+    case "l": return ["#bfe6ff","#ffffff","#7fd7ff"];
+    case "c": case "w": case "y": return RAINBOW;
+    case "o": return ["#bfefff","#e8faff","#8ad8f2"];
+    case "n": return ["#ffffff","#e8f4ff","#bfe6ff"];
+    case "u": return ["#f4f0e6","#e8e4d8"];
+    case "g": return ["#ffd34d","#f2b33d"];
+    case "z": return ["#ff3a3a","#ff6a6a"];
+    case "x": return ["#ffd34d","#fff3b0","#4a8cff"];
+    default: return [g.main === "#1c1c22" ? "#e8e8f0" : g.main, g.accent, "#ffffff"];
+  }
 }
 function emitTrail(g, strong){
-  const cols = trailCols(g), n = strong ? 2 : 1;
+  const cols = trailCols(g), kind = g.trail;
+  const rate = {z:.5, w:.35, u:.6, g:.7, b:.5, x:1}[kind] ?? 1;
+  const n = strong ? 2 : 1;
   for (let i = 0; i < n; i++){
-    if (!strong && Math.random() < .5) continue;
-    const ox = PX + TRAIL_AT.x*PS, oy = game.py + TRAIL_AT.y*PS;
-    game.trail.push({kind:g.trail, x:ox + (Math.random() - .5)*3, y:oy, vx: -(game.state === "running" ? game.speed*.35 : 20) - Math.random()*40, vy: strong ? 70 + Math.random()*70 : 10,
-      life: .6 + Math.random()*.4, max: 1, r: 1.5 + Math.random()*1.5, col: cols[Math.floor(Math.random()*cols.length)], rot: Math.random()*6});
+    if (Math.random() > rate*(strong ? 1 : .5)) continue;
+    const ox = PX + TRAIL_AT.x*PS, oy = game.py + TRAIL_AT.y*PS, back = -(game.state === "running" ? game.speed*.35 : 20);
+    const p = {kind, x:ox + (Math.random() - .5)*3, y:oy, vx: back - Math.random()*40, vy: strong ? 70 + Math.random()*70 : 10,
+      life: .6 + Math.random()*.4, max: 1, r: 1.5 + Math.random()*1.5, col: cols[Math.floor(Math.random()*cols.length)], rot: Math.random()*6, spin: (Math.random() - .5)*12};
+    if (kind === "z"){ p.vy = 420; p.vx = back*.6; p.life = p.max = .5; }
+    if (kind === "c"){ p.vy = strong ? 40 + Math.random()*60 : 10; p.vx = back - Math.random()*80; }
+    if (kind === "o"){ p.vy = strong ? 20 : -10; p.life = p.max = 1.2; }
+    if (kind === "n"){ p.vy = strong ? 50 : 15; p.vx = back*.8 + (Math.random() - .5)*30; p.life = p.max = 1.3; }
+    if (kind === "w"){ p.vy = 160 + Math.random()*60; p.fuse = .28 + Math.random()*.12; }
+    if (kind === "y"){ p.col = RAINBOW[Math.floor((game.t*20 + i) % RAINBOW.length)]; p.vy = strong ? 110 : 20; p.life = p.max = .7; }
+    if (kind === "x"){ p.kind = Math.random() < .5 ? "m" : "r"; }
+    game.trail.push(p);
   }
 }
 function updateTrail(dt){
-  game.trail.forEach(p => { p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt;
-    if (p.kind === "s") p.r += dt*5; if (p.kind === "m" || p.kind === "h" || p.kind === "r") p.vy -= 160*dt; if (p.kind === "k") p.vy += 300*dt; if (p.kind === "b") p.r += dt*14; if (p.kind === "f") p.r = Math.max(.5, p.r - dt*3); });
-  game.trail = game.trail.filter(p => p.life > 0);
+  const born = [];
+  game.trail.forEach(p => { p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; p.rot += p.spin*dt;
+    switch (p.kind){
+      case "s": p.r += dt*5; break;
+      case "m": case "h": case "r": p.vy -= 160*dt; break;
+      case "k": case "c": case "g": case "u": p.vy += 300*dt; break;
+      case "b": p.r += dt*14; break;
+      case "f": p.r = Math.max(.5, p.r - dt*3); break;
+      case "o": p.vy -= 90*dt; p.x += Math.sin(p.life*9 + p.rot)*12*dt; break;
+      case "n": p.x += Math.sin(p.life*5 + p.rot)*20*dt; break;
+      case "w": p.fuse -= dt; if (p.fuse <= 0 && !p.popped){ p.popped = true; p.life = 0; for (let k = 0; k < 10; k++){ const a = k/10*Math.PI*2; born.push({kind:"k", x:p.x, y:p.y, vx:p.vx*.4 + Math.cos(a)*90, vy:Math.sin(a)*90, life:.5, max:.5, r:1, col: RAINBOW[(k + Math.floor(p.rot)) % RAINBOW.length], rot:0, spin:0}); } } break;
+    } });
+  game.trail = game.trail.filter(p => p.life > 0).concat(born);
 }
 function heartPx(x, y, k){ ctx.fillRect(x, y, k*2, k); ctx.fillRect(x + k*3, y, k*2, k); ctx.fillRect(x - k, y + k, k*7, k*2); ctx.fillRect(x, y + k*3, k*5, k); ctx.fillRect(x + k, y + k*4, k*3, k); ctx.fillRect(x + k*2, y + k*5, k, k); }
 function drawTrail(){
   game.trail.forEach(p => {
-    ctx.globalAlpha = Math.max(0, Math.min(1, p.life / p.max)) * .85; ctx.fillStyle = p.col; ctx.strokeStyle = p.col;
+    ctx.globalAlpha = Math.max(0, Math.min(1, p.life / p.max)) * .9; ctx.fillStyle = p.col; ctx.strokeStyle = p.col;
     const x = Math.round(p.x), y = Math.round(p.y), s = Math.round(p.r*2);
     switch (p.kind){
-      case "m": ctx.fillRect(x, y, 3, 2); ctx.fillRect(x + 2, y - 6, 1, 7); ctx.fillRect(x + 3, y - 6, 2, 1); ctx.fillRect(x + 4, y - 5, 1, 1); break;   // eighth note
-      case "b": ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.stroke(); break;
+      case "m": ctx.fillRect(x, y, 3, 2); ctx.fillRect(x + 2, y - 6, 1, 7); ctx.fillRect(x + 3, y - 6, 2, 1); ctx.fillRect(x + 4, y - 5, 1, 1); break;
+      case "b": ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.stroke(); break;
       case "k": ctx.fillRect(x, y, 2, 2); break;
       case "r": ctx.fillRect(x - 2, y, 5, 1); ctx.fillRect(x, y - 2, 1, 5); ctx.fillRect(x - 1, y - 1, 3, 3); break;
       case "h": heartPx(x - 3, y - 3, 1); break;
       case "l": ctx.fillRect(x, y, 1, 3); ctx.fillRect(x + 1, y + 3, 1, 3); ctx.fillRect(x, y + 6, 1, 3); ctx.fillRect(x - 1, y + 9, 1, 2); break;
+      case "c": ctx.save(); ctx.translate(x, y); ctx.rotate(p.rot); ctx.fillRect(-2, -1, 4, 2 + Math.abs(Math.cos(p.rot))*1.5); ctx.restore(); break;
+      case "o": ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 1.5, 0, Math.PI*2); ctx.stroke(); ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fillRect(x - 1, y - 2, 1, 1); break;
+      case "n": ctx.fillRect(x - 2, y, 5, 1); ctx.fillRect(x, y - 2, 1, 5); ctx.fillRect(x - 1, y - 1, 1, 1); ctx.fillRect(x + 1, y + 1, 1, 1); ctx.fillRect(x + 1, y - 1, 1, 1); ctx.fillRect(x - 1, y + 1, 1, 1); break;
+      case "u": ctx.fillRect(x - 2, y - 2, 5, 4); ctx.fillRect(x - 1, y + 2, 3, 1); ctx.fillStyle = "#14101c"; ctx.fillRect(x - 1, y - 1, 1, 1); ctx.fillRect(x + 1, y - 1, 1, 1); break;
+      case "g": { const w = Math.max(1, Math.abs(Math.cos(p.rot))*3); ctx.fillStyle = "#a8701c"; ctx.fillRect(x - w, y - 3, w*2, 6); ctx.fillStyle = "#ffd34d"; ctx.fillRect(x - w + .5, y - 2.5, w*2 - 1, 5); break; }
+      case "z": ctx.fillRect(x, y - 6, 2, 10); ctx.fillStyle = "#ffffff"; ctx.fillRect(x, y - 4, 1, 6); break;
+      case "w": ctx.fillStyle = "#ffd34d"; ctx.fillRect(x, y, 2, 2); ctx.fillStyle = "rgba(255,200,120,.5)"; ctx.fillRect(x + 1, y - 4, 1, 4); break;
+      case "y": ctx.fillRect(x - 3, y - 2, 6, 4); break;
       default: ctx.fillRect(x - s/2, y - s/2, s, s);
     }
   });
@@ -1646,7 +1536,7 @@ function drawTrail(){
    The arena is the default. Each Mythic guitar or rocker brings its own world (a Mythic rocker's world wins). */
 const WORLDS = {"Thunderstrike":"Storm Rooftop", "Phoenix Fire":"Volcano Fest", "Starlight Dream":"Cosmic Stage", "Neon Viper":"Neon Strip",
   "THE CREATOR":"Platinum Stadium", "Electra Nova":"Synthwave Highway", "Raven Nightshade":"Midnight Castle", "Rex Thunderbolt":"Desert Festival"};
-const worldName = () => WORLDS[curRocker().name] || WORLDS[curCar().name] || null;
+const worldName = () => curStage() === "arena" ? null : curStage();
 const themeFor = c => WORLDS[c.name] ? {world: WORLDS[c.name]} : null;
 const wrapX = (x, span) => ((x % span) + span) % span;
 const loopX = (scroll, speed, span) => -((scroll*speed) % span);
@@ -1745,6 +1635,11 @@ const WORLD_DRAW = {
     floorBand("#e8c080", "#b8884a", "#c8a060");
   },
 };
+const STAGE_THUMB = {arena:["#050505","#1a0a0a","#e3242b"], "Storm Rooftop":["#0a0e1a","#2a3448","#7fd7ff"], "Volcano Fest":["#1a0606","#7a2a10","#ff6a1a"], "Desert Festival":["#c8784e","#ecbc84","#e0263a"],
+  "Cosmic Stage":["#04020c","#1a0e3a","#ff8ad8"], "Neon Strip":["#0a0820","#2a1450","#2de2e6"], "Synthwave Highway":["#1a0a3a","#ff6a8a","#ff4fa3"], "Midnight Castle":["#0a0818","#2a1e40","#e8e4f4"], "Platinum Stadium":["#04102a","#123060","#ffd34d"]};
+function stageThumb(cv, id){ const x = cv.getContext("2d"), [a, b, c] = STAGE_THUMB[id] || STAGE_THUMB.arena, g = x.createLinearGradient(0, 0, 0, cv.height);
+  g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, cv.width, cv.height);
+  x.fillStyle = c; x.globalAlpha = .8; x.fillRect(0, cv.height - 14, cv.width, 3); x.globalAlpha = .25; for (let i = 0; i < 5; i++){ x.beginPath(); x.moveTo(30 + i*40, 0); x.lineTo(40 + i*40, 0); x.lineTo(60 + i*40, cv.height - 14); x.lineTo(10 + i*40, cv.height - 14); x.fill(); } x.globalAlpha = 1; }
 function drawBG(){ const w = worldName(); (WORLD_DRAW[w] || WORLD_DRAW.arena)(); }
 
 /* ---------- drawing obstacles ---------- */
@@ -1861,21 +1756,16 @@ function frame(now){
   const dt = Math.max(0, Math.min(.033, (now-last)/1000)); last = now;
   update(dt); draw();
   const playing = game.state === "running" || game.state === "monster";
-  if (!playing && Math.floor(now/80) !== frame.c){ frame.c = Math.floor(now/80); drawChest(false, now/1000); }
-  if (cfOpen){
-    cfDraw(dt);
-    drawChest(cfRevealed, now/1000, cfChestCtx);
-    cfCharCtx.clearRect(0,0,400,400);
-    if (cfRevealed && lastPull) drawChar(cfCharCtx, lastPull, lastPull.kind === "g" ? {x:200, y:250, s:12, t:now/1000} : {x:200, y:380, s:13.5, t:now/1000});
-  }
-  if (!playing && Math.floor(now/120) !== frame.k){ frame.k = Math.floor(now/50); renderNow(); cardCanvases.forEach(({ctx:cx,c})=>{ cx.clearRect(0,0,168,96); drawCard(cx, c, false, now/1000); }); }
+  if (!playing && Math.floor(now/120) !== frame.k){ frame.k = Math.floor(now/120); renderNow(); if (shopTab === "look") drawLookPreview(now/1000);
+    cardCanvases.forEach(({ctx:cx,c})=>{ cx.clearRect(0,0,168,96); drawChar(cx, c, {x:84, y:56, s:3.6, t:now/1000}); }); }
+  if (!playing && ensureDaily.day !== todayKey()){ ensureDaily.day = todayKey(); renderDaily(); }
   requestAnimationFrame(frame);
 }
 
 /* ---------- input: hold to fly ---------- */
 const typing = () => { const a = document.activeElement; return a && (a.tagName==="INPUT"||a.tagName==="TEXTAREA"||a.tagName==="SELECT"||a.tagName==="BUTTON"); };
 document.addEventListener("keydown", e => {
-  if (cfOpen){ if (e.key === "Escape") closeChest(); return; }
+
   if (typing()) return;
   if (e.code==="Space"||e.code==="ArrowUp"||e.code==="KeyW"){ e.preventDefault(); if (!e.repeat) thrustOn(); }
   else if (e.code==="KeyP" && game.state==="running"){ game.paused = !game.paused; if (game.paused) thrustOff(); }
@@ -1946,8 +1836,8 @@ async function submitScore(dist){
   if (Saves.mode !== "fire" || !Saves.fs || dist <= 0) return;
   lbSubscribe();
   if (dist <= LB.myBest) return;
-  LB.myBest = dist; LB.myChar = curRocker().id; LB.myGtr = curCar().id; renderLB();
-  try { await myDailyRef().set({name: state.name || "Rocker", best: dist, char: curRocker().id, gtr: curCar().id, at: Date.now()}); toast("New best today: " + fmt(dist) + " m"); }
+  LB.myBest = dist; LB.myChar = encodeLook(state.look); LB.myGtr = curCar().id; renderLB();
+  try { await myDailyRef().set({name: state.name || "Rocker", best: dist, char: encodeLook(state.look), gtr: curCar().id, at: Date.now()}); toast("New best today: " + fmt(dist) + " m"); }
   catch { $("lbMsg").textContent = "Your score couldn't post to the leaderboard. Check that the newest Firestore rules are published."; }
 }
 function renderLB(){
@@ -1959,15 +1849,15 @@ function renderLB(){
     const li = document.createElement("li"); if (Saves.mode === "fire" && r.id === Saves.uid) li.className = "me";
     const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = i + 1;
     const cv = document.createElement("canvas"); cv.width = 144; cv.height = 80;
-    const ch0 = (CHARS[+r.char] && CHARS[+r.char].kind === "r") ? CHARS[+r.char] : ROCKERS[0];
+    const ch0 = {name: "", tier: 0}, rlook = lookOf(decodeLook(Math.max(0, +r.char || 0))), rpack = CHARS[+r.gtr] || CHARS[0];
     const nm = document.createElement("span"); nm.className = "who2";
     const n1 = document.createElement("span"); n1.className = "nm"; n1.textContent = cleanName(r.name) || "Rocker";
-    const n2 = document.createElement("span"); n2.className = "car"; n2.textContent = ch0.name; if (isCreator(ch0)) n2.classList.add("creator");
+    const n2 = document.createElement("span"); n2.className = "car"; n2.textContent = rpack.name; if (isCreator(ch0)) n2.classList.add("creator");
     n2.style.color = isCreator(ch0) ? "" : TIERS[ch0.tier].color; nm.append(n1, n2);
     const sc = document.createElement("span"); sc.className = "sc"; sc.textContent = fmt(Math.floor(+r.best || 0)) + " m";
     li.append(rk, cv, nm, sc); list.append(li);
     const ch = ch0;
-    drawPlayer(setupCanvas(cv), (ch.kind === "r" ? ch : ROCKERS[0]), (CHARS[+r.gtr] && CHARS[+r.gtr].kind === "g" ? CHARS[+r.gtr] : GUITARS[0]), {x:76, y:76, s:1.9, t:0, pose:"idle"});
+    drawPlayer(setupCanvas(cv), rlook, rpack, {x:76, y:76, s:1.9, t:0, pose:"idle"});
   });
   const you = $("lbYou"); you.textContent = "";
   if (Saves.mode === "fire"){
@@ -1995,7 +1885,7 @@ $("nameForm").addEventListener("submit", async e => {
   const n = cleanName($("nameInput").value);
   if (!n){ toast("Use letters or numbers for your name"); return; }
   state.name = n; $("nameInput").value = n; Saves.save(true); toast("Leaderboard name saved");
-  if (Saves.mode === "fire" && LB.myBest > 0){ try { await myDailyRef().set({name:n, best:LB.myBest, char: LB.myChar ?? state.selR, gtr: LB.myGtr ?? state.selected, at:Date.now()}); } catch {} }
+  if (Saves.mode === "fire" && LB.myBest > 0){ try { await myDailyRef().set({name:n, best:LB.myBest, char: LB.myChar ?? encodeLook(state.look), gtr: LB.myGtr ?? state.selected, at:Date.now()}); } catch {} }
 });
 
 let authMode = "signup";
