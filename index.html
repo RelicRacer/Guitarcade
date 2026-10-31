@@ -935,7 +935,7 @@ function renderPacks(){
     btn.addEventListener("click", () => {
       if (!own){ if (!spend(c.price, "the " + c.name)) return; state.owned[c.id] = 1; Sound.reveal(Math.min(5, c.tier)); toast("Unlocked the " + c.name + "!"); }
       if (TEST.on) TEST.car = c.id; else state.selected = c.id;
-      Saves.save(true); renderAll(); });
+      Saves.save(true); renderAll(); if (game.state !== "running") setTimeout(() => Sound.preview(c.trail), own ? 0 : 900); });
     b.append(cv, nm, st, btn); box.append(b);
     const x = setupCanvas(cv); drawChar(x, c, {x:84, y:56, s:3.6, t:0});
     if (c.tier >= 4) cardCanvases.push({ctx:x, c});
@@ -1138,17 +1138,73 @@ const Sound = (() => {
     sh.connect(lp); lp.connect(g); g.connect(sfxBus);
     freqs.forEach(f => { const o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; const og = ac.createGain(); og.gain.value = .5; o.connect(og); og.connect(sh); o.start(t); o.stop(t + dur + .05); });
   }
-  // the guitar's flight roar: filtered noise that fades in while you hold and out when you let go
-  let thr = null;
-  function thrust(on){
-    if (!ac || !prefs.sfx){ if (thr){ try { thr.src.stop(); } catch {} thr = null; } return; }
-    const t = ac.currentTime;
-    if (on){
-      if (!thr){ const src = ac.createBufferSource(); src.buffer = noiseBuf; src.loop = true; const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 420; bp.Q.value = .8;
-        const g = ac.createGain(); g.gain.value = 0; src.connect(bp); bp.connect(g); g.connect(sfxBus); src.start(); thr = {src, g}; }
-      thr.g.gain.cancelScheduledValues(t); thr.g.gain.setValueAtTime(thr.g.gain.value, t); thr.g.gain.linearRampToValueAtTime(.12, t + .08);
-    } else if (thr){ thr.g.gain.cancelScheduledValues(t); thr.g.gain.setValueAtTime(thr.g.gain.value, t); thr.g.gain.linearRampToValueAtTime(0, t + .15); }
+  /* ---------- each guitar pack has its own flying sound ----------
+     A steady "bed" plays while you hold to fly, and little sound bits repeat on top of it,
+     matched to what the pack shoots out (notes, bubbles, lasers, heartbeats...). */
+  const PENTA = [523, 587, 659, 784, 880, 1047, 1175, 1319, 1568, 1760];
+  function sweep(f0, f1, f2, dur, {vol=.1, at=0, q=6}={}){        // a filtered noise swoosh (record scratches)
+    if (!ac) return; const t = ac.currentTime + at, s2 = ac.createBufferSource(); s2.buffer = noiseBuf; const f = ac.createBiquadFilter(); f.type = "bandpass"; f.Q.value = q;
+    f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur*.5); f.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    const g = ac.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0008, t + dur); s2.connect(f); f.connect(g); g.connect(sfxBus); s2.start(t); s2.stop(t + dur + .02); }
+  function makeBed(kind){
+    const t = ac.currentTime, out = ac.createGain(); out.gain.value = 0; out.connect(sfxBus); const srcs = [];
+    const noiseThru = (type, freq, q, lvl) => { const n = ac.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; if (q) f.Q.value = q; const g = ac.createGain(); g.gain.value = lvl; n.connect(f); f.connect(g); g.connect(out); n.start(t); srcs.push(n); return f; };
+    const osc = (type, freq, lvl, dest) => { const o = ac.createOscillator(); o.type = type; o.frequency.value = freq; const g = ac.createGain(); g.gain.value = lvl; o.connect(g); g.connect(dest || out); o.start(t); srcs.push(o); return o; };
+    const lfo = (rate, depth, param) => { const l = ac.createOscillator(); l.frequency.value = rate; const g = ac.createGain(); g.gain.value = depth; l.connect(g); g.connect(param); l.start(t); srcs.push(l); };
+    let level = .12;
+    switch (kind){
+      case "s": noiseThru("bandpass", 420, .8, 1); break;                                   // smoke: a classic exhaust roar
+      case "f": noiseThru("lowpass", 280, 0, 1.3); noiseThru("bandpass", 1100, 2, .25); level = .14; break;   // flames: a deep blowtorch rumble
+      case "l": { const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.connect(out); osc("sawtooth", 55, .5, lp); osc("square", 110.6, .25, lp); level = .05; break; }   // lightning: electric buzz
+      case "b": { const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.Q.value = 9; lp.frequency.value = 500; lp.connect(out); osc("sawtooth", 73, .6, lp); osc("sawtooth", 73.6, .6, lp); lfo(2.2, 380, lp.frequency); level = .035; break; }  // sound waves: wah-wah bass
+      case "u": { const o1 = osc("sine", 196, .5), o2 = osc("triangle", 207.6, .25); lfo(5.5, 7, o1.frequency); lfo(4.7, 6, o2.frequency); level = .035; break; }   // skulls: spooky ghost wail
+      case "n": noiseThru("highpass", 2600, 0, 1); noiseThru("bandpass", 700, 1, .3); level = .03; break;     // snow: an icy wind
+      case "x": { const sh = ac.createWaveShaper(); if (!fuzz){ fuzz = new Float32Array(1024); for (let i = 0; i < 1024; i++){ const x = i/512 - 1; fuzz[i] = Math.tanh(x*6); } } sh.curve = fuzz; const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1800; sh.connect(lp); lp.connect(out);
+        [82.4, 123.5, 164.8].forEach(f => osc("sawtooth", f, .4, sh)); level = .03; break; }  // THE CREATOR: a held power chord
+      case "z": { osc("square", 880, .08); const o = osc("sine", 440, .3); lfo(9, 20, o.frequency); level = .06; break; }    // lasers: a sci-fi hum
+      case "o": noiseThru("lowpass", 500, 0, .6); level = .06; break;                          // bubbles: underwater rush
+      case "h": osc("sine", 330, .15); osc("sine", 415, .1); level = .05; break;               // hearts: a soft warm hum
+      case "g": noiseThru("bandpass", 260, 1, .7); level = .1; break;                         // gold records: turntable rumble
+      default: noiseThru("bandpass", 650, .7, 1); level = .06;                                 // everything else: a light whoosh
+    }
+    return {out, srcs, level, kind};
   }
+  const TICKS = {
+    m: [.13, (i) => tone(PENTA[[0,2,4,2,5,4,2,1][i % 8]], .14, {type:"triangle", vol:.07, attack:.003})],
+    o: [.1,  () => { const f = 260 + Math.random()*420; tone(f, .09, {type:"sine", vol:.09, slide:f*2.2, attack:.004}); }],
+    c: [.06, (i) => { tone(2200 + Math.random()*2400, .05, {type:"sine", vol:.03, attack:.002}); if (i % 9 === 0) noise(.05, {vol:.06, hp:3000}); }],
+    f: [.07, () => noise(.02 + Math.random()*.03, {vol:.05 + Math.random()*.05, hp:1600})],
+    l: [.32, () => { noise(.06, {vol:.08, hp:3500}); tone(1800 + Math.random()*900, .1, {type:"sawtooth", vol:.04, slide:180, cutoff:5000}); }],
+    r: [.15, () => tone(PENTA[5 + Math.floor(Math.random()*5)]*1.5, .3, {type:"sine", vol:.045, attack:.003})],
+    h: [.55, () => { tone(78, .13, {type:"sine", vol:.14, slide:52}); tone(70, .12, {type:"sine", vol:.1, at:.17, slide:48}); }],
+    z: [.12, () => tone(1500, .12, {type:"square", vol:.035, slide:240, cutoff:4000, attack:.002})],
+    n: [.22, () => { const f = [2093, 2349, 2637, 3136][Math.floor(Math.random()*4)]; tone(f, .25, {type:"triangle", vol:.03, attack:.002}); tone(f*1.5, .2, {type:"sine", vol:.015, at:.01}); }],
+    u: [.9,  () => tone(98, .7, {type:"sine", vol:.09, slide:82, attack:.15})],
+    w: [.42, () => { tone(900, .3, {type:"sine", vol:.035, slide:2600, attack:.02}); noise(.12, {vol:.06, at:.3, hp:900}); noise(.4, {vol:.03, at:.32, hp:5000}); }],
+    g: [.28, (i) => { if (i % 2) sweep(700, 2600, 900, .14, {vol:.32}); else sweep(2400, 600, 1800, .12, {vol:.26}); }],
+    y: [.09, (i) => { const k = i % 14, n = k < 8 ? k : 14 - k; tone(PENTA[n + 1], .2, {type:"triangle", vol:.045, attack:.003}); }],
+    x: [.24, (i) => { tone(PENTA[[5,7,9,7][i % 4]], .35, {type:"triangle", vol:.04, attack:.004}); if (i % 4 === 0) tone(PENTA[9]*2, .5, {type:"sine", vol:.02, at:.05}); }],
+    b: [.5,  () => tone(55, .25, {type:"sine", vol:.1, slide:48})],
+  };
+  let thr = null, tickAcc = 0, tickN = 0;
+  function stopBed(b){ if (!b) return; const t = ac.currentTime; b.out.gain.cancelScheduledValues(t); b.out.gain.setValueAtTime(b.out.gain.value, t); b.out.gain.linearRampToValueAtTime(0, t + .15);
+    b.srcs.forEach(n => { try { n.stop(t + .2); } catch {} }); setTimeout(() => { try { b.out.disconnect(); } catch {} }, 400); }
+  function thrust(on, kind){
+    if (!ac || !prefs.sfx){ if (thr){ stopBed(thr); thr = null; } return; }
+    kind = kind || (typeof curCar === "function" ? curCar().trail : "s");
+    if (on){
+      if (thr && thr.kind !== kind){ stopBed(thr); thr = null; }
+      if (!thr) thr = makeBed(kind);
+      const t = ac.currentTime; thr.out.gain.cancelScheduledValues(t); thr.out.gain.setValueAtTime(thr.out.gain.value, t); thr.out.gain.linearRampToValueAtTime(thr.level, t + .08);
+      tickAcc = 0;
+    } else if (thr){ stopBed(thr); thr = null; }
+  }
+  // called every frame while flying: plays the pack's repeating sound bits
+  function tick(dt, kind){ if (!ok()) return; const tk = TICKS[kind]; if (!tk) return; tickAcc -= dt; if (tickAcc <= 0){ tickAcc += tk[0]; if (tickAcc < 0) tickAcc = tk[0]; tk[1](tickN++); } }
+  // a short sample when you buy or equip a pack
+  let prevT = null;
+  function preview(kind){ wake(); if (!ac || !prefs.sfx) return; clearInterval(prevT); thrust(true, kind); tickAcc = 0; let el = 0;
+    prevT = setInterval(() => { el += .03; tick(.03, kind); if (el >= 1.2){ clearInterval(prevT); if (!(typeof game !== "undefined" && game.holding)) thrust(false); } }, 30); }
   const fx = {
     // holding to fly: a soft roar from the guitar, handled by thrust() below
     jump(){},
@@ -1207,7 +1263,7 @@ const Sound = (() => {
   const unlock = () => wake();
   ["pointerdown","touchend","keydown"].forEach(ev => document.addEventListener(ev, unlock, {passive:true}));
   const noop = () => {};
-  return Object.assign(fx, { prefs, wake, setSfx, thrust, musicStart: noop, musicStop: noop, duck: noop, setRound: noop });
+  return Object.assign(fx, { prefs, wake, setSfx, thrust, tick, preview, musicStart: noop, musicStop: noop, duck: noop, setRound: noop });
 })();
 function renderSoundButtons(){
   document.querySelectorAll("[data-snd]").forEach(b => {
@@ -1390,6 +1446,7 @@ function update(dt){
   if (game.py < minY){ game.py = minY; game.vy = Math.max(0, game.vy); }
   if (game.py >= FLOOR){ if (!game.onFloor && game.vy > 200) Sound.land(); game.py = FLOOR; game.vy = 0; game.onFloor = true; } else game.onFloor = false;
   if (game.holding || game.pu.dash > 0) emitTrail(g, true);
+  if (game.holding) Sound.tick(dt, g.trail);
   // spawn: while the big laser beams are on, the other obstacles hold off
   const beamsOn = game.beams.length > 0, safe = game.pu.dash > 0 || game.invuln > 0;
   if (!beamsOn){
